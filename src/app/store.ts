@@ -1,8 +1,9 @@
 import { applyAppearance, resolveTheme, DEFAULT_PREFS, type Prefs } from '@/lib/appearance'
 import { create } from 'zustand'
+import { persist, createJSONStorage } from 'zustand/middleware'
 import type {
   AppConfig, ApiLogEntry, DocLine, DocState, Lang, LedgerEntry, Mapping,
-  Notification, Permission, Requisition, RoleId, StockRow, SupplyLink,
+  MapState, Notification, Permission, Requisition, RoleId, StockRow, SupplyLink,
   Profile, SyncJob, Theme, ViewId,
 } from '@/types'
 import {
@@ -45,6 +46,8 @@ interface State {
   notifs: Notification[]
   cfg: AppConfig
   lastSync: { master: string; local: Record<string, string> }
+  /** Warehouse rows are edited in place in `seed`; this is the saved diff. */
+  whPatch: Record<string, { ext: string; mapState: MapState }>
   toasts: Toast[]
 
   /* ---- session actions ---- */
@@ -117,7 +120,7 @@ const supplyHospOf = (supply: SupplyLink[], org: string) => {
 }
 
 /* ---------------- Store ---------------- */
-export const useStore = create<State>((set, get) => {
+export const useStore = create<State>()(persist((set, get) => {
   /* --- internal utilities that read/write via set/get --- */
   const stamp = () => fmtStamp(nowOf(get().clock))
 
@@ -503,6 +506,7 @@ export const useStore = create<State>((set, get) => {
     apiLog: initialApiLog(),
     notifs: initialNotifs(),
     cfg: { issueMode: 'HOSXP', forceReview: true, failNext: false, expiryAlert: 90 },
+    whPatch: {},
     lastSync: {
       master: '27/08/69 08:15',
       local: { PCU01: '27/08/69 08:20', PCU02: '27/08/69 07:55', PCU03: '' },
@@ -900,6 +904,7 @@ export const useStore = create<State>((set, get) => {
         WAREHOUSES[wh].mapState = 'ACTIVE'
         toast(`Warehouse mapping ${wh} is now ACTIVE`, 'ok')
       }
+      set(s => ({ whPatch: { ...s.whPatch, [wh]: { ext: WAREHOUSES[wh].ext, mapState: WAREHOUSES[wh].mapState } } }))
       // Nudge a real value: writing clock back unchanged is a no-op to
       // Zustand, so subscribers never hear about the WAREHOUSES mutation.
       set(s => ({ clock: s.clock + 1 }))
@@ -950,6 +955,7 @@ export const useStore = create<State>((set, get) => {
       Object.assign(WAREHOUSES['WH-PCU-02'], { mapState: 'PENDING_APPROVAL', ext: 'HOSXP-WH-102' })
       Object.assign(WAREHOUSES['WH-PCU-03'], { mapState: 'DRAFT', ext: '' })
       set({
+        whPatch: {},
         clock: 0, seq: 235, jobSeq: 900,
         docs: seedDocs(),
         mappings: SEED_MAPPINGS.map(m => ({ ...m })),
@@ -962,7 +968,31 @@ export const useStore = create<State>((set, get) => {
       toast('Sample data reset', 'ok')
     },
   }
-})
+}, {
+  /* Saved so a reload continues where the user left off. Bump `version` when
+     the shape changes; an old payload is dropped rather than half-read. */
+  name: 'io.state',
+  version: 1,
+  storage: createJSONStorage(() => localStorage),
+  partialize: s => ({
+    role: s.role, lang: s.lang, prefs: s.prefs, profile: s.profile,
+    sidebarCollapsed: s.sidebarCollapsed,
+    clock: s.clock, seq: s.seq, jobSeq: s.jobSeq,
+    docs: s.docs, mappings: s.mappings, supply: s.supply, stock: s.stock,
+    ledger: s.ledger, jobs: s.jobs, apiLog: s.apiLog, notifs: s.notifs,
+    cfg: s.cfg, lastSync: s.lastSync, whPatch: s.whPatch,
+  }) as unknown as State,
+  onRehydrateStorage: () => state => {
+    if (!state) return
+    /* Appearance lives on <html>, and the warehouse diff on the seed object —
+       neither is React state, so both are replayed by hand after a reload. */
+    applyAppearance(state.prefs)
+    state.theme = resolveTheme(state.prefs.appearance)
+    for (const [wh, patch] of Object.entries(state.whPatch)) {
+      if (WAREHOUSES[wh]) Object.assign(WAREHOUSES[wh], patch)
+    }
+  },
+}))
 
 /* ---------------- Derived selectors ---------------- */
 export const useRole = () => useStore(s => ROLES[s.role])

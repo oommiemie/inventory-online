@@ -46,6 +46,7 @@
   width: min(46vh, 480px); aspect-ratio: 1; pointer-events: none;
   animation: fadeIn 1.2s ease backwards; animation-delay: .35s;
 }
+.login-art picture { display: contents; }
 .login-art img {
   position: absolute; inset: 8%; width: 84%; height: 84%; object-fit: contain;
   filter: drop-shadow(0 30px 50px rgba(4, 30, 90, .45));

@@ -8,6 +8,7 @@ import {
 } from '@/components/ui'
 import './stock.css'
 import { HeroBar, HeroSearch, HeroSelect, HeroCta } from '@/components/layout/HeroBar'
+import { downloadCsv, csvName } from '@/lib/csv'
 import { useMenuToggle } from '@/components/layout/AppShell'
 
 export function StockView() {
@@ -64,6 +65,24 @@ export function StockView() {
 
   const [view, setView] = useState<'stock' | 'ledger'>('stock')
 
+  /* Exports whichever table is on screen, with the filters applied. */
+  const exportCsv = () => {
+    const empty = view === 'stock' ? !rows.length : !ledger.length
+    if (empty) { toast(t('c.exportEmpty'), 'warn'); return }
+    const ok = view === 'stock'
+      ? downloadCsv(csvName('stock'),
+          [t('stk.tree'), t('c.items'), t('mat.ourItem'), t('stk.lot'), t('stk.exp'),
+           t('stk.onHand'), t('stk.reserved'), t('stk.avail'), t('stk.reorder')],
+          rows.map(s => [
+            whName(s.wh), M(s.item).code, itemName(s.item), s.lot, s.exp,
+            s.qty, s.reserved, s.qty - s.reserved, (REORDER[s.wh] ?? {})[s.item] ?? '',
+          ]))
+      : downloadCsv(csvName('ledger'),
+          [t('c.date'), t('stk.tree'), t('c.items'), t('stk.lot'), t('c.qty'), t('req.no')],
+          ledger.map(e => [e.t, whName(e.wh), M(e.item).code, e.lot, e.delta, e.ref]))
+    toast(t(ok ? 'c.exported' : 'c.exportFailed'), ok ? 'ok' : 'danger')
+  }
+
   return (
     <>
       <HeroBar
@@ -86,8 +105,7 @@ export function StockView() {
           </HeroSelect>
         </>}
         actions={<>
-          <HeroCta variant="ghost" icon="download"
-                   onClick={() => toast(t('c.exportQueued'), 'ok')}>{t('c.export')}</HeroCta>
+          <HeroCta variant="ghost" icon="download" onClick={exportCsv}>{t('c.export')}</HeroCta>
           {canAdjust && (
             <HeroCta icon="plus" onClick={() => {
               const target = stock.find(s => s.wh === (ORGS[r.org].wh ?? warehouses[0])) ?? stock[0]

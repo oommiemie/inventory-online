@@ -10,6 +10,8 @@ import { useMenuToggle } from '@/components/layout/AppShell'
 import { DocTable } from '@/components/DocParts'
 import { DraftEditor } from './DraftEditor'
 import { DocDetail } from './DocDetail'
+import { downloadCsv, csvName } from '@/lib/csv'
+import { M } from '@/lib/domain'
 import type { DocState } from '@/types'
 
 const ALL_STATES: DocState[] = [
@@ -86,6 +88,20 @@ export function RequisitionsView() {
 
   const filtered = Boolean(q || fState || fOrg)
 
+  /* Exports what the filters currently show, not the whole table. */
+  const exportCsv = () => {
+    if (!list.length) { toast(t('c.exportEmpty'), 'warn'); return }
+    const ok = downloadCsv(csvName('requisitions'),
+      [t('req.no'), t('req.facility'), t('c.status'), t('c.items'), t('c.value'), t('req.created')],
+      list.map(d => [
+        d.no, orgName(d.org), t(`st.${d.state}` as never), d.lines.length,
+        Math.round(d.lines.reduce((a, l) => a + M(l.item).price * l.approved, 0)),
+        d.created,
+      ]))
+    toast(t(ok ? 'c.exported' : 'c.exportFailed'), ok ? 'ok' : 'danger')
+  }
+
+
   return (
     <>
       <HeroBar
@@ -108,8 +124,7 @@ export function RequisitionsView() {
           )}
         </>}
         actions={<>
-          <HeroCta variant="ghost" icon="download"
-                   onClick={() => toast(t('c.exportQueued'), 'ok')}>{t('c.export')}</HeroCta>
+          <HeroCta variant="ghost" icon="download" onClick={exportCsv}>{t('c.export')}</HeroCta>
           {r.can.includes('req.create') && <HeroCta icon="plus" onClick={onNew}>{t('req.new')}</HeroCta>}
         </>}
       />

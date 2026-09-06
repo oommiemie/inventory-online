@@ -12,6 +12,7 @@ import { STATE_TONE } from '@/lib/domain'
 import type { DocState } from '@/types'
 import { HeroBar, HeroSelect, HeroCta } from '@/components/layout/HeroBar'
 import { useMenuToggle } from '@/components/layout/AppShell'
+import { downloadCsv, csvName } from '@/lib/csv'
 import './reports.css'
 
 /** CSS variable behind each badge tone, for chart strokes. */
@@ -156,6 +157,15 @@ export function ReportsView() {
 
   const maxOrgValue = byOrg[0]?.[1].value || 1
 
+  /* One row per facility, matching the summary table on screen. */
+  const exportCsv = () => {
+    if (!byOrg.length) { toast(t('c.exportEmpty'), 'warn'); return }
+    const ok = downloadCsv(csvName('report'),
+      [t('req.facility'), t('c.docs'), t('c.value'), t('rep.completed')],
+      byOrg.map(([org, v]) => [orgName(org), v.n, Math.round(v.value), v.done]))
+    toast(t(ok ? 'c.exported' : 'c.exportFailed'), ok ? 'ok' : 'danger')
+  }
+
   /* Lots bucketed by days to expiry, within scope and the facility filter. */
   const expiry = useMemo(() => {
     const whs = Object.keys(WAREHOUSES).filter(w =>
@@ -208,8 +218,7 @@ export function ReportsView() {
           </HeroSelect>
         </>}
         actions={
-          <HeroCta variant="ghost" icon="download"
-                   onClick={() => toast(t('c.exportQueued'), 'ok')}>{t('c.export')}</HeroCta>
+          <HeroCta variant="ghost" icon="download" onClick={exportCsv}>{t('c.export')}</HeroCta>
         }
       />
 

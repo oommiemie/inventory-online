@@ -56,7 +56,11 @@ export function MatchingView() {
   const allPicked = pickable.length > 0 && pickable.every(x => picked.has(x.i))
 
   const toggle = (i: number) =>
-    setPicked(prev => { const n = new Set(prev); n.has(i) ? n.delete(i) : n.add(i); return n })
+    setPicked(prev => {
+      const n = new Set(prev)
+      if (n.has(i)) n.delete(i); else n.add(i)
+      return n
+    })
 
   return (
     <>

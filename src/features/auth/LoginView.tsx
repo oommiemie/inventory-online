@@ -66,7 +66,10 @@ export function LoginView() {
         <div className="login-art" aria-hidden="true">
           <span className="login-art-ring" />
           <span className="login-art-ring login-art-ring--2" />
-          <img src={asset("/img/hero-1.png")} alt="" className="is-on" />
+          <picture>
+            <source srcSet={asset("/img/hero-1.webp")} type="image/webp" />
+            <img src={asset("/img/hero-1.png")} alt="" className="is-on" />
+          </picture>
         </div>
 
         {/* Interactive dot grid over the gradient; dots bulge away from the cursor. */}

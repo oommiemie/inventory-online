@@ -17,7 +17,12 @@ npm install
 npm run dev        # http://localhost:5173
 npm run build      # production build → dist/
 npm run typecheck  # tsc --noEmit
+npm run lint       # eslint
+npm test           # vitest (unit tests สำหรับ lib/)
 ```
+
+CI รัน typecheck · lint · test ทุก push และทุก pull request ·
+push เข้า `main` แล้ว deploy ขึ้น GitHub Pages อัตโนมัติ
 
 ---
 
@@ -25,7 +30,7 @@ npm run typecheck  # tsc --noEmit
 
 ```
 src/
-├── app/            store (Zustand), router, guard, nav, selectors
+├── app/            store (Zustand), router, guard, ErrorBoundary, nav, selectors
 ├── components/
 │   ├── ui/         design-system primitives (Button, Card, Badge, Table…)
 │   ├── charts/     SVG bar chart
@@ -41,7 +46,9 @@ src/
 ├── i18n/           key-based TH / EN dictionaries
 ├── lib/
 │   ├── domain.ts   state machine · FEFO · UOM conversion · formatting
-│   └── appearance  palettes · fonts · scale, applied as CSS variables
+│   ├── appearance  palettes · fonts · scale, applied as CSS variables
+│   ├── csv.ts      client-side CSV export (UTF-8 BOM for Excel)
+│   └── asset.ts    prefixes public/ paths with the deployment base
 ├── styles/         tokens.css (design tokens) · global.css
 └── types/          domain model
 ```
@@ -260,6 +267,52 @@ TypeScript บังคับให้ `EN` มีครบทุก key (`Recor
 
 ---
 
+## ส่งต่อให้ทีมพัฒนา
+
+### จุดต่อ backend อยู่ที่ไหน
+
+`app/store.ts` เป็น **ที่เดียว** ที่มี side-effect ทั้งหมด · component ไม่คำนวณ business logic
+และไม่เรียก data source เอง การต่อ API จริงจึงแก้ที่ action ในไฟล์นี้เท่านั้น
+
+```
+component  →  useStore(s => s.approve)   ← เปลี่ยนไส้ในเป็น fetch ที่นี่
+                     ↓
+              lib/domain.ts               ← pure function ใช้ซ้ำได้ทั้งสองฝั่ง
+```
+
+action ทุกตัวมีรูปแบบเดียวกัน: ตรวจสถานะด้วย `ACTION_FROM` → ตรวจสิทธิ์ด้วย `ACTION_PERM` →
+เขียน state → บันทึก event ลงไทม์ไลน์ → ยิง sync job · เมื่อมี backend ให้เปลี่ยนขั้น "เขียน state"
+เป็นเรียก API แล้วรับผลกลับมา set ส่วน guard สองชั้นยังใช้ต่อได้เพราะสะท้อนกติกาฝั่งเซิร์ฟเวอร์อยู่แล้ว
+
+### อะไรที่ยังเป็นของจำลอง
+
+| ส่วน | สถานะปัจจุบัน | สิ่งที่ต้องทำเมื่อต่อของจริง |
+|---|---|---|
+| ข้อมูลตั้งต้น | `data/seed.ts` | แทนด้วย API ที่คืนรูปแบบเดียวกับ `types/` |
+| การเข้าสู่ระบบ | รับทุก user/password เก็บ flag ใน web storage | ต่อ identity provider แล้วเก็บ token |
+| Connector HOSxP / PCU | จำลอง lifecycle ใน store พร้อม idempotency key | เรียก endpoint จริงตามตารางในหัวข้อ Integration |
+| นาฬิกา | เวลาจำลองเริ่ม 27/08/2569 เดินด้วย `tick()` | ใช้เวลาจริงจากเซิร์ฟเวอร์ |
+| บัญชีผู้ใช้ | แก้ชื่อ/รูปได้ รหัสผ่านเป็น UI เปล่า | ต่อ endpoint โปรไฟล์และเปลี่ยนรหัสผ่าน |
+
+### การบันทึกข้อมูลในเครื่อง
+
+state ถูกบันทึกลง `localStorage` คีย์ `io.state` ผ่าน `persist` ของ Zustand
+รีเฟรชแล้วทำงานต่อจากเดิมได้ · เมื่อแก้รูปร่าง state ให้เพิ่ม `version` ในตัวเลือกของ `persist`
+ข้อมูลเก่าจะถูกทิ้งแทนที่จะอ่านผิดรูป · ผู้ใช้ล้างข้อมูลเองได้จากหน้า error boundary
+
+หน้าจอที่พังตอน render จะไม่ทำให้จอขาว แต่แสดงการ์ดพร้อมปุ่มโหลดใหม่และล้างข้อมูล
+
+### เทสต์
+
+`lib/domain.ts` เป็น pure function ทั้งหมดจึงเทสต์ได้โดยไม่ต้องมี React —
+ครอบคลุมการแปลงหน่วย การจอง lot แบบ FEFO กติกา state machine และการจัดรูปแบบตัวเลข ·
+`lib/csv.ts` มีเทสต์การใส่เครื่องหมายคำพูดและข้อความไทย
+
+ยังเหลือ warning จาก `react-hooks/exhaustive-deps` 8 จุด ทั้งหมดเป็นค่าที่คำนวณใหม่ทุก render
+(เช่น `now`, `r.scope`) การใส่เข้า dependency array จะทำให้ memo ไม่ทำงาน จึงตั้งใจเว้นไว้
+
+---
+
 ## ข้อมูลตัวอย่าง
 
 จังหวัดบึงกาฬ · โรงพยาบาลแม่ข่าย 2 แห่ง · รพ.สต. 4 แห่ง · เวชภัณฑ์ 5 รายการ ·
@@ -269,4 +322,4 @@ TypeScript บังคับให้ `EN` มีครบทุก key (`Recor
 31–60 · 61–90) เพื่อให้รายงานสินค้าใกล้หมดอายุมีรูปทรง — ล็อตเหล่านี้อยู่ที่คลังโรงพยาบาล
 เป็นหลัก จึงไม่ไปกลบการเตือนสต๊อกต่ำของ รพ.สต. บน dashboard
 
-ข้อมูลทั้งหมดอยู่ในหน่วยความจำ · รีเฟรชหน้าเว็บกลับสู่ค่าเริ่มต้น
+ข้อมูลถูกบันทึกลงเครื่องผู้ใช้ รีเฟรชแล้วทำงานต่อจากเดิม · ล้างกลับเป็นข้อมูลตัวอย่างได้ด้วยการลบคีย์ `io.state` ใน localStorage

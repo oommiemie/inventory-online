@@ -1,32 +1,40 @@
+import { lazy, Suspense } from 'react'
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { useRipple } from '@/hooks/useRipple'
 import { useStore } from '@/app/store'
 import { LoginView } from '@/features/auth/LoginView'
 import { AppShell } from '@/components/layout/AppShell'
 import { Guard } from './Guard'
-import { DashboardView } from '@/features/dashboard/DashboardView'
-import { RequisitionsView } from '@/features/requisitions/RequisitionsView'
-import { ReviewView } from '@/features/review/ReviewView'
-import { IssueView } from '@/features/issue/IssueView'
-import { ReceiveView } from '@/features/receive/ReceiveView'
-import { StockView } from '@/features/stock/StockView'
-import { MatchingView } from '@/features/mapping/MatchingView'
-import { MapApprovalView } from '@/features/mapping/MapApprovalView'
-import { ReferenceView } from '@/features/reference/ReferenceView'
-import { MonitorView } from '@/features/monitor/MonitorView'
-import { ReportsView } from '@/features/reports/ReportsView'
-import { SettingsView } from '@/features/settings/SettingsView'
+import { ErrorBoundary } from './ErrorBoundary'
+
+/* Screens load on first visit rather than up front: the sign-in page and shell
+   are all that a cold start needs. Named exports are unwrapped here because
+   React.lazy expects a default. */
+const DashboardView = lazy(() => import('@/features/dashboard/DashboardView').then(m => ({ default: m.DashboardView })))
+const RequisitionsView = lazy(() => import('@/features/requisitions/RequisitionsView').then(m => ({ default: m.RequisitionsView })))
+const ReviewView = lazy(() => import('@/features/review/ReviewView').then(m => ({ default: m.ReviewView })))
+const IssueView = lazy(() => import('@/features/issue/IssueView').then(m => ({ default: m.IssueView })))
+const ReceiveView = lazy(() => import('@/features/receive/ReceiveView').then(m => ({ default: m.ReceiveView })))
+const StockView = lazy(() => import('@/features/stock/StockView').then(m => ({ default: m.StockView })))
+const MatchingView = lazy(() => import('@/features/mapping/MatchingView').then(m => ({ default: m.MatchingView })))
+const MapApprovalView = lazy(() => import('@/features/mapping/MapApprovalView').then(m => ({ default: m.MapApprovalView })))
+const ReferenceView = lazy(() => import('@/features/reference/ReferenceView').then(m => ({ default: m.ReferenceView })))
+const MonitorView = lazy(() => import('@/features/monitor/MonitorView').then(m => ({ default: m.MonitorView })))
+const ReportsView = lazy(() => import('@/features/reports/ReportsView').then(m => ({ default: m.ReportsView })))
+const SettingsView = lazy(() => import('@/features/settings/SettingsView').then(m => ({ default: m.SettingsView })))
 
 export function App() {
   useRipple()
   const signedIn = useStore(s => s.signedIn)
 
   /* The current hash is kept while signed out, so a deep link lands after sign-in. */
-  if (!signedIn) return <HashRouter><LoginView /></HashRouter>
+  if (!signedIn) return <ErrorBoundary><HashRouter><LoginView /></HashRouter></ErrorBoundary>
 
   return (
+    <ErrorBoundary>
     <HashRouter>
       <AppShell>
+        <Suspense fallback={<div className="route-loading" role="status" aria-live="polite" />}>
         <Routes>
           <Route path="/"                   element={<Guard view="dashboard"><DashboardView /></Guard>} />
           <Route path="/requisitions"       element={<Guard view="requisitions"><RequisitionsView /></Guard>} />
@@ -47,7 +55,9 @@ export function App() {
           <Route path="/settings/:topic"    element={<Guard view="settings"><SettingsView /></Guard>} />
           <Route path="*"                   element={<Navigate to="/" replace />} />
         </Routes>
+        </Suspense>
       </AppShell>
     </HashRouter>
+    </ErrorBoundary>
   )
 }

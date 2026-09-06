@@ -256,3 +256,59 @@ table.tbl tbody > tr {
 /* Bold-text accessibility preference. */
 html[data-bold] body { font-weight: 500; }
 html[data-bold] .cell-sub, html[data-bold] small { font-weight: 500; }
+
+/* ==========================================================================
+   Crash screen (ErrorBoundary) — plain CSS only, since the failure may well
+   be in the component layer this would otherwise depend on.
+   ========================================================================== */
+.crash { min-height: 100vh; display: grid; place-items: center; padding: 24px; background: var(--bg); }
+.crash-card {
+  width: min(520px, 100%); display: grid; gap: 12px; justify-items: start;
+  padding: 28px; border-radius: 24px;
+  background: var(--surface-solid); box-shadow: var(--sh-md); border: 1px solid var(--n-100);
+}
+.crash-mark {
+  width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center;
+  background: var(--danger-bg); color: var(--danger); font-size: 18px;
+}
+.crash-card b { font-size: var(--fs-2xl); font-weight: 800; letter-spacing: -.02em; }
+.crash-card p { font-size: var(--fs-sm); color: var(--text-muted); line-height: 1.6; }
+.crash-card pre {
+  width: 100%; margin: 0; padding: 10px 12px; border-radius: 12px; overflow-x: auto;
+  background: var(--surface-sunken); color: var(--text-soft);
+  font-family: var(--font-num); font-size: var(--fs-xs);
+}
+.crash-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+
+/* Placeholder while a route's chunk downloads — a calm block, not a spinner,
+   because most chunks arrive within a frame or two on a warm cache. */
+.route-loading {
+  min-height: 40vh; border-radius: var(--r-lg);
+  background: linear-gradient(90deg, var(--surface-sunken) 25%, var(--n-100) 37%, var(--surface-sunken) 63%);
+  background-size: 400px 100%;
+  animation: shimmer 1.4s linear infinite;
+}
+
+/* ==========================================================================
+   Print — documents are the only thing worth putting on paper, so the shell
+   and every control drop away and the page falls back to plain black on white.
+   ========================================================================== */
+@media print {
+  @page { margin: 14mm; }
+  body { background: #fff; }
+  .sidebar, .scrim, .herobar, .toast-region, .collapse-btn,
+  .actionbar, .pagination, .segmented, .hero-cta, .popover { display: none !important; }
+  .shell, .shell.collapsed { grid-template-columns: 1fr; }
+  .main { grid-column: 1; }
+  .content { padding: 0; }
+  .view { gap: 10px; animation: none; }
+  .view:has(> .fill-view), .view:has(> .doc-head):has(> .detail-grid) { max-height: none; }
+  .glass.card, .card { box-shadow: none; border: 1px solid #d5d9e0; break-inside: avoid; }
+  .detail-grid { grid-template-columns: 1fr; }
+  .table-wrap, .glass.card.fill-view .table-wrap { overflow: visible; max-height: none; }
+  table.tbl { font-size: 11px; }
+  table.tbl thead { display: table-header-group; }
+  table.tbl tbody tr { break-inside: avoid; }
+  .btn, .linkbtn, .icon-btn-top, .doc-back { display: none !important; }
+  * { animation: none !important; transition: none !important; }
+}

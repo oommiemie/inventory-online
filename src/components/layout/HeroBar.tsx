@@ -53,6 +53,7 @@ export function HeroBar(
      <div className="herobar-inner">
       {art && (
         <picture>
+          <source srcSet={asset("/img/hero-1-760.webp")} type="image/webp" />
           <img className="herobar-art" src={asset("/img/hero-1-760.png")} alt="" aria-hidden="true" />
         </picture>
       )}

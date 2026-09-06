@@ -10,6 +10,7 @@ import { HeroBar, HeroSearch, HeroSelect, HeroCta } from '@/components/layout/He
 import { StateBadge, SyncBadge } from '@/components/StateBadge'
 import { ROUTE_OF } from '@/app/nav'
 import { viewForDoc } from '@/app/selectors'
+import { downloadCsv, csvName } from '@/lib/csv'
 import './docparts.css'
 
 
@@ -222,6 +223,20 @@ export function DocListPage(
   )
   useEffect(() => { setPage(1) }, [q, fOrg])
 
+  /* Exports what the filters currently show, not the whole table. */
+  const exportCsv = () => {
+    if (!list.length) { toast(t('c.exportEmpty'), 'warn'); return }
+    const ok = downloadCsv(csvName('requisitions'),
+      [t('req.no'), t('req.facility'), t('c.status'), t('c.items'), t('c.value'), t('req.created')],
+      list.map(d => [
+        d.no, orgName(d.org), t(`st.${d.state}`), d.lines.length,
+        Math.round(d.lines.reduce((a, l) => a + M(l.item).price * l.approved, 0)),
+        d.created,
+      ]))
+    toast(t(ok ? 'c.exported' : 'c.exportFailed'), ok ? 'ok' : 'danger')
+  }
+
+
   return (
     <>
       <HeroBar
@@ -240,8 +255,7 @@ export function DocListPage(
           )}
         </>}
         actions={
-          <HeroCta variant="ghost" icon="download"
-                   onClick={() => toast(t('c.exportQueued'), 'ok')}>{t('c.export')}</HeroCta>
+          <HeroCta variant="ghost" icon="download" onClick={exportCsv}>{t('c.export')}</HeroCta>
         }
       />
 
