@@ -1,0 +1,258 @@
+@import './tokens.css';
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font);
+  font-size: var(--fs-md);
+  line-height: var(--lh-base);
+  color: var(--text);
+  background: var(--bg);
+  background-image:
+    radial-gradient(1100px 620px at 82% -12%, color-mix(in srgb, var(--brand-400) 30%, transparent), transparent 62%),
+    radial-gradient(900px 520px at -8% 108%, rgba(15, 118, 110, .18), transparent 58%),
+    radial-gradient(700px 480px at 45% 46%, color-mix(in srgb, var(--brand-500) 8%, transparent), transparent 70%);
+  background-attachment: fixed;
+}
+
+[data-theme="dark"] body {
+  background-image:
+    radial-gradient(1100px 620px at 82% -12%, color-mix(in srgb, var(--brand-500) 26%, transparent), transparent 62%),
+    radial-gradient(900px 520px at -8% 108%, rgba(15, 118, 110, .18), transparent 58%);
+}
+
+h1,h2,h3,h4,h5,h6 { margin: 0; font-weight: 700; line-height: var(--lh-tight); letter-spacing: -.015em; }
+p { margin: 0; }
+ul, ol { margin: 0; padding: 0; list-style: none; }
+
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; border: 0; background: none; }
+
+a { color: var(--brand-600); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+
+::selection { background: var(--brand-200); color: var(--brand-900); }
+
+/* Numeric alignment for all tabular figures */
+.num { font-family: var(--font-num); font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+
+/* ---- Scrollbars ---- */
+* { scrollbar-width: thin; scrollbar-color: var(--n-300) transparent; }
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb {
+  background: var(--n-300); border-radius: var(--r-full);
+  border: 3px solid transparent; background-clip: content-box;
+}
+*::-webkit-scrollbar-thumb:hover { background: var(--n-400); background-clip: content-box; }
+
+/* ---- The liquid-glass primitive ---- */
+.glass {
+  position: relative;
+  background: var(--surface);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--sh-glass);
+  border-radius: var(--r-lg);
+}
+/* Specular top edge — the Apple "liquid" highlight */
+.glass::before {
+  content: "";
+  position: absolute; inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(160deg, rgba(255,255,255,.9), rgba(255,255,255,.05) 42%, rgba(255,255,255,0) 70%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  pointer-events: none;
+}
+[data-theme="dark"] .glass::before {
+  background: linear-gradient(160deg, rgba(255,255,255,.16), rgba(255,255,255,.02) 42%, transparent 70%);
+}
+
+/* Utility */
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+.truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+
+@keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes shimmer { 0% { background-position: -400px 0; } 100% { background-position: 400px 0; } }
+@keyframes pulseRing {
+  0%   { box-shadow: 0 0 0 0 rgba(34,197,94,.45); }
+  70%  { box-shadow: 0 0 0 8px rgba(34,197,94,0); }
+  100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); }
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes growX { from { transform: scaleX(0); } }
+@keyframes growY { from { transform: scaleY(0); } }
+@keyframes pop {
+  0%   { transform: scale(.6); opacity: 0; }
+  60%  { transform: scale(1.12); }
+  100% { transform: none; opacity: 1; }
+}
+
+/* ==========================================================================
+   Entrance cascade
+   Tiles, cards and rows arrive one after another. `--i` is the item's index
+   (set below by position) and also paces the bars and figures inside it.
+   `backwards` fill only holds the start state during the delay, so hover
+   transforms take over once the animation ends.
+   ========================================================================== */
+.kpi-row > *,
+.doc-summary > *,
+.queue > *,
+.low-list > *,
+.rank-list > *,
+.set-items > *,
+.pal-grid > * {
+  animation: fadeUp .5s var(--ease-out) backwards;
+  animation-delay: calc(var(--i, 0) * var(--stagger));
+}
+table.tbl tbody > tr {
+  animation: fadeIn .4s ease backwards;
+  animation-delay: calc(var(--i, 0) * var(--stagger-row));
+}
+.kpi-row > :nth-child(1), .doc-summary > :nth-child(1), .queue > :nth-child(1), .low-list > :nth-child(1), .rank-list > :nth-child(1), .set-items > :nth-child(1), .pal-grid > :nth-child(1), table.tbl tbody > tr:nth-child(1) { --i: 0; }
+.kpi-row > :nth-child(2), .doc-summary > :nth-child(2), .queue > :nth-child(2), .low-list > :nth-child(2), .rank-list > :nth-child(2), .set-items > :nth-child(2), .pal-grid > :nth-child(2), table.tbl tbody > tr:nth-child(2) { --i: 1; }
+.kpi-row > :nth-child(3), .doc-summary > :nth-child(3), .queue > :nth-child(3), .low-list > :nth-child(3), .rank-list > :nth-child(3), .set-items > :nth-child(3), .pal-grid > :nth-child(3), table.tbl tbody > tr:nth-child(3) { --i: 2; }
+.kpi-row > :nth-child(4), .doc-summary > :nth-child(4), .queue > :nth-child(4), .low-list > :nth-child(4), .rank-list > :nth-child(4), .set-items > :nth-child(4), .pal-grid > :nth-child(4), table.tbl tbody > tr:nth-child(4) { --i: 3; }
+.kpi-row > :nth-child(5), .doc-summary > :nth-child(5), .queue > :nth-child(5), .low-list > :nth-child(5), .rank-list > :nth-child(5), .set-items > :nth-child(5), .pal-grid > :nth-child(5), table.tbl tbody > tr:nth-child(5) { --i: 4; }
+.kpi-row > :nth-child(6), .doc-summary > :nth-child(6), .queue > :nth-child(6), .low-list > :nth-child(6), .rank-list > :nth-child(6), .set-items > :nth-child(6), .pal-grid > :nth-child(6), table.tbl tbody > tr:nth-child(6) { --i: 5; }
+.kpi-row > :nth-child(7), .doc-summary > :nth-child(7), .queue > :nth-child(7), .low-list > :nth-child(7), .rank-list > :nth-child(7), .set-items > :nth-child(7), .pal-grid > :nth-child(7), table.tbl tbody > tr:nth-child(7) { --i: 6; }
+.kpi-row > :nth-child(8), .doc-summary > :nth-child(8), .queue > :nth-child(8), .low-list > :nth-child(8), .rank-list > :nth-child(8), .set-items > :nth-child(8), .pal-grid > :nth-child(8), table.tbl tbody > tr:nth-child(8) { --i: 7; }
+.kpi-row > :nth-child(9), .doc-summary > :nth-child(9), .queue > :nth-child(9), .low-list > :nth-child(9), .rank-list > :nth-child(9), .set-items > :nth-child(9), .pal-grid > :nth-child(9), table.tbl tbody > tr:nth-child(9) { --i: 8; }
+.kpi-row > :nth-child(10), .doc-summary > :nth-child(10), .queue > :nth-child(10), .low-list > :nth-child(10), .rank-list > :nth-child(10), .set-items > :nth-child(10), .pal-grid > :nth-child(10), table.tbl tbody > tr:nth-child(10) { --i: 9; }
+.kpi-row > :nth-child(11), .doc-summary > :nth-child(11), .queue > :nth-child(11), .low-list > :nth-child(11), .rank-list > :nth-child(11), .set-items > :nth-child(11), .pal-grid > :nth-child(11), table.tbl tbody > tr:nth-child(11) { --i: 10; }
+.kpi-row > :nth-child(12), .doc-summary > :nth-child(12), .queue > :nth-child(12), .low-list > :nth-child(12), .rank-list > :nth-child(12), .set-items > :nth-child(12), .pal-grid > :nth-child(12), table.tbl tbody > tr:nth-child(12) { --i: 11; }
+.kpi-row > :nth-child(13), .doc-summary > :nth-child(13), .queue > :nth-child(13), .low-list > :nth-child(13), .rank-list > :nth-child(13), .set-items > :nth-child(13), .pal-grid > :nth-child(13), table.tbl tbody > tr:nth-child(13) { --i: 12; }
+.kpi-row > :nth-child(14), .doc-summary > :nth-child(14), .queue > :nth-child(14), .low-list > :nth-child(14), .rank-list > :nth-child(14), .set-items > :nth-child(14), .pal-grid > :nth-child(14), table.tbl tbody > tr:nth-child(14) { --i: 13; }
+.kpi-row > :nth-child(15), .doc-summary > :nth-child(15), .queue > :nth-child(15), .low-list > :nth-child(15), .rank-list > :nth-child(15), .set-items > :nth-child(15), .pal-grid > :nth-child(15), table.tbl tbody > tr:nth-child(15) { --i: 14; }
+.kpi-row > :nth-child(16), .doc-summary > :nth-child(16), .queue > :nth-child(16), .low-list > :nth-child(16), .rank-list > :nth-child(16), .set-items > :nth-child(16), .pal-grid > :nth-child(16), table.tbl tbody > tr:nth-child(16) { --i: 15; }
+.kpi-row > :nth-child(n+17), .doc-summary > :nth-child(n+17), .queue > :nth-child(n+17), .low-list > :nth-child(n+17), .rank-list > :nth-child(n+17), .set-items > :nth-child(n+17), .pal-grid > :nth-child(n+17), table.tbl tbody > tr:nth-child(n+17) { --i: 16; }
+
+/* ==========================================================================
+   Press feedback
+   A single, consistent "push" response for every interactive surface.
+   Scale is kept subtle (0.96–0.985) so large targets don't appear to jump.
+   ========================================================================== */
+:root {
+  --press-scale: .97;
+  --press-dur: 90ms;
+  --press-ease: cubic-bezier(.2, .8, .3, 1);
+}
+
+/* Elements that opt in via .pressable, plus the common controls. */
+.pressable,
+.nav-item,
+.queue-row,
+.kpi[type="button"],
+.icon-btn-top,
+.hero-icon-btn,
+.collapse-btn,
+.user-card-logout,
+.linkbtn,
+.segmented button,
+.tabs button,
+.subtabs button {
+  transition:
+    transform var(--press-dur) var(--press-ease),
+    background var(--dur-fast) var(--ease),
+    box-shadow var(--dur-fast) var(--ease),
+    color var(--dur-fast) var(--ease);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.pressable:active,
+.nav-item:active,
+.queue-row:active,
+.kpi[type="button"]:active,
+.icon-btn-top:active,
+.hero-icon-btn:active,
+.collapse-btn:active,
+.user-card-logout:active,
+.segmented button:active,
+.tabs button:active,
+.subtabs button:active {
+  transform: scale(var(--press-scale));
+}
+
+/* Small round controls can take a deeper press without looking wrong. */
+.hero-icon-btn:active,
+.icon-btn-top:active,
+.collapse-btn:active { transform: scale(.92); }
+
+/* Text links nudge instead of scaling, which would blur the glyphs. */
+.linkbtn:active { transform: translateY(1px); }
+
+/* Rows are wide, so scaling reads as a jolt — press them down instead. */
+.nav-item:active,
+.queue-row:active { transform: scale(.985); }
+
+/* Disabled controls must never appear to respond. */
+:disabled:active,
+[aria-disabled="true"]:active,
+[data-disabled]:active { transform: none !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pressable, .nav-item, .queue-row, .kpi[type="button"],
+  .icon-btn-top, .hero-icon-btn, .collapse-btn, .user-card-logout,
+  .linkbtn, .segmented button, .tabs button, .subtabs button {
+    transition: none;
+  }
+  .pressable:active, .nav-item:active, .queue-row:active,
+  .kpi[type="button"]:active, .icon-btn-top:active, .hero-icon-btn:active,
+  .collapse-btn:active, .user-card-logout:active, .linkbtn:active,
+  .segmented button:active, .tabs button:active, .subtabs button:active {
+    transform: none;
+  }
+}
+
+/* ---- Ripple ----------------------------------------------------------
+   Radial highlight that expands from the pointer on the main actions.
+   Driven by --rx/--ry set in JS; falls back to the centre if unset.     */
+.btn, .hero-cta { position: relative; overflow: hidden; isolation: isolate; }
+
+.btn::after, .hero-cta::after {
+  content: "";
+  position: absolute;
+  left: var(--rx, 50%); top: var(--ry, 50%);
+  width: 0; height: 0;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: currentColor;
+  opacity: 0;
+  pointer-events: none;
+  z-index: -1;
+}
+.btn.rippling::after, .hero-cta.rippling::after {
+  animation: ripple 480ms var(--ease-out) forwards;
+}
+/* Filled buttons ripple in white; outline/ghost ripple in their own ink. */
+.btn-primary::after, .btn-teal::after, .btn-danger.btn-primary::after { background: #fff; }
+
+@keyframes ripple {
+  0%   { width: 0; height: 0; opacity: .28; }
+  100% { width: 260%; height: 260%; opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn.rippling::after, .hero-cta.rippling::after { animation: none; }
+}
+
+/* Bold-text accessibility preference. */
+html[data-bold] body { font-weight: 500; }
+html[data-bold] .cell-sub, html[data-bold] small { font-weight: 500; }

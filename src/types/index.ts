@@ -1,0 +1,212 @@
+/* ==========================================================================
+   Inventory Online · Domain types
+   ========================================================================== */
+
+export type RoleId = 'INVENTORY_PCU' | 'INVENTORY_HOSPITAL' | 'PROVINCIAL_ADMIN' | 'BMS'
+export type Scope = 'OWN_ORG' | 'CHILD_ORGS' | 'PROVINCE' | 'ALL'
+export type OrgType = 'PROVINCE' | 'HOSPITAL' | 'PCU'
+
+export type Permission =
+  | 'req.create' | 'req.submit' | 'req.cancel' | 'req.review' | 'req.approve'
+  | 'req.reject' | 'req.return' | 'req.close_short' | 'req.issue' | 'req.receive'
+  | 'req.settle' | 'stock.adjust' | 'map.view' | 'map.approve' | 'map.propose'
+  | 'master.edit' | 'monitor.view' | 'monitor.retry' | 'sync.override'
+  | 'report.own' | 'report.child' | 'report.province'
+  | 'settings.users' | 'settings.connector'
+
+export type ViewId =
+  | 'dashboard' | 'requisitions' | 'review' | 'issue' | 'receive'
+  | 'stock' | 'matching' | 'mapapprove' | 'reference' | 'monitor'
+  | 'reports' | 'settings'
+
+export interface Role {
+  id: RoleId
+  label: string
+  labelTh: string
+  org: string
+  scope: Scope
+  menu: ViewId[]
+  can: Permission[]
+}
+
+export interface Org {
+  id: string
+  name: string
+  nameEn: string
+  sub: string
+  subEn: string
+  type: OrgType
+  parent: string | null
+  wh?: string
+}
+
+export type MapState = 'ACTIVE' | 'PENDING_APPROVAL' | 'DRAFT' | 'REJECTED' | 'INACTIVE' | 'UNMAPPED'
+
+export interface Warehouse {
+  id: string
+  name: string
+  nameEn: string
+  org: string
+  ext: string
+  mapState: MapState
+}
+
+export interface MasterItem {
+  code: string
+  name: string
+  th: string
+  uom: string
+  uomEn: string
+  cat: string
+  catEn: string
+  price: number
+}
+
+export interface Mapping {
+  org: string
+  local: string
+  localName: string
+  item: string
+  localUom: string
+  factor: number
+  state: MapState
+  reason?: string
+  pendingReason?: string
+  proposedAt?: string
+  src?: 'API' | 'MANUAL'
+}
+
+export interface SupplyLink {
+  org: string
+  wh: string
+  state: MapState
+}
+
+export interface StockRow {
+  wh: string
+  item: string
+  lot: string
+  exp: string
+  qty: number
+  reserved: number
+}
+
+export type LedgerType = 'ISSUE' | 'RECEIVE' | 'ADJUST' | 'OPENING'
+
+export interface LedgerEntry {
+  id: string
+  t: string
+  wh: string
+  item: string
+  lot: string
+  delta: number
+  type: LedgerType
+  ref: string
+}
+
+export type DocState =
+  | 'DRAFT' | 'REQUESTED' | 'APPROVED' | 'ISSUED' | 'RECEIVED' | 'COMPLETED'
+  | 'RETURNED' | 'REJECTED' | 'CANCELLED'
+  | 'PARTIALLY_ISSUED' | 'PARTIALLY_RECEIVED' | 'DISCREPANCY'
+
+export type SyncState = 'NONE' | 'QUEUED' | 'SENDING' | 'SYNCED' | 'FAILED' | 'MANUAL_OVERRIDE'
+export type ReviewState = 'PENDING_REVIEW' | 'REVIEWED'
+export type IssueMode = 'PORTAL' | 'HOSXP'
+
+export interface LotAlloc { lot: string; exp: string; qty: number }
+
+export interface DocLine {
+  item: string
+  req: number        // requested, in BASE uom
+  approved: number   // approved, in BASE uom
+  issued: number
+  received: number
+  lots: LotAlloc[]
+}
+
+export interface DocEvent {
+  t: string
+  from: DocState | ''
+  to: DocState | ''
+  action: string
+  by: string
+  note?: string
+}
+
+export interface Requisition {
+  no: string
+  org: string
+  to: string
+  whFrom: string
+  whTo: string
+  created: string
+  state: DocState
+  review: ReviewState
+  sync: SyncState
+  issueMode: IssueMode
+  extRef: string
+  transit: number
+  note: string
+  lines: DocLine[]
+  events: DocEvent[]
+}
+
+export type JobStatus = 'QUEUED' | 'SENDING' | 'SYNCED' | 'FAILED'
+
+export interface SyncJob {
+  id: string
+  doc: string
+  action: string
+  target: string
+  status: JobStatus
+  attempt: number
+  err: string
+  key: string
+  t: string
+  data?: boolean
+}
+
+export interface ApiLogEntry {
+  id: string
+  t: string
+  dir: 'INBOUND' | 'OUTBOUND'
+  org: string
+  endpoint: string
+  code: number
+  ms: number
+  key: string
+}
+
+export interface Notification {
+  id: string
+  t: string
+  to: string
+  text: string
+  read?: boolean
+}
+
+export interface AppConfig {
+  issueMode: IssueMode
+  forceReview: boolean
+  failNext: boolean
+  expiryAlert: number
+}
+
+export type Lang = 'TH' | 'EN'
+export type Theme = 'light' | 'dark'
+
+/* Signed-in user's own account details (prototype: kept in memory). */
+export interface Profile {
+  name: string
+  nameEn: string
+  email: string
+  phone: string
+  /** Data URL of an uploaded photo; empty = bundled artwork. */
+  avatar: string
+  twoFactor: boolean
+  notif: {
+    inApp: boolean; email: boolean            /* channels */
+    approvals: boolean; syncFailed: boolean   /* events */
+    lowStock: boolean; expiry: boolean
+  }
+}

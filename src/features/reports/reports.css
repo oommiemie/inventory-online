@@ -1,0 +1,99 @@
+/* =============== Reports — showpiece layout =============== */
+
+/* Each column stacks its own cards independently. */
+.rep-col { display: grid; gap: var(--s-4); align-content: start; min-width: 0; }
+
+/* Two content rows: wide analysis + narrow companion. */
+.rep-grid {
+  display: grid; gap: var(--s-4);
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  align-items: start;
+}
+@media (max-width: 1180px) { .rep-grid { grid-template-columns: minmax(0, 1fr); } }
+
+/* Value bars inside the facility table. */
+.val-cell b { display: block; }
+.val-track {
+  display: block; height: 5px; margin-top: 6px; border-radius: 4px;
+  background: var(--brand-100); overflow: hidden;
+}
+.val-track .val-fill {
+  display: block; height: 100%; border-radius: 4px;
+  background: linear-gradient(90deg, var(--brand-400), var(--brand-600));
+}
+.val-track--ok { background: var(--ok-bg); width: 72px; margin-left: auto; }
+.val-track--ok .val-fill { background: var(--ok); }
+.done-cell b { color: var(--ok); }
+
+/* Donut by state. */
+.donut-wrap { display: grid; gap: var(--s-4); justify-items: center; }
+.donut { width: 176px; height: 176px; overflow: visible; }
+.donut-total { font-size: 32px; font-weight: 800; fill: var(--text); letter-spacing: -.02em; }
+.donut-label { font-size: 11px; font-weight: 600; fill: var(--text-muted); }
+.donut-legend { display: grid; gap: 7px; width: 100%; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.donut-legend li { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.donut-legend i { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+.donut-legend span {
+  font-size: var(--fs-xs); color: var(--text-soft); min-width: 0;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.donut-legend b { margin-left: auto; font-size: var(--fs-xs); font-weight: 750; }
+
+/* Five KPI tiles share the report row evenly. */
+.kpi-row--5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+@media (max-width: 1400px) { .kpi-row--5 { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 760px)  { .kpi-row--5 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* ---- Expiring stock: bucket bars on the left, soonest lots on the right ---- */
+.exp-grid { display: grid; gap: var(--s-5); grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); }
+@media (max-width: 900px) { .exp-grid { grid-template-columns: minmax(0, 1fr); } }
+
+.exp-buckets { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
+.exp-bucket {
+  --exp: var(--ok);
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; row-gap: 6px; align-items: center;
+  animation: fadeUp .45s var(--ease-out) backwards;
+}
+.exp-bucket.tone-danger { --exp: var(--danger); }
+.exp-bucket.tone-amber  { --exp: var(--warn); }
+.exp-label { display: inline-flex; align-items: center; gap: 8px; font-size: var(--fs-sm); font-weight: 650; color: var(--text); }
+.exp-label::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--exp); flex: none; }
+.exp-figs { text-align: right; }
+.exp-figs b { display: block; font-size: var(--fs-lg); font-weight: 800; color: var(--exp); letter-spacing: -.01em; }
+.exp-figs small { display: block; font-size: 11px; color: var(--text-muted); }
+.exp-track { grid-column: 1 / -1; height: 6px; border-radius: 4px; background: var(--n-100); overflow: hidden; }
+.exp-fill {
+  display: block; height: 100%; border-radius: 4px; background: var(--exp);
+  transform-origin: left center; animation: growX .8s var(--ease-out) backwards; animation-delay: .2s;
+}
+
+.exp-soon { display: grid; gap: 8px; align-content: start; }
+.exp-soon-title {
+  font-size: 11px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--text-muted);
+}
+.exp-lot {
+  display: flex; align-items: center; gap: 10px; min-width: 0;
+  padding: 10px 12px; border-radius: 12px; background: var(--surface-sunken);
+  animation: fadeUp .45s var(--ease-out) backwards;
+}
+.exp-lot-main { flex: 1; min-width: 0; }
+.exp-lot-main b { display: block; font-size: var(--fs-sm); font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.exp-lot-main b em { font-style: normal; font-weight: 500; color: var(--text-soft); }
+.exp-lot-main small { display: block; font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+.exp-lot .badge { flex: none; }
+.exp-lot-qty { font-size: var(--fs-md); font-weight: 800; min-width: 40px; text-align: right; }
+
+.exp-bucket:nth-child(2), .exp-lot:nth-child(3) { animation-delay: 60ms; }
+.exp-bucket:nth-child(3), .exp-lot:nth-child(4) { animation-delay: 120ms; }
+.exp-bucket:nth-child(4), .exp-lot:nth-child(5) { animation-delay: 180ms; }
+.exp-bucket:nth-child(5), .exp-lot:nth-child(6) { animation-delay: 240ms; }
+
+/* Healthy stock sits below the alert bands as a quiet context line. */
+.exp-later {
+  display: flex; align-items: baseline; gap: 8px;
+  margin-top: 2px; padding-top: 12px; border-top: 1px solid var(--glass-edge);
+  font-size: var(--fs-sm); color: var(--text-muted);
+}
+.exp-later > span { flex: 1; min-width: 0; }
+.exp-later > b { font-weight: 750; color: var(--text-soft); }
+.exp-later > small { font-size: 11px; }

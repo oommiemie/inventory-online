@@ -1,0 +1,281 @@
+/* ---- Settings hub: grouped menu, each row drills into one topic. ---- */
+.set-hub { display: grid; gap: var(--s-5); }
+
+.set-group-label {
+  font-size: 11px; font-weight: 650; letter-spacing: .06em;
+  color: var(--text-muted); margin-bottom: 8px;
+}
+/* Topics flow as cards in a grid, same language as the dashboard queue. */
+.set-items {
+  display: grid; gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+
+.set-item {
+  display: grid; grid-template-columns: 40px minmax(0, 1fr);
+  grid-template-areas:
+    "ico  chev"
+    "main main";
+  align-items: center; column-gap: 12px; row-gap: 10px; width: 100%;
+  padding: 14px; border-radius: 14px; text-align: left;
+  background: var(--surface-solid); border: 1px solid var(--n-100);
+  box-shadow: var(--sh-xs); cursor: pointer;
+  transition: border-color var(--dur-fast), box-shadow var(--dur-fast),
+              transform var(--dur-fast);
+}
+.set-item:hover {
+  border-color: var(--brand-200);
+  box-shadow: 0 6px 18px -10px rgba(16, 24, 40, .22);
+}
+.set-item:focus-visible { outline: 2px solid var(--brand-500); outline-offset: -2px; }
+.set-item:active { transform: scale(.995); }
+.set-item > svg {
+  grid-area: chev; justify-self: end;
+  color: var(--n-300); transition: color var(--dur-fast), transform var(--dur-fast);
+}
+.set-item:hover > svg { color: var(--brand-500); transform: translateX(2px); }
+
+.set-item-ico {
+  grid-area: ico;
+  width: 40px; height: 40px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 16px; line-height: 1;
+  /* Colour comes from the shared tone map in ui.css. */
+  background: var(--tone-bg, var(--n-100)); color: var(--tone, var(--n-500));
+}
+
+.set-item-main { grid-area: main; min-width: 0; }
+.set-item-main b {
+  display: block; font-size: var(--fs-md); font-weight: 700; color: var(--text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.set-item-main small {
+  display: block; font-size: var(--fs-xs); color: var(--text-muted); margin-top: 3px;
+  line-height: 1.5;
+}
+
+/* ---- Theme picker: two live-preview cards. ---- */
+.theme-pick { display: grid; gap: var(--s-4); grid-template-columns: repeat(2, minmax(0, 220px)); }
+.theme-card {
+  padding: 0; border: 2px solid var(--n-100); border-radius: 16px;
+  background: var(--surface-solid); overflow: hidden; cursor: pointer;
+  transition: border-color var(--dur-fast), box-shadow var(--dur-fast), transform var(--press-dur) var(--press-ease);
+}
+.theme-card:hover { border-color: var(--brand-300); }
+.theme-card:active { transform: scale(.98); }
+.theme-card.is-on {
+  border-color: var(--brand-500);
+  box-shadow: 0 4px 14px -4px color-mix(in srgb, var(--brand-500) 35%, transparent);
+}
+.theme-card:focus-visible { outline: 2px solid var(--brand-500); outline-offset: 2px; }
+
+/* Miniature of the app layout, painted in each theme's palette. */
+.theme-preview {
+  position: relative; display: block; height: 110px;
+  padding: 12px 12px 0 44px;
+}
+.theme-preview--light { background: #F4F7FE; }
+.theme-preview--dark  { background: #101a2c; }
+.theme-preview i { display: block; border-radius: 6px; }
+.tp-side { position: absolute; left: 10px; top: 12px; bottom: 0; width: 24px; }
+.theme-preview--light .tp-side { background: #fff; box-shadow: 0 1px 3px rgba(16,24,40,.08); }
+.theme-preview--dark  .tp-side { background: #1b2940; }
+.tp-hero { height: 30px; margin-bottom: 8px; background: linear-gradient(90deg, var(--hero-g1, #0447D8), var(--hero-g2, #1765DF)); }
+.tp-row { height: 18px; margin-bottom: 8px; }
+.theme-preview--light .tp-row { background: #fff; box-shadow: 0 1px 3px rgba(16,24,40,.08); }
+.theme-preview--dark  .tp-row { background: #1b2940; }
+.tp-row--short { width: 62%; }
+
+.theme-name {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 11px; font-size: var(--fs-sm); font-weight: 700; color: var(--text);
+}
+
+
+/* ---- Settings rows: label left, control right, hairline between. ---- */
+.set-rows { display: grid; }
+.set-row {
+  display: flex; align-items: center; gap: var(--s-5);
+  padding: 14px 0; border-bottom: 1px solid rgba(16, 24, 40, .05);
+}
+.set-row:first-child { padding-top: 2px; }
+.set-row:last-child { border-bottom: 0; padding-bottom: 2px; }
+.set-row-main { flex: 1; min-width: 0; }
+.set-row-main b { display: block; font-size: var(--fs-md); font-weight: 700; }
+.set-row-main small {
+  display: block; font-size: var(--fs-xs); color: var(--text-muted); margin-top: 2px;
+  line-height: 1.5;
+}
+
+/* ---- Option boxes: choices laid out in the open, radio behaviour. ---- */
+.opt-pick { display: flex; gap: 10px; flex-wrap: wrap; }
+.opt-card {
+  position: relative; min-width: 230px; padding: 12px 16px;
+  text-align: left; cursor: pointer;
+  border: 2px solid var(--n-100); border-radius: 12px;
+  background: var(--surface-solid);
+  transition: border-color var(--dur-fast), box-shadow var(--dur-fast),
+              transform var(--press-dur) var(--press-ease);
+}
+.opt-card:hover { border-color: var(--brand-300); }
+.opt-card:active { transform: scale(.97); }
+.opt-card:focus-visible { outline: 2px solid var(--brand-500); outline-offset: 2px; }
+.opt-card.is-on {
+  border-color: var(--brand-500);
+  box-shadow: 0 3px 10px -3px color-mix(in srgb, var(--brand-500) 35%, transparent);
+}
+.opt-card-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.opt-card b { display: block; font-size: var(--fs-md); font-weight: 750; }
+.opt-card small { display: block; font-size: var(--fs-xs); color: var(--text-muted); margin-top: 6px; }
+
+/* "In use" pill on the active choice. */
+.opt-badge {
+  font-style: normal; font-size: 11px; font-weight: 700; line-height: 1;
+  padding: 5px 10px; border-radius: var(--r-full);
+  background: color-mix(in srgb, var(--brand-500) 14%, transparent); color: var(--brand-ink-strong);
+}
+
+/* ---- Appearance page ---- */
+.set-row--stack { flex-direction: column; align-items: stretch; gap: 12px; }
+
+.pal-grid {
+  display: grid; gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+}
+.pal-card b { margin-top: 10px; }
+.pal-swatches { display: inline-flex; gap: 6px; }
+.pal-swatches i {
+  width: 18px; height: 18px; border-radius: 6px;
+  box-shadow: inset 0 0 0 1px rgba(16, 24, 40, .08);
+}
+
+.font-card .opt-card-head b { font-size: var(--fs-lg); }
+.font-aa { font-size: 26px; font-weight: 800; color: var(--n-300); line-height: 1; }
+.font-card small { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+
+.size-slider { display: flex; align-items: center; gap: 14px; }
+
+/* Custom 5-step slider: brand-filled track, step dots, floating thumb. */
+.size-range { position: relative; flex: 1; height: 28px; }
+.size-range input[type="range"] {
+  position: relative; z-index: 2; width: 100%; height: 28px; margin: 0;
+  appearance: none; -webkit-appearance: none; background: transparent; cursor: pointer;
+}
+.size-range input::-webkit-slider-runnable-track {
+  height: 6px; border-radius: 6px;
+  background: linear-gradient(to right,
+    var(--brand-500) var(--p, 50%), var(--n-200) var(--p, 50%));
+}
+.size-range input::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 22px; height: 22px; border-radius: 50%; margin-top: -8px;
+  background: var(--surface-solid); border: 2.5px solid var(--brand-500);
+  box-shadow: 0 2px 8px rgba(16, 24, 40, .25);
+  transition: transform var(--dur-fast) var(--ease);
+}
+.size-range input:active::-webkit-slider-thumb { transform: scale(1.15); }
+.size-range input::-moz-range-track {
+  height: 6px; border-radius: 6px;
+  background: linear-gradient(to right,
+    var(--brand-500) var(--p, 50%), var(--n-200) var(--p, 50%));
+}
+.size-range input::-moz-range-thumb {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--surface-solid); border: 2.5px solid var(--brand-500);
+  box-shadow: 0 2px 8px rgba(16, 24, 40, .25);
+}
+.size-range input:focus-visible { outline: none; }
+.size-range input:focus-visible::-webkit-slider-thumb { box-shadow: var(--focus-ring); }
+
+/* The five step dots living on the track. */
+.size-ticks {
+  position: absolute; z-index: 1; left: 11px; right: 11px; top: 50%;
+  transform: translateY(-50%);
+  display: flex; justify-content: space-between; pointer-events: none;
+}
+.size-ticks i {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--n-400);
+}
+.size-ticks i.is-passed { background: rgba(255, 255, 255, .95); }
+.size-note { font-size: var(--fs-xs); color: var(--text-muted); }
+
+.lang-rows {
+  display: grid; gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+.lang-row {
+  display: flex; align-items: center; gap: 14px; width: 100%; min-width: 0;
+}
+.lang-row .opt-badge { margin-left: auto; }
+.lang-flag { font-size: 24px; line-height: 1; }
+
+/* ---- Link pages: supply / warehouse mapping / connector / roles.
+   A summary strip on top, then a table. ---- */
+.link-body { display: grid; gap: var(--s-4); }
+
+/* Tinted round icon in the first column. */
+.link-card-ico {
+  width: 36px; height: 36px; flex: none; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 14px; line-height: 1;
+  background: var(--tone-bg, var(--info-bg)); color: var(--tone, var(--info));
+}
+
+/* Mono identifier pill; empty state reads as a quiet placeholder. */
+.code-chip {
+  display: inline-flex; align-items: center; gap: 6px; padding: 3px 8px; border-radius: 8px;
+  font-family: var(--font-num); font-style: normal; font-size: 12px; font-weight: 600;
+  letter-spacing: .01em; background: var(--n-100); color: var(--text); white-space: nowrap;
+}
+.code-chip.is-empty { font-family: var(--font); font-weight: 500; color: var(--text-muted); }
+
+/* Facility cell: icon beside a two-line label. */
+.link-cell { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.link-cell > div { min-width: 0; }
+.link-body .table-wrap { padding: 0; }
+
+/* ---- Account page ---- */
+.acct-profile { display: grid; gap: var(--s-4); }
+.acct-photo { display: flex; align-items: center; gap: 16px; }
+.acct-photo-img {
+  width: 72px; height: 72px; flex: none; border-radius: 50%; overflow: hidden;
+  background: var(--brand-100);
+  box-shadow: 0 0 0 2px var(--surface-solid), 0 0 0 4px var(--brand-300);
+}
+.acct-photo-img picture { display: contents; }
+.acct-photo-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.acct-photo-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.acct-photo-actions small { flex-basis: 100%; font-size: var(--fs-2xs); color: var(--text-muted); }
+.acct-form { display: grid; gap: 12px 16px; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
+/* Pack each field's rows at the top so inputs share a baseline even when
+   only one of them carries a hint or error line. */
+.acct-form .field { align-content: start; }
+.acct-form .input[readonly] { background: var(--surface-sunken); color: var(--text-soft); }
+.acct-pw { grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; }
+.acct-actions { display: flex; justify-content: flex-end; gap: 8px; }
+.set-row--stack .acct-actions { padding-top: 2px; }
+.set-row-main b .badge { margin-left: 8px; vertical-align: middle; }
+@media (max-width: 860px) { .acct-form, .acct-pw { grid-template-columns: 1fr; } }
+
+/* Read-only view of the profile: label over value, two columns. */
+.acct-identity { min-width: 0; }
+.acct-identity b { display: block; font-size: var(--fs-lg); font-weight: 700; color: var(--text); }
+.acct-identity small { display: block; margin-top: 2px; font-size: var(--fs-xs); color: var(--text-muted); }
+.acct-view {
+  margin: 0; display: grid; gap: 12px 16px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.acct-view > div { padding: 10px 12px; border-radius: 12px; background: var(--surface-sunken); min-width: 0; }
+.acct-view dt {
+  font-size: var(--fs-2xs); font-weight: 700; color: var(--text-muted);
+  letter-spacing: .04em; text-transform: uppercase;
+}
+.acct-view dd {
+  margin: 4px 0 0; font-size: var(--fs-md); font-weight: 600; color: var(--text);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+@media (max-width: 860px) { .acct-view { grid-template-columns: 1fr; } }
+
+/* A dependent setting, indented under the switch that enables it. */
+.set-row--sub { padding-left: 20px; border-left: 2px solid var(--brand-200); margin-left: 2px; }

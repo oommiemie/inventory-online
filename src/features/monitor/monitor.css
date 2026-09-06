@@ -1,0 +1,44 @@
+.conn-grid { display: grid; gap: var(--s-4); grid-template-columns: repeat(3, minmax(0,1fr)); }
+@media (max-width: 1080px) { .conn-grid { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+@media (max-width: 700px)  { .conn-grid { grid-template-columns: minmax(0,1fr); } }
+
+.conn-top { display: flex; align-items: center; gap: var(--s-3); }
+/* Connector mark: circular tinted disc, same language as the KPI icons. */
+.conn-ico {
+  width: 40px; height: 40px; flex: none; border-radius: 50%;
+  display: grid; place-items: center; font-weight: 800; font-size: var(--fs-sm);
+  letter-spacing: .02em;
+  background: var(--info-bg); color: var(--info);
+}
+.conn-ico.tone-amber  { background: var(--warn-bg);   color: var(--warn); }
+.conn-ico.tone-danger { background: var(--danger-bg); color: var(--danger); }
+.conn-ico.tone-green  { background: var(--ok-bg);     color: var(--ok); }
+.conn-top b { display: block; font-size: var(--fs-sm); font-weight: 750; }
+.conn-top small { display: block; font-size: var(--fs-2xs); color: var(--text-muted); margin-top: 2px; }
+.conn-top .badge { margin-left: auto; flex: none; }
+
+/* Metrics: quiet tiles — hairline, muted micro-label, number carrying the
+   meaning in colour (green success, red failures, ink for totals). */
+.conn-metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-2); margin-top: var(--s-4); }
+.conn-metrics > div {
+  padding: 10px 12px; border-radius: 12px;
+  background: var(--surface-solid); border: 1px solid var(--n-100);
+}
+.conn-metrics span {
+  display: block; font-size: 10px; font-weight: 650; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--text-muted);
+}
+.conn-metrics b {
+  display: block; margin-top: 3px; font-size: var(--fs-xl); font-weight: 800;
+  letter-spacing: -.02em; font-variant-numeric: tabular-nums;
+}
+.conn-metrics > div:nth-child(2) b { color: var(--ok); }
+.conn-metrics > div:nth-child(3) b { color: var(--n-400); }
+.conn-metrics > div.is-bad { border-color: var(--danger-br); background: var(--danger-bg); }
+.conn-metrics > div.is-bad b { color: var(--danger); }
+
+/* Sync log and API log share one row, 2:1, each scrolling its own table. */
+.mon-split { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
+@media (max-width: 1180px) { .mon-split { grid-template-columns: minmax(0, 1fr); } }
+.mon-split > .glass.card { min-height: 0; }
+.mon-split > .glass.card .table-wrap { flex: 1; min-height: 0; overflow-y: auto; }

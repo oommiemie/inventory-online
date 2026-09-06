@@ -1,0 +1,745 @@
+/* ==========================================================================
+   App shell — sidebar, topbar, content
+   ========================================================================== */
+.shell {
+  display: grid;
+  grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
+  min-height: 100vh;
+}
+.shell.collapsed { grid-template-columns: var(--sidebar-w-collapsed) minmax(0, 1fr); }
+
+/* ---------------- Sidebar ---------------- */
+.sidebar {
+  position: fixed; inset: 0 auto 0 10px; width: calc(var(--sidebar-w) - 20px);
+  display: flex; flex-direction: column; gap: var(--s-2);
+  /* Panel is already inset 10px from the window, so no horizontal padding. */
+  padding: 10px 0;
+  /* Figma: the sidebar has no fill — it shows the page background, so the
+     white cards beside it read as raised panels rather than one surface. */
+  background: transparent;
+  color: var(--text); z-index: var(--z-drawer);
+  border-right: 0;
+  transition: width var(--dur) var(--ease), transform var(--dur) var(--ease);
+  /* No clipping here: the active pill's shadow must be able to paint
+     outside the 200px panel. Vertical scrolling lives on .sidebar-scroll. */
+  overflow: visible;
+}
+[data-theme="dark"] .sidebar { background: transparent; }
+
+.brand {
+  display: flex; align-items: center; gap: 10px; height: 48px;
+  padding-right: 40px;   /* clears the 32px collapse button */
+  min-width: 0; margin-bottom: 24px;
+}
+.brand-mark {
+  width: 48px; height: 48px; flex: none; border-radius: 24px;
+  display: grid; place-items: center; color: #04312c;
+  background: var(--n-200); color: var(--brand-500);
+}
+.brand-text { min-width: 0; }
+.brand-text b {
+  display: block; font-size: var(--fs-md); color: var(--text); letter-spacing: -.02em;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.brand-text span {
+  display: block; font-size: var(--fs-2xs); color: var(--text-muted); letter-spacing: .02em;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+.sidebar-scroll {
+  flex: 1; min-height: 0;
+  overflow-y: auto; overflow-x: visible;
+  /* room for the active pill's shadow to render */
+  margin: 0 -14px; padding: 0 14px;
+}
+.nav-group { margin-top: 24px; }
+.nav-group:first-child { margin-top: 0; }
+.nav-label {
+  padding: 0 8px 8px; font-size: 10px; font-weight: 400;
+  line-height: 13px; letter-spacing: 0; color: var(--n-600);
+}
+
+.nav-list { display: grid; gap: 8px; }
+.nav-item {
+  display: flex; align-items: center; gap: 4px; width: 100%;
+  height: 40px; padding: 4px 12px 4px 8px; border-radius: 100px;
+  font-size: 14px; font-weight: 500; color: var(--text); text-align: left;
+  /* Figma: icon sits in a 32x32 box (16px glyph centred), then a 4px gap
+     before the label — so the text starts at x=54 inside the 200px pill. */
+  transition: background var(--dur-fast), color var(--dur-fast);
+}
+.nav-item:hover { background: var(--brand-100); color: var(--brand-600); text-decoration: none; }
+[data-theme="dark"] .nav-item:hover {
+  background: color-mix(in srgb, var(--brand-400) 16%, transparent); color: var(--brand-300);
+}
+.nav-ico {
+  flex: none;
+  /* Figma: 32px slot with a 16px glyph centred. */
+  width: 32px; height: 32px;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 16px; line-height: 1;
+}
+.nav-ico::before { display: block; }
+.nav-item .label {
+  flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-size: 14px; font-weight: 500;
+}
+.nav-item.active {
+  background: linear-gradient(90deg, var(--hero-g1, #0447D8) 0%, var(--hero-g2, #1765DF) 100%);
+  color: #fff; font-weight: 500;
+  box-shadow: 0 8px 18px -10px color-mix(in srgb, var(--hero-g1, #0447D8) 90%, transparent);
+}
+.nav-item.active:hover {
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--hero-g1, #0447D8) 90%, #fff) 0%,
+    color-mix(in srgb, var(--hero-g2, #1765DF) 90%, #fff) 100%);
+  color: #fff;
+}
+/* Keep a visible ring on the active item: its own drop shadow would
+   otherwise replace the global focus ring entirely. */
+.nav-item.active:focus-visible {
+  box-shadow: var(--focus-ring), 0 8px 18px -10px color-mix(in srgb, var(--hero-g1, #0447D8) 90%, transparent);
+}
+.nav-count {
+  flex: none; min-width: 24px; height: 24px; padding: 0 7px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: var(--r-full);
+  background: var(--brand-200); color: var(--brand-500);
+  font-size: 12px; font-weight: 500; font-variant-numeric: tabular-nums;
+  /* Remounted on change (key = count), so a new figure pops in. */
+  animation: pop .35s var(--ease-out);
+}
+[data-theme="dark"] .nav-count {
+  background: color-mix(in srgb, var(--brand-400) 22%, transparent); color: var(--brand-300);
+}
+.nav-item.active .nav-count { background: rgba(255,255,255,.24); color: #fff; }
+
+.sidebar-foot { margin-top: auto; padding-top: var(--s-4); }
+
+/* Identity row: avatar, name/role, sign-out. Sits on the same quiet
+   white surface as the nav pills so no palette can make it shout. */
+.user-card {
+  /* Soft brand tint: follows the palette without shouting. */
+  --uc-bg: var(--brand-100);
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center; gap: 10px;
+  padding: 8px 6px 8px 12px; border-radius: 18px;
+  background: var(--uc-bg); border: 1px solid var(--brand-200);
+  box-shadow: var(--sh-xs);
+}
+[data-theme="dark"] .user-card-meta small,
+[data-theme="dark"] .user-card {
+  --uc-bg: color-mix(in srgb, var(--brand-400) 14%, var(--surface-solid));
+  border-color: color-mix(in srgb, var(--brand-400) 28%, transparent);
+}
+
+.user-card-avatar {
+  position: relative; width: 34px; height: 34px; flex: none; border-radius: 50%;
+  background: var(--brand-100);
+  /* brand ring, separated from the photo by a hairline of surface */
+  box-shadow: 0 0 0 1.5px var(--uc-bg), 0 0 0 3px var(--brand-400);
+}
+.user-card-avatar picture { display: contents; }
+.user-card-avatar img {
+  width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 50%;
+}
+/* Presence dot, pinned to the bottom-right of the photo. */
+.user-card-dot {
+  position: absolute; right: -2px; bottom: -2px; width: 10px; height: 10px;
+  border-radius: 50%; background: var(--accent-green);
+  border: 2px solid var(--uc-bg);
+}
+
+.user-card-meta { min-width: 0; }
+.user-card-meta b {
+  display: block; font-size: 14px; font-weight: 650; line-height: 18px; color: var(--text);
+  /* Thai has no word spaces, so wrapping breaks mid-syllable.
+     Keep one line and ellipsis; the full name is in the title attribute. */
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.user-card-meta small {
+  display: block; margin-top: 2px; font-size: 11px; line-height: 14px; color: var(--brand-700);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+/* Sign-out is an icon button; it only turns red when you reach for it. */
+.user-card-logout {
+  width: 34px; height: 34px; flex: none; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  color: var(--brand-ink-strong); background: transparent;
+  transition: background var(--dur-fast), color var(--dur-fast), transform var(--dur-fast);
+}
+.user-card-logout:hover { background: var(--danger-bg); color: var(--danger); }
+.user-card-logout:active { transform: scale(.92); }
+.user-card-logout:focus-visible { box-shadow: var(--focus-ring); }
+
+/* Collapsed rail: avatar stacked above the sign-out button. */
+
+/* ---- Profile popover: hover or focus the identity row for the details. ---- */
+.user-anchor { position: relative; }
+.profile-pop {
+  position: absolute; left: 0; bottom: calc(100% + 8px); width: 300px; z-index: 2;
+  border-radius: var(--r-lg); overflow: hidden; color: var(--text);
+  background: var(--surface-solid); border: 1px solid var(--n-100);
+  box-shadow: var(--sh-lg);
+  animation: fadeUp var(--dur) var(--ease-out);
+}
+[data-theme="dark"] .profile-pop { border-color: var(--n-200); }
+/* Bridges the 8px gap so the pointer can travel card -> popover. */
+.profile-pop::after {
+  content: ""; position: absolute; left: 0; right: 0; top: 100%; height: 10px;
+}
+
+.profile-pop-head {
+  display: flex; align-items: center; gap: 12px; padding: 14px 14px 12px;
+  background: linear-gradient(180deg, var(--brand-100), transparent);
+}
+[data-theme="dark"] .profile-pop-head {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--brand-400) 16%, transparent), transparent);
+}
+.profile-pop-avatar {
+  width: 48px; height: 48px; flex: none; border-radius: 50%; overflow: hidden;
+  box-shadow: 0 0 0 2px var(--surface-solid), 0 0 0 4px var(--brand-300);
+}
+.profile-pop-avatar picture { display: contents; }
+.profile-pop-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.profile-pop-id { min-width: 0; }
+.profile-pop-id b {
+  display: block; font-size: var(--fs-lg); font-weight: 700; line-height: 1.3;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.profile-pop-id small { display: block; margin-top: 2px; font-size: var(--fs-xs); color: var(--text-muted); }
+.profile-pop-role {
+  display: inline-block; margin-top: 6px; padding: 2px 8px; border-radius: 100px;
+  font-family: var(--font-num); font-size: 10px; font-weight: 700; letter-spacing: .04em;
+  background: var(--brand-100); color: var(--brand-700);
+}
+[data-theme="dark"] .profile-pop-role {
+  background: color-mix(in srgb, var(--brand-400) 18%, transparent); color: var(--brand-300);
+}
+
+.profile-pop-rows { margin: 0; padding: 4px 6px 6px; display: grid; }
+.profile-pop-row {
+  display: grid; grid-template-columns: 30px minmax(0, 1fr); column-gap: 10px;
+  align-items: center; padding: 7px 8px; border-radius: 10px;
+}
+.profile-pop-row > i {
+  grid-row: span 2; width: 30px; height: 30px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 13px; line-height: 1; background: var(--n-100); color: var(--brand-ink);
+}
+.profile-pop-row dt { font-size: 10px; font-weight: 600; letter-spacing: .04em; color: var(--text-muted); }
+.profile-pop-row dd {
+  margin: 0; font-size: var(--fs-sm); font-weight: 600; line-height: 1.35; color: var(--text);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.profile-pop-row dd small {
+  display: block; font-size: 11px; font-weight: 400; color: var(--text-muted);
+  overflow: hidden; text-overflow: ellipsis;
+}
+
+.profile-pop-foot {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 10px 14px; border-top: 1px solid var(--glass-edge);
+}
+.profile-pop-foot a {
+  display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;
+  font-size: var(--fs-xs); font-weight: 650; color: var(--brand-ink);
+}
+
+/* Collapsed rail: fly out to the right instead of upwards. */
+
+.collapse-btn {
+  position: absolute; top: 18px; right: 0;
+  width: 32px; height: 32px; border-radius: 100px;
+  display: grid; place-items: center;
+  background: var(--surface-solid); border: 0;
+  color: var(--text); box-shadow: var(--sh-sm);
+  transition: background var(--dur-fast), color var(--dur-fast);
+}
+.collapse-btn:hover  { background: var(--brand-100); color: var(--brand-600); }
+.collapse-btn:active { transform: scale(.9); }
+.collapse-btn span { display: none; }
+
+/* ---- Collapsed rail (user toggle): 76px, icons only. ---- */
+.shell.collapsed .sidebar { width: var(--sidebar-w-collapsed); padding-inline: 10px; gap: 0; }
+.shell.collapsed .brand { justify-content: center; padding: 0; height: auto; margin-bottom: 10px; }
+.shell.collapsed .brand-mark { width: 44px; height: 44px; }
+.shell.collapsed .brand-text { display: none; }
+.shell.collapsed .sidebar-scroll { margin: 0 -10px; padding: 0 10px; }
+.shell.collapsed .nav-group { margin-top: 10px; }
+/* Group titles become hairline dividers. */
+.shell.collapsed .nav-label {
+  height: 1px; padding: 0; margin: 0 12px 10px; overflow: hidden;
+  font-size: 0; line-height: 0; color: transparent; background: var(--n-200);
+}
+.shell.collapsed .nav-group:first-child .nav-label { display: none; }
+.shell.collapsed .nav-list { gap: 6px; }
+/* Every item is a 44px circle; the active one is filled. */
+.shell.collapsed .nav-item {
+  position: relative; width: 44px; height: 44px; margin-inline: auto; padding: 0;
+  justify-content: center; border-radius: 50%;
+}
+.shell.collapsed .nav-item .label { display: none; }
+.shell.collapsed .nav-ico { font-size: 18px; }
+.shell.collapsed .nav-item.active {
+  box-shadow: 0 6px 14px -8px color-mix(in srgb, var(--hero-g1, #0447D8) 80%, transparent);
+}
+/* Round badge on the icon's corner, ringed by the page colour. */
+.shell.collapsed .nav-count {
+  position: absolute; top: -3px; right: -3px;
+  min-width: 18px; height: 18px; padding: 0 3px; border-radius: 100px;
+  font-size: 10px; font-weight: 600; line-height: 1;
+  background: var(--brand-500); color: #fff; box-shadow: 0 0 0 2px var(--bg);
+}
+.shell.collapsed .nav-item.active .nav-count { background: #fff; color: var(--brand-600); }
+/* Identity block drops its box: avatar over sign-out. */
+.shell.collapsed .user-card {
+  --uc-bg: var(--bg);
+  grid-template-columns: 1fr; justify-items: center; gap: 4px; padding: 6px 0;
+  background: transparent; border-color: transparent; box-shadow: none;
+}
+.shell.collapsed .user-card-meta { display: none; }
+.shell.collapsed .user-card-avatar, .shell.collapsed .user-card-logout { width: 36px; height: 36px; }
+.shell.collapsed .user-card-logout { background: var(--n-100); color: var(--text-soft); }
+.shell.collapsed .user-card-logout:hover { background: var(--danger-bg); color: var(--danger); }
+.shell.collapsed .profile-pop { left: calc(100% + 10px); bottom: 0; }
+.shell.collapsed .profile-pop::after { top: 0; bottom: 0; left: -10px; right: auto; width: 10px; height: auto; }
+/* The toggle moves under the logo instead of overlapping it. */
+.shell.collapsed .collapse-btn {
+  order: -1; position: static; margin: 0 auto 14px;
+  width: 28px; height: 28px; box-shadow: none;
+  background: var(--n-100); color: var(--text-soft);
+}
+.shell.collapsed .collapse-btn:hover { background: var(--brand-100); color: var(--brand-600); }
+.shell.collapsed .brand { order: -2; }
+
+/* ---------------- Main ---------------- */
+.main { grid-column: 2; min-width: 0; display: flex; flex-direction: column; }
+
+/* ---------------- Hero bar ----------------
+   Figma node 10:308 — outer 1200x220 r=32 (white 10% + blue gradient 20%),
+   inner 1192x212 r=28 with a horizontal #0447D8 -> #1765DF gradient, and a
+   474x314 product photo at x=753 y=70 that bleeds past the bottom edge.   */
+.herobar {
+  position: relative;
+  border-radius: 32px; padding: 4px;
+  background:
+    linear-gradient(90deg,
+      color-mix(in srgb, var(--hero-g1, #0447D8) 20%, transparent),
+      color-mix(in srgb, var(--hero-g2, #1765DF) 20%, transparent)),
+    rgba(255,255,255,.1);
+  box-shadow: var(--sh-sm);
+}
+.herobar-inner {
+  position: relative; overflow: hidden;
+  border-radius: 28px; padding: 16px 16px 12px;
+  min-height: 212px;
+  display: flex; flex-direction: column;
+  background: linear-gradient(90deg, var(--hero-g1, #0447D8) 0%, var(--hero-g2, #1765DF) 100%);
+  color: #fff;
+}
+/* Without the artwork and the 52px identity cluster there is nothing to
+   reserve height for, so the plain hero collapses to its own content. */
+.herobar--plain .herobar-inner { min-height: 0; padding: 16px; gap: 16px; }
+.herobar--plain .herobar-row { margin-top: 0 !important; }
+
+/* Segmented control riding the blue hero: translucent white track, solid
+   white thumb — the inverse of its light-background form. */
+.herobar .segmented {
+  height: 44px; padding: 4px; align-items: stretch;
+  background: rgba(255,255,255,.18);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.18);
+}
+.herobar .segmented button {
+  color: rgba(255,255,255,.82);
+  display: inline-flex; align-items: center; padding: 0 18px;
+}
+.herobar .segmented button:hover { color: #fff; }
+.herobar .segmented button[aria-pressed="true"] {
+  background: #fff; color: var(--brand-600);
+  box-shadow: 0 2px 8px rgba(8,26,66,.24);
+}
+
+/* Product artwork (square 3D scene), anchored right and cropped by the card. */
+.herobar-art {
+  /* Rises out of the card's bottom-right corner, fading softly into the
+     blue as it leaves the frame. */
+  position: absolute; right: 16px; bottom: -170px;
+  width: 340px; height: 340px;
+  opacity: .72;
+  mask-image: linear-gradient(to top, rgba(0,0,0,0) 8%, #000 62%);
+  -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,0) 8%, #000 62%);
+  object-fit: contain; object-position: right top;
+  pointer-events: none; user-select: none;
+  filter: drop-shadow(0 10px 24px rgba(4, 30, 90, .35));
+}
+.herobar-inner > picture { display: contents; }
+.herobar-inner > *:not(picture) { position: relative; z-index: 1; }
+
+.herobar-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+/* Row 1: the greeting block hugs the top, while the control cluster
+   (select, bell, divider) centres on the 52px avatar so the whole
+   identity group reads as one horizontal line. */
+.herobar-row--top { align-items: flex-start; }
+.herobar-row--top > .hero-select,
+.herobar-row--top > .hero-icon-btn { align-self: flex-start; margin-top: 4px; }
+/* Divider is 24px, so it needs (52-24)/2 = 14px to share the same axis. */
+.herobar-row--top > .hero-divider { align-self: flex-start; margin-top: 14px; }
+.herobar-row--top > .hero-user { align-self: flex-start; }
+/* 4px = (52px avatar - 44px control) / 2 */
+.herobar-eyebrow { font-size: 14px; font-weight: 600; line-height: 18px; color: #fff; }
+.herobar-title { font-size: 24px; font-weight: 700; line-height: 31px; color: #fff; letter-spacing: -.01em; }
+.herobar-eyebrow + .herobar-title { margin-top: 8px; }
+.herobar-sub { margin-top: 8px; font-size: 14px; font-weight: 400; line-height: 18px; color: var(--brand-200); }
+.herobar .spacer { flex: 1; }
+
+/* Translucent white pills — Figma uses #FFFFFF at 20% */
+.hero-search { position: relative; flex: 1 1 350px; max-width: 350px; min-width: 0; }
+.hero-search svg {
+  position: absolute; left: 17px; top: 50%; transform: translateY(-50%);
+  width: 16px; height: 16px; color: #fff; pointer-events: none;
+  /* Sits above the input's backdrop-filter paint layer. */
+  z-index: 1;
+}
+.hero-search input {
+  width: 100%; height: 44px; padding: 0 18px 0 45px; font-weight: 500;
+  border-radius: 100px; border: 1px solid rgba(255,255,255,.22);
+  background: rgba(255,255,255,.18); color: #fff;
+  backdrop-filter: blur(12px) saturate(150%);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  font-size: 14px; outline: none;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.18);
+  transition: background var(--dur-fast), border-color var(--dur-fast);
+}
+.hero-search input::placeholder { color: rgba(255,255,255,.9); }
+.hero-search input:hover  { background: rgba(255,255,255,.26); }
+.hero-search input:focus  { background: rgba(255,255,255,.3); }
+
+/* Field-shaped button that opens the Spotlight palette. */
+.hero-search--trigger {
+  display: flex; align-items: center; gap: 12px;
+  height: 44px; padding: 0 12px 0 45px; border-radius: 100px;
+  border: 1px solid rgba(255,255,255,.22);
+  background: rgba(255,255,255,.18);
+  backdrop-filter: blur(12px) saturate(150%);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.18);
+  color: #fff; text-align: left; cursor: text;
+  transition: background var(--dur-fast), transform var(--press-dur) var(--press-ease);
+}
+.hero-search--trigger:hover  { background: rgba(255,255,255,.26); }
+.hero-search--trigger:active { transform: scale(.985); }
+.hero-search-text {
+  flex: 1; min-width: 0; font-size: 14px; font-weight: 500; color: rgba(255,255,255,.9);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.hero-search-kbd {
+  flex: none; font-family: var(--font-num); font-size: 11px; line-height: 1;
+  padding: 4px 8px; border-radius: 6px;
+  background: rgba(255,255,255,.2); color: #fff;
+}
+@media (max-width: 620px) { .hero-search-kbd { display: none; } }
+
+/* Narrow screens: collapse the field into a circular icon button. Keeping a
+   stretched pill here would eat the bar and clip its own placeholder. */
+@media (max-width: 860px) {
+  .hero-search { flex: none; width: 44px; max-width: 44px; }
+  .hero-search--trigger {
+    width: 44px; padding: 0; justify-content: center; gap: 0;
+    border-radius: 50%; cursor: pointer;
+  }
+  .hero-search--trigger .hero-search-text,
+  .hero-search--trigger .hero-search-kbd { display: none; }
+  /* Icon is centred by flex now, not absolutely positioned. */
+  .hero-search--trigger svg { position: static; transform: none; }
+  .hero-search--trigger:active { transform: scale(.92); }
+}
+
+.hero-select {
+  height: 44px; width: 192px; flex: none; padding: 0 40px 0 16px; border-radius: 100px;
+  border: 1px solid rgba(255,255,255,.22); background-color: rgba(255,255,255,.18);
+  backdrop-filter: blur(12px) saturate(150%);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.18);
+  color: #fff; font-size: 14px; cursor: pointer; appearance: none; outline: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 14px center; background-size: 16px;
+  transition: background-color var(--dur-fast);
+}
+/* Page filters share the controls row with the 44px search field and CTA,
+   so they match that height; the role switcher above stays 36px. */
+.hero-select--filter { height: 44px; }
+.hero-select:hover { background-color: rgba(255,255,255,.28); }
+.hero-select option { color: var(--text); background: var(--surface-solid); }
+.hero-select--tall { height: 44px; }
+
+/* CTA: white at 90%, blue label (Figma) */
+/* Frosted-glass CTA: translucent white that blurs the artwork behind it,
+   with a hairline top highlight and a soft drop shadow for lift. */
+.hero-cta {
+  display: inline-flex; align-items: center; gap: 10px;
+  height: 44px; min-width: 144px; flex: none; justify-content: flex-start;
+  padding: 0 18px 0 17px; border-radius: 100px;
+  background: rgba(255,255,255,.86);
+  backdrop-filter: blur(18px) saturate(190%);
+  -webkit-backdrop-filter: blur(18px) saturate(190%);
+  border: 1px solid rgba(255,255,255,.6);
+  color: var(--brand-600); font-size: 14px; font-weight: 600; white-space: nowrap;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.75),
+    0 2px 6px rgba(8,26,66,.16),
+    0 10px 24px -8px rgba(8,26,66,.34);
+  transition: background var(--dur-fast), transform var(--dur-fast), box-shadow var(--dur-fast);
+}
+/* Secondary action beside a solid CTA: translucent like the hero's other
+   controls, and sized to its label rather than the CTA's fixed width. */
+.hero-cta--ghost {
+  width: auto; padding: 0 18px 0 16px;
+  background: rgba(255,255,255,.18);
+  border-color: rgba(255,255,255,.22);
+  color: #fff;
+  backdrop-filter: blur(12px) saturate(150%);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.18);
+}
+.hero-cta:hover {
+  background: rgba(255,255,255,.94);
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.8),
+    0 3px 8px rgba(8,26,66,.18),
+    0 14px 30px -8px rgba(8,26,66,.4);
+}
+/* Declared after .hero-cta:hover so the ghost keeps its translucent fill
+   instead of being repainted white under its own white text. */
+.hero-cta--ghost:hover {
+  background: rgba(255,255,255,.3);
+  border-color: rgba(255,255,255,.42);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.28);
+}
+.hero-cta:active {
+  transform: scale(.96);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.6),
+    0 1px 3px rgba(8,26,66,.2);
+}
+/* Fallback for browsers without backdrop-filter — stay legible. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .hero-cta { background: rgba(255,255,255,.92); }
+}
+
+.hero-icon-btn {
+  width: 44px; height: 44px; flex: none; border-radius: 100px;
+  display: grid; place-items: center; position: relative;
+  background: rgba(255,255,255,.18);
+  border: 1px solid rgba(255,255,255,.22); color: #fff;
+  backdrop-filter: blur(12px) saturate(150%);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.18);
+  transition: background var(--dur-fast);
+}
+.hero-icon-btn:hover  { background: rgba(255,255,255,.3); }
+.hero-icon-btn:active { transform: scale(.9); }
+.hero-icon-btn .ping {
+  position: absolute; top: 7px; right: 8px; width: 8px; height: 8px;
+  border-radius: 50%; background: var(--accent-red);
+}
+
+/* Identity cluster: name 12/500, role 10/400, avatar 52px in a 56px ring */
+.hero-user { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.hero-user-meta { text-align: right; min-width: 0; }
+.hero-user-meta b { display: block; font-size: 12px; font-weight: 500; line-height: 16px; color: #fff; }
+.hero-user-meta small { display: block; font-size: 10px; font-weight: 400; line-height: 13px; color: #fff; margin-top: 4px; }
+.hero-user-avatar {
+  width: 52px; height: 52px; flex: none; border-radius: 100px; overflow: hidden;
+  background: rgba(255,255,255,.24); box-shadow: 0 0 0 2px rgba(255,255,255,.55);
+  display: grid; place-items: center; font-weight: 600; font-size: 15px; color: #fff;
+}
+.hero-user-avatar picture { display: contents; }
+.hero-user-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.hero-divider { width: 1px; height: 24px; background: rgba(255,255,255,.34); flex: none; margin: 0 8px; }
+
+.menu-toggle { display: none; }
+
+/* ---------------- Content ---------------- */
+.content {
+  padding: 10px; width: 100%; flex: 1;
+  display: flex; flex-direction: column; gap: 16px;
+}
+.view {
+  animation: fadeUp var(--dur-slow) var(--ease-out);
+  /* Guard wraps each page in .view, so the vertical rhythm belongs here —
+     .content only ever has this single child. */
+  display: flex; flex-direction: column; gap: 16px;
+  flex: 1; min-height: 0;
+}
+/* The 16px gap above is the single source of vertical rhythm between page
+   blocks — page-level children must not add margins of their own. */
+.view > * { margin-top: 0; margin-bottom: 0; }
+/* Only a view holding a .fill-view card is capped to the viewport, so its
+   table scrolls inside the card instead of pushing the page. Other pages grow
+   with their content. 20px = the .content gutter above and below. */
+.view:has(> .fill-view) { max-height: calc(100vh - 20px); }
+
+/* ---------------- Notification popover ---------------- */
+.popover {
+  position: fixed; width: 340px; max-width: 88vw;
+  border-radius: var(--r-lg); overflow: hidden; z-index: var(--z-drawer);
+  background: var(--surface-solid);
+  border: 1px solid var(--n-100); box-shadow: var(--sh-lg);
+  animation: fadeUp var(--dur) var(--ease-out);
+}
+.popover-head {
+  display: flex; align-items: center; gap: 8px; padding: 12px 14px;
+  border-bottom: 1px solid var(--glass-edge); font-size: var(--fs-sm); font-weight: 750;
+  color: var(--text);
+}
+.popover-count {
+  margin-left: auto; min-width: 20px; height: 20px; padding: 0 6px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 100px; background: var(--accent-red); color: #fff;
+  font-size: 11px; font-weight: 700; font-variant-numeric: tabular-nums;
+}
+.popover-empty {
+  padding: 22px 14px; text-align: center;
+  font-size: var(--fs-xs); color: var(--text-muted);
+}
+.popover-list { max-height: 340px; overflow-y: auto; }
+.popover-item { display: flex; gap: 10px; padding: 11px 14px; border-bottom: 1px solid var(--glass-edge); }
+.popover-item:last-child { border-bottom: 0; }
+/* Read items keep the rail as a spacer so text stays aligned. */
+.popover-item .bar { width: 3px; border-radius: 3px; background: transparent; flex: none; }
+.popover-item.is-unread .bar { background: var(--brand-500); }
+.popover-item p { font-size: var(--fs-xs); line-height: 1.55; color: var(--text); }
+.popover-item.is-unread p { font-weight: 600; }
+.popover-item small { display: block; font-size: 10px; color: var(--text-muted); margin-top: 3px; }
+
+.notif-anchor { position: relative; }
+/* Bridges the 10px gap so the pointer can travel button -> panel. */
+.notif-anchor .popover::before {
+  content: ""; position: absolute; top: -10px; left: 0; right: 0; height: 10px;
+}
+.popover-list { max-height: min(340px, 60vh); }
+
+/* ---------------- Responsive ---------------- */
+@media (max-width: 1180px) {
+  .shell { grid-template-columns: var(--sidebar-w-collapsed) minmax(0,1fr); }
+  .sidebar { width: var(--sidebar-w-collapsed); padding-inline: 10px; gap: 0; }
+  .sidebar .brand { justify-content: center; padding: 0; height: auto; margin-bottom: 10px; }
+  .sidebar .brand-mark { width: 44px; height: 44px; }
+  .sidebar .brand-text { display: none; }
+  .sidebar .sidebar-scroll { margin: 0 -10px; padding: 0 10px; }
+  .sidebar .nav-group { margin-top: 10px; }
+  /* Group titles become hairline dividers. */
+  .sidebar .nav-label {
+    height: 1px; padding: 0; margin: 0 12px 10px; overflow: hidden;
+    font-size: 0; line-height: 0; color: transparent; background: var(--n-200);
+  }
+  .sidebar .nav-group:first-child .nav-label { display: none; }
+  .sidebar .nav-list { gap: 6px; }
+  /* Every item is a 44px circle; the active one is filled. */
+  .sidebar .nav-item {
+    position: relative; width: 44px; height: 44px; margin-inline: auto; padding: 0;
+    justify-content: center; border-radius: 50%;
+  }
+  .sidebar .nav-item .label { display: none; }
+  .sidebar .nav-ico { font-size: 18px; }
+  .sidebar .nav-item.active {
+    box-shadow: 0 6px 14px -8px color-mix(in srgb, var(--hero-g1, #0447D8) 80%, transparent);
+  }
+  /* Round badge on the icon's corner, ringed by the page colour. */
+  .sidebar .nav-count {
+    position: absolute; top: -3px; right: -3px;
+    min-width: 18px; height: 18px; padding: 0 3px; border-radius: 100px;
+    font-size: 10px; font-weight: 600; line-height: 1;
+    background: var(--brand-500); color: #fff; box-shadow: 0 0 0 2px var(--bg);
+  }
+  .sidebar .nav-item.active .nav-count { background: #fff; color: var(--brand-600); }
+  /* Identity block drops its box: avatar over sign-out. */
+  .sidebar .user-card {
+    --uc-bg: var(--bg);
+    grid-template-columns: 1fr; justify-items: center; gap: 4px; padding: 6px 0;
+    background: transparent; border-color: transparent; box-shadow: none;
+  }
+  .sidebar .user-card-meta { display: none; }
+  .sidebar .user-card-avatar, .sidebar .user-card-logout { width: 36px; height: 36px; }
+  .sidebar .user-card-logout { background: var(--n-100); color: var(--text-soft); }
+  .sidebar .user-card-logout:hover { background: var(--danger-bg); color: var(--danger); }
+  .sidebar .profile-pop { left: calc(100% + 10px); bottom: 0; }
+  .sidebar .profile-pop::after { top: 0; bottom: 0; left: -10px; right: auto; width: 10px; height: auto; }
+  .collapse-btn { display: none; }
+}
+
+@media (max-width: 860px) {
+  .shell, .shell.collapsed { grid-template-columns: minmax(0, 1fr); }
+  .main { grid-column: 1; }
+  .sidebar {
+    width: var(--sidebar-w); padding-inline: var(--s-3);
+    transform: translateX(-100%); box-shadow: 0 0 0 100vmax rgba(8,20,34,0);
+  }
+  .sidebar.open { transform: translateX(0); box-shadow: 24px 0 60px -20px rgba(8,20,34,.55); }
+  .sidebar.open ~ .scrim { opacity: 1; pointer-events: auto; }
+  .sidebar .brand-text, .sidebar .nav-item .label,
+  .sidebar-foot small, .health span { display: block; }
+  .sidebar .brand { justify-content: flex-start; padding-inline: 8px; }
+  .sidebar .nav-item { justify-content: flex-start; padding: 10px 12px; }
+  .sidebar .nav-count { position: static; transform: none; min-width: 20px; padding: 1px 7px; font-size: 10px; }
+  .sidebar .health { justify-content: flex-start; }
+  .menu-toggle { display: grid; }
+  .topbar { padding: 0 var(--s-4); gap: var(--s-2); }
+  .content { padding: 10px; }
+  .hide-sm { display: none !important; }
+  /* Undo the rail treatment: the drawer is full width again. */
+  .shell .sidebar { gap: var(--s-2); }
+  .shell .sidebar .brand { justify-content: flex-start; padding: 0 40px 0 8px; height: 48px; margin-bottom: 24px; }
+  .shell .sidebar .brand-mark { width: 48px; height: 48px; }
+  .shell .sidebar .brand-text, .shell .sidebar .nav-item .label { display: block; }
+  .shell .sidebar .sidebar-scroll { margin: 0 -14px; padding: 0 14px; }
+  .shell .sidebar .nav-group { margin-top: 24px; }
+  .shell .sidebar .nav-group:first-child { margin-top: 0; }
+  .shell .sidebar .nav-label {
+    height: auto; padding: 0 8px 8px; margin: 0; overflow: visible;
+    font-size: 10px; line-height: 13px; color: var(--n-600); background: transparent;
+  }
+  .shell .sidebar .nav-group:first-child .nav-label { display: block; }
+  .shell .sidebar .nav-list { gap: 8px; }
+  .shell .sidebar .nav-item {
+    width: 100%; height: 40px; margin-inline: 0; padding: 4px 12px 4px 8px;
+    justify-content: flex-start; border-radius: 100px;
+  }
+  .shell .sidebar .nav-ico { font-size: 16px; }
+  .shell .sidebar .nav-count {
+    position: static; min-width: 24px; height: 24px; padding: 0 7px;
+    font-size: 12px; font-weight: 500; line-height: normal; box-shadow: none;
+    background: var(--brand-200); color: var(--brand-500);
+  }
+  [data-theme="dark"] .shell .sidebar .nav-count {
+    background: color-mix(in srgb, var(--brand-400) 22%, transparent); color: var(--brand-300);
+  }
+  .shell .sidebar .nav-item.active .nav-count { background: rgba(255,255,255,.24); color: #fff; }
+  .shell .sidebar .user-card {
+    --uc-bg: var(--brand-100);
+    grid-template-columns: auto minmax(0, 1fr) auto; justify-items: stretch;
+    gap: 10px; padding: 8px 6px 8px 12px;
+    background: var(--uc-bg); border-color: var(--brand-200); box-shadow: var(--sh-xs);
+  }
+  [data-theme="dark"] .shell .sidebar .user-card {
+    --uc-bg: color-mix(in srgb, var(--brand-400) 14%, var(--surface-solid));
+    border-color: color-mix(in srgb, var(--brand-400) 28%, transparent);
+  }
+  .shell .sidebar .user-card-meta { display: block; }
+  .shell .sidebar .user-card-avatar, .shell .sidebar .user-card-logout { width: 34px; height: 34px; }
+  .shell .sidebar .user-card-logout { background: transparent; color: var(--brand-ink-strong); }
+  .shell .sidebar .user-card-logout:hover { background: var(--danger-bg); color: var(--danger); }
+  .shell .sidebar .profile-pop { left: 0; bottom: calc(100% + 8px); }
+  .shell .sidebar .profile-pop::after { top: 100%; bottom: auto; left: 0; right: 0; width: auto; height: 10px; }
+}
+
+.scrim {
+  position: fixed; inset: 0; z-index: calc(var(--z-drawer) - 1);
+  background: rgba(8,20,34,.42); backdrop-filter: blur(2px);
+  opacity: 0; pointer-events: none; transition: opacity var(--dur);
+}
+
+@media (max-width: 560px) { .hide-xs { display: none !important; } }

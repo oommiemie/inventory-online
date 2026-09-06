@@ -1,0 +1,11 @@
+.stage-row { display: flex; gap: var(--s-2); flex-wrap: wrap; }
+.stage-row--head { gap: 6px; }
+.stage-row--head .chip { padding: 3px 10px; font-size: 11px; }
+.row-attention { background: rgba(217,119,6,.05); }
+[data-theme="dark"] .row-attention { background: rgba(245,180,85,.07); }
+.map-section + .map-section { margin-top: var(--s-4); }
+
+/* The two short approval queues share a row; each is a small table, so half a
+   screen each keeps their text columns from wrapping. */
+/* Supply requests and warehouse links stack full-width, one after the other. */
+.mapa-split { display: grid; gap: var(--s-4); grid-template-columns: minmax(0, 1fr); }

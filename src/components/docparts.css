@@ -1,0 +1,211 @@
+
+.doc-summary {
+  display: grid; gap: var(--s-3); grid-template-columns: repeat(4, minmax(0,1fr));
+}
+@media (max-width: 720px) { .doc-summary { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+/* The summary sits directly above a table, so it keeps a gap of its own
+   rather than letting the tiles butt against the table header. */
+.panel-body--summary { padding-bottom: var(--s-4); }
+
+/* Each figure gets a tinted icon, matching the dashboard KPI language. */
+.doc-summary-item {
+  --tile: var(--brand-500);
+  --tile-tint: color-mix(in srgb, var(--brand-500) 12%, transparent);
+  display: flex; align-items: center; gap: 12px; min-width: 0;
+  padding: 12px; border-radius: 14px;
+  background: var(--surface-solid); border: 1px solid var(--n-100);
+}
+.doc-summary-item.tone-info   { --tile: var(--info);   --tile-tint: var(--info-bg); }
+.doc-summary-item.tone-indigo { --tile: var(--indigo); --tile-tint: var(--indigo-bg); }
+.doc-summary-item.tone-teal   { --tile: var(--teal);   --tile-tint: var(--teal-bg); }
+.doc-summary-item.tone-amber  { --tile: var(--warn);   --tile-tint: var(--warn-bg); }
+.doc-summary-item.tone-green  { --tile: var(--ok);     --tile-tint: var(--ok-bg); }
+.doc-summary-item.tone-danger { --tile: var(--danger); --tile-tint: var(--danger-bg); }
+.doc-summary-item.tone-gray   { --tile: var(--n-500);  --tile-tint: var(--n-100); }
+
+.doc-summary-ico {
+  width: 38px; height: 38px; flex: none; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--tile-tint); color: var(--tile);
+  font-size: 16px; line-height: 1;
+}
+.doc-summary-text { min-width: 0; }
+.doc-summary-item span span,
+.doc-summary-item > .doc-summary-text > span {
+  display: block; font-size: var(--fs-2xs); font-weight: 700; color: var(--text-muted);
+  letter-spacing: .05em; text-transform: uppercase;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.doc-summary-item b {
+  display: block; margin-top: 3px; font-size: var(--fs-lg);
+  font-weight: 800; color: var(--tile); letter-spacing: -.02em;
+}
+
+/* Two-column detail layout */
+.detail-grid {
+  display: grid; gap: var(--s-4); align-items: start;
+  /* Figma 56:29 — 888 / 296 within a 1200 content column. */
+  grid-template-columns: minmax(0, 888fr) 296px;
+}
+/* Fixed-height detail layout: the header stays pinned and each column scrolls
+   its own content, so the page itself never scrolls. */
+.view:has(> .doc-head):has(> .detail-grid), .view:has(> .fill-grid) { max-height: calc(100vh - 20px); }
+.view > .doc-head { flex: none; }
+.view:has(> .doc-head):has(> .detail-grid) > .detail-grid, .view > .fill-grid {
+  flex: 1; min-height: 0; align-items: stretch;
+}
+.detail-grid > * { min-height: 0; }
+/* Left column: card fills the track, its table scrolls inside. */
+.detail-grid > :first-child { display: flex; flex-direction: column; }
+.detail-grid > :first-child > .glass.card { flex: 1; min-height: 0; }
+.detail-grid > :first-child > .glass.card > .table-wrap {
+  flex: 1; min-height: 0; overflow-y: auto;
+}
+/* Right rail scrolls as a unit. */
+.detail-grid > .detail-side { min-height: 0; }
+/* The rail scrolls as one column, so both cards travel together. Cards keep
+   their natural height; padding keeps the last one clear of the edge. */
+.detail-side { overflow-y: auto; padding-right: 4px; margin-right: -4px; }
+.detail-side > * { flex: none; }
+@media (max-width: 1080px) {
+  .view:has(> .doc-head), .view:has(> .fill-grid) { max-height: none; }
+  .view:has(> .doc-head):has(> .detail-grid) > .detail-grid, .view > .fill-grid { flex: none; }
+  .detail-grid > :first-child > .glass.card > .table-wrap,
+  .detail-side { overflow-y: visible; }
+}
+/* Right rail stacks its cards with the same 16px rhythm. */
+.detail-side { display: flex; flex-direction: column; gap: var(--s-4); }
+@media (max-width: 1080px) { .detail-grid { grid-template-columns: minmax(0,1fr); } }
+.side-panel { position: static; }
+.side-actions { display: grid; gap: var(--s-2); margin-top: var(--s-4); padding-top: var(--s-4); border-top: 1px solid var(--glass-edge); }
+
+/* Lot allocation card */
+
+/* Allocated quantity: the decision the issue table exists to show. */
+td.cell-alloc { color: var(--brand-600); font-weight: 800; }
+
+/* Round status icon in the document table (Figma) */
+.doc-cell { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.doc-ico {
+  width: 38px; height: 38px; flex: none; border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--brand-100); color: var(--brand-500);
+  font-size: 16px; line-height: 1;
+}
+.doc-ico.tone-amber  { background: #FFF3E0; color: var(--accent-orange); }
+.doc-ico.tone-green  { background: #E8F8EE; color: #34C759; }
+.doc-ico.tone-teal   { background: var(--teal-bg); color: var(--teal); }
+.doc-ico.tone-danger { background: #FFEBEA; color: var(--accent-red); }
+.doc-ico.tone-gray   { background: var(--n-100); color: var(--n-500); }
+.doc-ico.tone-info   { background: var(--info-bg);   color: var(--info); }
+.doc-ico.tone-violet { background: var(--violet-bg); color: var(--violet); }
+.doc-ico.tone-indigo { background: var(--indigo-bg); color: var(--indigo); }
+.doc-ico.tone-cyan   { background: var(--cyan-bg);   color: var(--cyan); }
+.doc-ico.tone-rose   { background: var(--rose-bg);   color: var(--rose); }
+.doc-ico.tone-slate  { background: var(--slate-bg);  color: var(--slate); }
+.doc-ico.tone-ok-done { background: var(--done-bg); color: var(--done); }
+[data-theme="dark"] .doc-ico { background: color-mix(in srgb, var(--brand-500) 16%, transparent); }
+
+
+/* ---- Document table columns ----
+   Fixed widths for the short columns keep the numbers and tags from drifting
+   apart on wide screens; the document and facility columns absorb the rest. */
+.doc-table { table-layout: fixed; min-width: 1080px; }
+.doc-table col.c-doc      { width: auto; }
+.doc-table col.c-facility { width: 20%; }
+.doc-table col.c-date     { width: 116px; }
+.doc-table col.c-items    { width: 84px; }
+.doc-table col.c-value    { width: 132px; }
+.doc-table col.c-status   { width: 148px; }
+.doc-table col.c-sync     { width: 142px; }
+.doc-table col.c-action   { width: 52px; }
+.doc-table td, .doc-table th { overflow: hidden; }
+/* Facility names run ~120px; give the column a floor and let the document
+   column shrink instead, so neither name gets clipped before the table scrolls. */
+.doc-table th:nth-child(2), .doc-table td:nth-child(2) { min-width: 132px; }
+@media (max-width: 1400px) {
+  .doc-table col.c-facility { width: 168px; }
+}
+.doc-table .cell-strong { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ---- Document table rows ----
+   The whole row is the link, so it carries the pointer, the keyboard focus
+   and the hover treatment; the chevron is only an affordance. */
+.doc-row { cursor: pointer; }
+.doc-row:focus-visible { outline: 2px solid var(--brand-500); outline-offset: -2px; }
+.doc-row .cell-action { text-align: right; color: var(--n-300); }
+.doc-row .cell-action svg { vertical-align: middle; transition: transform var(--dur-fast), color var(--dur-fast); }
+.doc-row:hover .cell-action svg,
+.doc-row:focus-visible .cell-action svg { color: var(--brand-500); transform: translateX(2px); }
+
+/* Status tags inside any table: compact, with a colour dot carrying the
+   state so the pill can drop its border. */
+table.tbl .badge {
+  gap: 6px; padding: 3px 10px 3px 8px;
+  font-size: 11px; font-weight: 600; line-height: 16px;
+  letter-spacing: 0;
+}
+table.tbl .badge::before {
+  content: ""; display: block; flex: none;
+  width: 6px; height: 6px; border-radius: 50%; background: currentColor;
+}
+
+/* ---- Document header (Figma 56:29) ----
+   A compact white bar: circular back button, document number and route.
+   Replaces the blue hero on detail screens. */
+.glass.card.doc-head {
+  padding: 16px; border-radius: 32px;
+  position: relative; overflow: hidden; isolation: isolate;
+}
+/* Watermark: a large document glyph rising out of the right edge. Sits behind
+   the content and never intercepts clicks. */
+.doc-head-mark {
+  position: absolute; z-index: -1; pointer-events: none;
+  right: 32px; top: 50%;
+  font-size: 150px; line-height: 1;
+  transform: translateY(-45%) rotate(-14deg);
+  color: var(--brand-500); opacity: .10;
+}
+[data-theme="dark"] .doc-head-mark { opacity: .14; }
+@media (max-width: 720px) { .doc-head-mark { display: none; } }
+.doc-head-top {
+  display: flex; align-items: center; gap: var(--s-3); flex-wrap: wrap;
+}
+/* 32x32 circle, brand fill (Figma #1765DF). */
+.doc-back {
+  width: 32px; height: 32px; flex: none; border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--brand-100); color: var(--brand-600);
+  border: 0; cursor: pointer;
+  transition: background var(--dur-fast), transform var(--dur-fast);
+}
+.doc-back:hover { background: var(--brand-200); }
+.doc-back:active { transform: scale(.92); }
+.doc-back:focus-visible { outline: 2px solid var(--brand-500); outline-offset: 2px; }
+
+.doc-head-id { min-width: 0; flex: 1; }
+.doc-head-id h1 {
+  font-size: 24px; font-weight: 700; line-height: 31px;
+  letter-spacing: -.02em; color: var(--text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.doc-head-id p {
+  margin-top: 2px; font-size: var(--fs-xs); font-weight: 400; line-height: 16px;
+  color: var(--text-muted);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.doc-head-id p span { margin: 0 2px; }
+.doc-head-top .actions { display: flex; align-items: center; gap: var(--s-2); flex: none; }
+
+/* Timeline: action first, the state transition as a quieter second line. */
+.tl-flow {
+  display: block; font-size: var(--fs-xs); color: var(--text-muted); margin-top: 2px;
+}
+.tl-flow span { margin: 0 2px; }
+
+/* Editable fields in the draft rail, separated from the read-only facts. */
+.side-fields {
+  display: grid; gap: var(--s-3);
+  margin-top: var(--s-4); padding-top: var(--s-4);
+  border-top: 1px solid var(--n-100);
+}

@@ -1,0 +1,173 @@
+/* ---------------- Dashboard grid ---------------- */
+/* Queue : low-stock watchlist at 2 : 1, 16px gap.
+   The queue owns the left column; the low-stock watchlist sits on the right. */
+.dash-grid {
+  display: grid; gap: 16px;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  grid-template-areas: "queue side";
+  /* stretch so the two columns end on the same line */
+  align-items: start;
+}
+.dash-grid > * { min-height: 0; }
+.dash-grid > :nth-child(1) { grid-area: queue; }
+.dash-grid > :nth-child(2) { grid-column: 2; }
+@media (max-width: 1080px) {
+  .dash-grid { grid-template-columns: minmax(0,1fr); grid-template-areas: none; }
+  .dash-grid > :nth-child(1),
+  .dash-grid > :nth-child(2) { grid-area: auto; grid-column: 1; }
+}
+
+/* ---------------- Queue ----------------
+   Plain card grid. Same surface language as .low-list so both dashboard
+   columns read as one set. */
+.queue {
+  display: grid; gap: 12px; margin: 0;
+  align-content: start; align-items: start;
+  grid-template-columns: repeat(auto-fill, minmax(248px, 1fr));
+}
+
+.queue-row {
+  position: relative; width: 100%; text-align: left; color: inherit;
+  display: grid;
+  grid-template-columns: 38px 1fr;
+  grid-template-areas:
+    "ico  badge"
+    "name name"
+    "meta meta";
+  align-items: center; column-gap: 12px; row-gap: 0;
+  padding: 14px; border-radius: 14px;
+  background: var(--surface-solid);
+  border: 1px solid var(--n-100);
+  transition: border-color var(--dur-fast), box-shadow var(--dur-fast),
+              transform var(--dur-fast);
+}
+.queue-row:hover {
+  border-color: var(--brand-200);
+  box-shadow: 0 6px 18px -10px rgba(16,24,40,.22);
+}
+.queue-row:focus-visible { outline: 2px solid var(--brand-500); outline-offset: 2px; }
+[data-theme="dark"] .queue-row { border-color: var(--n-200); }
+
+/* 40x40 squircle, tint = state colour */
+.queue-ico {
+  grid-area: ico;
+  width: 38px; height: 38px; flex: none; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: color-mix(in srgb, var(--brand-500) 20%, transparent); color: var(--brand-500);
+  font-size: 16px; line-height: 1;
+}
+.queue-ico.tone-amber  { background: rgba(255,149,0,.2); color: var(--accent-orange); }
+.queue-ico.tone-green  { background: rgba(52,199,89,.2); color: var(--accent-green); }
+.queue-ico.tone-teal   { background: rgba(15,118,110,.18); color: var(--teal); }
+.queue-ico.tone-danger { background: rgba(255,59,48,.2); color: var(--accent-red); }
+.queue-ico.tone-gray   { background: rgba(108,117,125,.18); color: var(--n-500); }
+.queue-ico.tone-info   { background: var(--info-bg);   color: var(--info); }
+.queue-ico.tone-violet { background: var(--violet-bg); color: var(--violet); }
+.queue-ico.tone-indigo { background: var(--indigo-bg); color: var(--indigo); }
+.queue-ico.tone-cyan   { background: var(--cyan-bg);   color: var(--cyan); }
+.queue-ico.tone-rose   { background: var(--rose-bg);   color: var(--rose); }
+.queue-ico.tone-slate  { background: var(--slate-bg);  color: var(--slate); }
+.queue-ico.tone-ok-done { background: var(--done-bg); color: var(--done); }
+[data-theme="dark"] .queue-ico { background: color-mix(in srgb, var(--brand-500) 16%, transparent); }
+
+.queue-main { grid-area: name; min-width: 0; margin-top: 12px; }
+.queue-main b {
+  display: block; font-size: 14px; font-weight: 700; color: #212529;
+  line-height: 18px; letter-spacing: -.01em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+[data-theme="dark"] .queue-main b { color: var(--brand-300); }
+.queue-main em {
+  display: block; font-style: normal; font-size: 12px; color: var(--text-soft);
+  line-height: 16px; margin-top: 3px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.queue-main small {
+  display: block; font-size: 12px; font-weight: 400; color: #6C757D;
+  line-height: 16px; margin-top: 9px;
+  padding-top: 9px; border-top: 1px solid var(--n-100);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+/* Compact status tag: a coloured dot carries the state, so the pill can lose
+   its border and shrink without losing legibility. Scoped to the queue tiles
+   so badges elsewhere in the app keep their standard size. */
+.queue-row > .badge {
+  grid-area: badge; justify-self: end; align-self: start;
+  gap: 5px; padding: 3px 9px 3px 7px;
+  font-size: 11px; font-weight: 600; line-height: 15px;
+  letter-spacing: 0; border-color: transparent;
+}
+.queue-row > .badge::before {
+  content: ""; display: block; flex: none;
+  width: 5px; height: 5px; border-radius: 50%;
+  background: currentColor;
+}
+.queue-row > svg { display: none; }
+
+
+/* ---------------- Low stock ----------------
+   Same visual language as the KPI tiles: tinted icon, figure, fill bar.
+   Colour escalates as the balance falls further below the reorder point. */
+.low-list {
+  display: grid; gap: 10px;
+  /* Grows with its content; the card is sized by the list, not the reverse. */
+  margin: 0 -4px; padding: 0 4px 2px;
+}
+
+.low-list li {
+  --low-color: var(--accent-orange);
+  --low-tint: rgba(255,149,0,.14);
+  display: grid;
+  grid-template-columns: 38px 1fr auto;
+  grid-template-areas:
+    "ico name  fig"
+    "ico desc  desc"
+    "bar bar   bar";
+  align-items: center; column-gap: 12px; row-gap: 4px;
+  padding: 12px; border-radius: 14px;
+  background: var(--surface-solid); border: 1px solid var(--n-100);
+  transition: border-color var(--dur-fast), box-shadow var(--dur-fast);
+}
+.low-list li:hover { border-color: var(--n-200); box-shadow: var(--sh-xs); }
+
+.low-list li.low-crit { --low-color: #E8590C; --low-tint: rgba(232,89,12,.14); }
+.low-list li.low-out  { --low-color: var(--accent-red); --low-tint: rgba(255,59,48,.14); }
+
+.low-ico {
+  grid-area: ico; align-self: start; margin-top: 2px;
+  width: 38px; height: 38px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--low-tint); color: var(--low-color); font-size: 16px;
+}
+.low-ico i { line-height: 1; }
+
+
+.low-main {
+  grid-area: name; min-width: 0;
+  font-size: 13.5px; font-weight: 700; color: var(--text);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.low-desc {
+  grid-area: desc; min-width: 0; font-size: 11.5px; color: var(--text-muted);
+  line-height: 1.45;
+  /* two lines is enough for "item · warehouse" without truncating mid-word */
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.low-figure { grid-area: fig; display: flex; align-items: baseline; gap: 4px; white-space: nowrap; }
+.low-figure b  { font-size: 18px; font-weight: 800; color: var(--low-color); letter-spacing: -.01em; }
+.low-figure em { font-style: normal; font-size: 12px; font-weight: 500; color: var(--text-muted); }
+
+.low-track {
+  grid-area: bar; margin-top: 6px;
+  height: 5px; border-radius: 99px; background: var(--n-100); overflow: hidden;
+}
+.low-fill {
+  display: block; height: 100%; border-radius: 99px;
+  background: var(--low-color);
+  transition: width var(--dur-slow) var(--ease-out);
+  transform-origin: left center; animation: growX .8s var(--ease-out) backwards;
+  animation-delay: calc(var(--i, 0) * var(--stagger) + .15s);
+}
+@media (prefers-reduced-motion: reduce) { .low-fill { transition: none; } }
