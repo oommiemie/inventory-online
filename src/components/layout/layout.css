@@ -343,6 +343,9 @@
    reserve height for, so the plain hero collapses to its own content. */
 .herobar--plain .herobar-inner { min-height: 0; padding: 16px; gap: 16px; }
 .herobar--plain .herobar-row { margin-top: 0 !important; }
+/* On pages that scroll as a whole, the compact hero carries the search and
+   filters, so it stays pinned instead of scrolling out of reach. */
+.herobar--plain { position: sticky; top: 10px; z-index: var(--z-sticky); }
 
 /* Segmented control riding the blue hero: translucent white track, solid
    white thumb — the inverse of its light-background form. */

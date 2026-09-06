@@ -260,6 +260,10 @@ table.tbl tbody tr:hover td { background: color-mix(in srgb, var(--brand-500) 5%
 table.tbl tbody tr:hover td:first-child { border-top-left-radius: 10px; border-bottom-left-radius: 10px; }
 table.tbl tbody tr:hover td:last-child { border-top-right-radius: 10px; border-bottom-right-radius: 10px; }
 [data-theme="dark"] table.tbl thead th { border-bottom-color: var(--n-200); }
+/* A card that is not a .fill-view scrolls with the page, and the hero is
+   already pinned there — a sticky header would slide underneath it. */
+.glass.card:not(.fill-view) table.tbl thead th { position: static; }
+
 [data-theme="dark"] table.tbl tbody td { border-bottom-color: rgba(255,255,255,.06); }
 [data-theme="dark"] table.tbl tbody tr:hover td { background: rgba(120,170,255,.09); }
 table.tbl td.num, table.tbl th.num { text-align: right; font-variant-numeric: tabular-nums; }
