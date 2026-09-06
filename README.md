@@ -6,6 +6,8 @@
 
 React 18 · TypeScript · Vite · Zustand · React Router
 
+**เดโม:** https://oommiemie.github.io/inventory-online/ — เข้าสู่ระบบด้วยชื่อผู้ใช้และรหัสผ่านใดก็ได้ (ต้นแบบ ยังไม่ต่อระบบยืนยันตัวตนจริง)
+
 ---
 
 ## เริ่มใช้งาน
