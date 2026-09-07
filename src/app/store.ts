@@ -982,13 +982,17 @@ export const useStore = create<State>()(persist((set, get) => {
     ledger: s.ledger, jobs: s.jobs, apiLog: s.apiLog, notifs: s.notifs,
     cfg: s.cfg, lastSync: s.lastSync, whPatch: s.whPatch,
   }) as unknown as State,
-  onRehydrateStorage: () => state => {
-    if (!state) return
+  onRehydrateStorage: () => (state, error) => {
+    if (error || !state) return
     /* Appearance lives on <html>, and the warehouse diff on the seed object —
-       neither is React state, so both are replayed by hand after a reload. */
-    applyAppearance(state.prefs)
-    state.theme = resolveTheme(state.prefs.appearance)
-    for (const [wh, patch] of Object.entries(state.whPatch)) {
+       neither is React state, so both are replayed by hand after a reload.
+       A payload written by an older build can be missing either, so both are
+       defaulted: a stale save must never blank the app. */
+    const prefs = { ...DEFAULT_PREFS, ...(state.prefs ?? {}) }
+    state.prefs = prefs
+    applyAppearance(prefs)
+    state.theme = resolveTheme(prefs.appearance)
+    for (const [wh, patch] of Object.entries(state.whPatch ?? {})) {
       if (WAREHOUSES[wh]) Object.assign(WAREHOUSES[wh], patch)
     }
   },
