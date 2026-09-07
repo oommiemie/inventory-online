@@ -452,7 +452,19 @@
 /* Phones: the field takes the whole row and the filters sit behind one button,
    so search stays typable instead of shrinking to an icon. */
 @media (max-width: 860px) {
-  .hero-search { flex: 1 1 auto; width: auto; max-width: none; }
+  /* One line: the search is the only elastic item, so it gives up width to
+     keep the round controls beside it instead of dropping one to a new row. */
+  .herobar-row:not(.herobar-row--top) { flex-wrap: nowrap; gap: 8px; }
+  .hero-search { flex: 1 1 auto; width: auto; max-width: none; min-width: 96px; }
+  /* Actions shed their labels and match the filter button's circle: on a
+     390px row the words cost more than the icons explain. */
+  /* Both variants restate width and padding further down the file, so these
+     are scoped to the bar rather than relying on source order. */
+  .herobar .hero-cta, .herobar .hero-cta--ghost {
+    width: 44px; min-width: 0; padding: 0; gap: 0;
+    justify-content: center; border-radius: 50%;
+  }
+  .hero-cta-label { display: none; }
   .hero-search--trigger .hero-search-kbd { display: none; }
   .hero-search--trigger:active { transform: scale(.985); }
 }

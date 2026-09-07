@@ -85,6 +85,10 @@ export function HeroBar(
 
         <div className="spacer" />
 
+        {/* Phones lift the page actions into this cluster, so the row below is
+            just the search and its filter button. */}
+        {isPhone && actions}
+
         {identity && <>
         <select
           className="hero-select hide-sm"
@@ -158,7 +162,7 @@ export function HeroBar(
         </>}
       </div>
 
-      {(controls || filters || actions) && (
+      {(controls || filters || (actions && !isPhone)) && (
         <div className="herobar-row" style={{ marginTop: 'auto' }}>
           {controls}
           {filters && !isPhone && filters}
@@ -173,7 +177,7 @@ export function HeroBar(
               </button>
           )}
           <div className="spacer" />
-          {actions}
+          {!isPhone && actions}
         </div>
       )}
 
@@ -249,9 +253,14 @@ export function HeroCta(
     /** 'ghost' is the translucent secondary action beside a solid CTA. */
     variant?: 'solid' | 'ghost' },
 ) {
+  /* The label is hidden on phones, where the button is a circle, so it is
+     also carried as the accessible name. */
+  const label = typeof children === 'string' ? children : undefined
   return (
-    <button className={`hero-cta${variant === 'ghost' ? ' hero-cta--ghost' : ''}`} onClick={onClick}>
-      {icon && <Icon name={icon} size={18} />}{children}
+    <button className={`hero-cta${variant === 'ghost' ? ' hero-cta--ghost' : ''}`}
+            onClick={onClick} aria-label={label} title={label}>
+      {icon && <Icon name={icon} size={18} />}
+      <span className="hero-cta-label">{children}</span>
     </button>
   )
 }
