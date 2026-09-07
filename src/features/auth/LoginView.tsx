@@ -88,7 +88,7 @@ export function LoginView() {
                   className={`login-submit${busy ? ' login-busy' : ''}`}>
             {busy
               ? <><Icon name="refresh" /> {t('login.connecting')}</>
-              : <><span className="login-pid" aria-hidden="true">PID</span> {t('login.submit')}</>}
+              : t('login.submit')}
           </Button>
 
           <p className="login-provider-note">{t('login.providerNote')}</p>
