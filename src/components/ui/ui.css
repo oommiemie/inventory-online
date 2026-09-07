@@ -236,6 +236,9 @@ input[type="checkbox"] {
   .table-wrap table.tbl td, .table-wrap table.tbl th { white-space: nowrap; }
   /* Two-line cells keep their stack; only the wrapping is suppressed. */
   .table-wrap table.tbl .cell-strong, .table-wrap table.tbl .cell-sub { white-space: nowrap; }
+  /* A select in a cell shrinks to the column, and a native control truncates
+     rather than wrapping — so it gets a floor wide enough for its own label. */
+  .table-wrap table.tbl .select { min-width: 220px; }
 }
 /* A table placed straight after the card header has no .panel-body to supply
    the gap, so it carries its own. */

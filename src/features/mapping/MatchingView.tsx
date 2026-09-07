@@ -143,7 +143,7 @@ export function MatchingView() {
                     </td>
                     <td>
                       {editable ? (
-                        <Select value={m.item} style={{ minWidth: 190 }}
+                        <Select value={m.item} className="sel-master"
                                 aria-label={`${t('mat.master')} ${m.local}`}
                                 onChange={e => patch(i, { item: e.target.value })}>
                           <option value="">{t('mat.pickMaster')}</option>
@@ -159,7 +159,7 @@ export function MatchingView() {
                     <td>
                       {!m.item ? <span className="cell-sub">{t('mat.selectMaster')}</span>
                         : editable ? (
-                          <Select value={m.localUom} style={{ minWidth: 110 }}
+                          <Select value={m.localUom} className="sel-uom"
                                   aria-label={`${t('req.localUnit')} ${m.local}`}
                                   onChange={e => patch(i, { localUom: e.target.value })}>
                             <option value="">{t('mat.pickUom')}</option>

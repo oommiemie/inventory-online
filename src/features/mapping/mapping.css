@@ -9,3 +9,13 @@
    screen each keeps their text columns from wrapping. */
 /* Supply requests and warehouse links stack full-width, one after the other. */
 .mapa-split { display: grid; gap: var(--s-4); grid-template-columns: minmax(0, 1fr); }
+
+/* Mapping table controls. A native select truncates its label rather than
+   wrapping, so on a phone — where the table scrolls anyway — they get the room
+   the longest item name needs instead of the column's leftovers. */
+.sel-master { min-width: 190px; }
+.sel-uom { min-width: 110px; }
+@media (max-width: 720px) {
+  .sel-master { min-width: 240px; }
+  .sel-uom { min-width: 130px; }
+}
