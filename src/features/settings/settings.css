@@ -291,3 +291,24 @@
 /* Supply picker in the table: wide enough for a warehouse plus its owner. */
 .sel-supply { min-width: 240px; }
 @media (max-width: 720px) { .sel-supply { min-width: 260px; } }
+
+/* Linked-account row: the provider's mark, its status, and a way out to it. */
+.acct-linked {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  padding: 14px; border-radius: 14px;
+  background: var(--surface-sunken); border: 1px solid var(--n-100);
+}
+[data-theme="dark"] .acct-linked { border-color: var(--n-200); }
+/* The asset is white artwork, so it needs a ground of its own to read on. */
+.acct-linked-logo {
+  height: 26px; width: auto; flex: none; padding: 8px 12px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--hero-g1, #0447D8), var(--hero-g2, #1765DF));
+}
+.acct-linked-main { flex: 1; min-width: 160px; }
+.acct-linked-main b {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  font-size: var(--fs-md); font-weight: 700; color: var(--text);
+}
+.acct-linked-main small {
+  display: block; margin-top: 3px; font-size: var(--fs-xs); color: var(--text-muted); line-height: 1.5;
+}

@@ -2,11 +2,12 @@ import { useRef, useState } from 'react'
 import { useStore } from '@/app/store'
 import { ROLES } from '@/data/seed'
 import { useT } from '@/hooks/useT'
-import { Card, PanelHead, Button, Field, Input, Switch, Badge } from '@/components/ui'
+import { Card, PanelHead, Button, Field, Input, Badge } from '@/components/ui'
 import { asset } from '@/lib/asset'
 
-/** Settings › My account: the signed-in user's own profile, password,
- *  notification choices and devices. Prototype: everything lives in the store. */
+/** Settings › My account. Provider ID owns the identity, so the name is shown
+ *  rather than edited and there is no password here; what remains is the
+ *  contact details, the link status and the devices. */
 export function AccountPanel() {
   const { t, lang, orgName } = useT()
   const role = useStore(s => s.role)
@@ -15,13 +16,12 @@ export function AccountPanel() {
   const toast = useStore(s => s.toast)
   const me = ROLES[role]
 
-  /* ---- profile: read-only view first; the form appears on Edit ---- */
+  /* Name and role come from Provider ID; only the contact details are ours to
+     edit, so the form covers those alone. */
   const [editing, setEditing] = useState(false)
-  const [form, setForm] = useState({
-    name: profile.name, nameEn: profile.nameEn, email: profile.email, phone: profile.phone,
-  })
-  const dirty = (['name', 'nameEn', 'email', 'phone'] as const).some(k => form[k] !== profile[k])
-  const reset = () => setForm({ name: profile.name, nameEn: profile.nameEn, email: profile.email, phone: profile.phone })
+  const [form, setForm] = useState({ email: profile.email, phone: profile.phone })
+  const dirty = (['email', 'phone'] as const).some(k => form[k] !== profile[k])
+  const reset = () => setForm({ email: profile.email, phone: profile.phone })
   const cancelEdit = () => { reset(); setEditing(false) }
   const save = () => { setProfile(form); setEditing(false); toast(t('acct.saved')) }
 
@@ -33,15 +33,6 @@ export function AccountPanel() {
     rd.onload = () => setProfile({ avatar: String(rd.result) })
     rd.readAsDataURL(f)
   }
-
-  /* ---- password: collapsed row until requested ---- */
-  const [pwOpen, setPwOpen] = useState(false)
-  const [pw, setPw] = useState({ cur: '', next: '', confirm: '' })
-  const weak = pw.next.length > 0 && !(pw.next.length >= 8 && /\d/.test(pw.next))
-  const mismatch = pw.confirm.length > 0 && pw.confirm !== pw.next
-  const canChange = !!pw.cur && !!pw.next && !!pw.confirm && !weak && !mismatch
-  const closePw = () => { setPw({ cur: '', next: '', confirm: '' }); setPwOpen(false) }
-  const changePw = () => { closePw(); toast(t('acct.pwChanged')) }
 
   return (
     <>
@@ -81,11 +72,11 @@ export function AccountPanel() {
 
           {editing ? (<>
             <div className="acct-form">
-              <Field label={t('acct.nameTh')}>
-                <Input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
+              <Field label={t('acct.nameTh')} hint={t('acct.fromProvider')}>
+                <Input value={profile.name} readOnly />
               </Field>
-              <Field label={t('acct.nameEn')}>
-                <Input value={form.nameEn} onChange={e => setForm({ ...form, nameEn: e.target.value })} />
+              <Field label={t('acct.nameEn')} hint={t('acct.fromProvider')}>
+                <Input value={profile.nameEn} readOnly />
               </Field>
               <Field label={t('acct.email')}>
                 <Input type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} />
@@ -118,46 +109,17 @@ export function AccountPanel() {
       </Card>
 
       <Card>
-        <PanelHead title={t('acct.security')} sub={t('acct.securityDesc')} />
-        <div className="panel-body set-rows">
-          {pwOpen ? (
-            <div className="set-row set-row--stack">
-              <div className="acct-form acct-pw">
-                <Field label={t('acct.curPw')}>
-                  <Input type="password" autoComplete="current-password" value={pw.cur}
-                         onChange={e => setPw({ ...pw, cur: e.target.value })} />
-                </Field>
-                <Field label={t('acct.newPw')} hint={weak ? undefined : t('acct.pwHint')}
-                       error={weak ? t('acct.pwWeak') : undefined}>
-                  <Input type="password" autoComplete="new-password" value={pw.next}
-                         onChange={e => setPw({ ...pw, next: e.target.value })} />
-                </Field>
-                <Field label={t('acct.confirmPw')} error={mismatch ? t('acct.pwMismatch') : undefined}>
-                  <Input type="password" autoComplete="new-password" value={pw.confirm}
-                         onChange={e => setPw({ ...pw, confirm: e.target.value })} />
-                </Field>
-              </div>
-              <div className="acct-actions">
-                <Button variant="ghost" onClick={closePw}>{t('c.cancel')}</Button>
-                <Button variant="primary" disabled={!canChange} onClick={changePw}>{t('acct.changePw')}</Button>
-              </div>
+        <PanelHead title={t('acct.linked')} sub={t('acct.linkedDesc')} />
+        <div className="panel-body">
+          <div className="acct-linked">
+            <img className="acct-linked-logo" src={asset('/img/provider-id.png')} alt="" aria-hidden="true" />
+            <div className="acct-linked-main">
+              <b>{t('acct.linkedOk')} <Badge tone="green">{t('acct.active')}</Badge></b>
+              <small>{t('acct.linkedNote')}</small>
             </div>
-          ) : (
-            <div className="set-row">
-              <div className="set-row-main">
-                <b>{t('acct.password')}</b>
-                <small>•••••••• · {t('acct.pwLast')}</small>
-              </div>
-              <Button size="sm" onClick={() => setPwOpen(true)}>{t('acct.changePw')}</Button>
-            </div>
-          )}
-          <div className="set-row">
-            <div className="set-row-main">
-              <b>{t('acct.twoFactor')}</b>
-              <small>{t('acct.twoFactorDesc')}</small>
-            </div>
-            <Switch checked={profile.twoFactor} ariaLabel={t('acct.twoFactor')}
-                    onChange={v => setProfile({ twoFactor: v })} />
+            <Button size="sm" onClick={() => toast(t('acct.openProviderHint'))}>
+              {t('acct.openProvider')}
+            </Button>
           </div>
         </div>
       </Card>
