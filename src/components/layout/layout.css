@@ -746,3 +746,17 @@
 }
 
 @media (max-width: 560px) { .hide-xs { display: none !important; } }
+
+/* Phones: the filter row shares its line with the action button. The rigid
+   spacer is what forced the break — without it the select gives up its fixed
+   width and the two sit side by side, wrapping only when a page carries more
+   filters than one line can hold. The identity row above is left alone. */
+@media (max-width: 560px) {
+  .herobar-row:not(.herobar-row--top) { gap: 8px; }
+  .herobar-row:not(.herobar-row--top) > .spacer { display: none; }
+  .herobar-row:not(.herobar-row--top) .hero-select {
+    width: auto; flex: 1 1 120px; min-width: 0; padding: 0 32px 0 12px;
+    background-position: right 10px center;
+  }
+  .herobar-row:not(.herobar-row--top) .hero-cta { min-width: 0; gap: 8px; padding: 0 14px; }
+}
