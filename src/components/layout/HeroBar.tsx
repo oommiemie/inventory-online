@@ -73,7 +73,7 @@ export function HeroBar(
 
         <div className="spacer" />
 
-        {identity && <>
+        {identity && (
         <select
           className="hero-select hide-sm"
           value={role}
@@ -84,7 +84,10 @@ export function HeroBar(
             <option key={id} value={id}>{lang === 'EN' ? ROLES[id].label : ROLES[id].labelTh}</option>
           ))}
         </select>
+        )}
 
+        {/* Notifications sit in the top-right of every screen, not just the
+            dashboard — they are how a pending approval reaches its owner. */}
         <div className="notif-anchor" ref={anchorRef}
              onMouseEnter={openNotifs} onMouseLeave={closeNotifs}>
           <button className="hero-icon-btn" aria-label={t('dash.notifs')}
@@ -121,6 +124,7 @@ export function HeroBar(
           )}
         </div>
 
+        {identity && <>
         <div className="hero-divider hide-sm" />
 
         <div className="hero-user hide-sm">
