@@ -176,8 +176,10 @@ textarea.textarea { height: auto; padding: 9px 12px; }
 
 /* A select that acts as a card's primary action: reads like the brand button
    it sits beside, not like a form field. */
+/* Sized for its own label, not for the item names in the list: the closed
+   control only ever shows the placeholder (~84px of text plus padding). */
 .select.select-cta {
-  width: 240px; flex: none;
+  width: 160px; flex: none;
   padding: 0 38px 0 18px; border-radius: var(--r-full);
   background-color: var(--brand-500); border-color: var(--brand-500);
   color: #fff; font-size: var(--fs-sm); font-weight: 600;
