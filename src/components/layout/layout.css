@@ -693,6 +693,13 @@
   .topbar { padding: 0 var(--s-4); gap: var(--s-2); }
   .content { padding: 10px; }
   .hide-sm { display: none !important; }
+  /* Phones: the title is the only elastic item on the identity row, so the row
+     must shrink it rather than wrap. Wrapping pushed the bell onto a second
+     line — right-aligned on the dashboard, left-aligned elsewhere, and never
+     where a notification button belongs. */
+  .herobar-row--top { flex-wrap: nowrap; gap: 10px; }
+  .herobar-row--top > .spacer { flex: 1 1 0; min-width: 0; }
+  .herobar-row--top > .notif-anchor { flex: none; align-self: flex-start; }
   /* Undo the rail treatment: the drawer is full width again. */
   .shell .sidebar { gap: var(--s-2); }
   .shell .sidebar .brand { justify-content: flex-start; padding: 0 40px 0 8px; height: 48px; margin-bottom: 24px; }
