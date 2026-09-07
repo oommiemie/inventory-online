@@ -1,7 +1,7 @@
-import { useState, type FormEvent } from 'react'
+import { useState } from 'react'
 import { useStore } from '@/app/store'
 import { useT } from '@/hooks/useT'
-import { Button, Field, Input, Icon } from '@/components/ui'
+import { Button, Icon } from '@/components/ui'
 import { ToastRegion } from '@/components/layout/ToastRegion'
 import DotField from '@/components/DotField'
 import { asset } from '@/lib/asset'
@@ -9,7 +9,8 @@ import './login.css'
 
 /**
  * Sign-in screen. Left: brand and pitch over an interactive dot field.
- * Right: the credentials.
+ * Right: a single hand-off to Provider ID — the ministry's identity service
+ * owns the credentials, so this app never sees a password.
  */
 export function LoginView() {
   const { t, lang } = useT()
@@ -17,20 +18,13 @@ export function LoginView() {
   const setLang = useStore(s => s.setLang)
   const toast = useStore(s => s.toast)
 
-  /* ---- form ---- */
-  const [user, setUser] = useState('')
-  const [pw, setPw] = useState('')
-  const [show, setShow] = useState(false)
-  const [remember, setRemember] = useState(true)
-  const [tried, setTried] = useState(false)
+  /* Prototype: the redirect to Provider ID is stood in for by a short beat,
+     after which the session is treated as established. */
   const [busy, setBusy] = useState(false)
-  const submit = (e: FormEvent) => {
-    e.preventDefault()
-    setTried(true)
-    if (!user.trim() || !pw || busy) return
+  const signInWithProvider = () => {
+    if (busy) return
     setBusy(true)
-    /* A short beat so the button visibly acknowledges the press. */
-    window.setTimeout(() => signIn(user.trim(), remember), 650)
+    window.setTimeout(() => signIn('provider-id', true), 900)
   }
 
   return (
@@ -80,7 +74,7 @@ export function LoginView() {
       </section>
 
       <section className="login-side">
-        <form className="login-card" onSubmit={submit} noValidate>
+        <div className="login-card">
           <div className="login-card-head">
             <span className="login-card-mark" aria-hidden="true"><Icon name="box" size={20} /></span>
             <em>{t('login.welcome')}</em>
@@ -88,43 +82,24 @@ export function LoginView() {
             <small>{t('login.sub')}</small>
           </div>
 
-          <Field label={t('login.username')} error={tried && !user.trim() ? t('login.required') : undefined}>
-            <div className="login-input">
-              <i className="fi fi-rr-user" aria-hidden="true" />
-              <Input value={user} autoComplete="username" autoFocus
-                     onChange={e => setUser(e.target.value)} />
-            </div>
-          </Field>
-          <Field label={t('login.password')} error={tried && !pw ? t('login.required') : undefined}>
-            <div className="login-input login-pw">
-              <i className="fi fi-rr-lock" aria-hidden="true" />
-              <Input type={show ? 'text' : 'password'} value={pw} autoComplete="current-password"
-                     onChange={e => setPw(e.target.value)} />
-              <button type="button" className="login-pw-eye" aria-label={t('login.showHide')}
-                      aria-pressed={show} onClick={() => setShow(v => !v)}>
-                <i className={`fi fi-rr-${show ? 'eye-crossed' : 'eye'}`} aria-hidden="true" />
-              </button>
-            </div>
-          </Field>
-
-          <div className="login-row">
-            <label className="login-remember">
-              <input type="checkbox" checked={remember} onChange={e => setRemember(e.target.checked)} />
-              <span>{t('login.remember')}</span>
-            </label>
-            <button type="button" className="linkbtn" onClick={() => toast(t('login.forgotHint'))}>
-              {t('login.forgot')}
-            </button>
-          </div>
-
-          <Button type="submit" variant="primary" size="lg" block disabled={busy}
+          <Button variant="primary" size="lg" block disabled={busy}
+                  onClick={signInWithProvider}
                   iconRight={busy ? undefined : 'arrowR'}
                   className={`login-submit${busy ? ' login-busy' : ''}`}>
-            {busy ? <><Icon name="refresh" /> {t('login.submit')}…</> : t('login.submit')}
+            {busy
+              ? <><Icon name="refresh" /> {t('login.connecting')}</>
+              : <><span className="login-pid" aria-hidden="true">PID</span> {t('login.submit')}</>}
           </Button>
 
+          <p className="login-provider-note">{t('login.providerNote')}</p>
+
+          <button type="button" className="linkbtn login-help"
+                  onClick={() => toast(t('login.providerHelpHint'))}>
+            {t('login.providerHelp')}
+          </button>
+
           <p className="login-secure"><i className="fi fi-rr-shield-check" aria-hidden="true" /> {t('login.secure')}</p>
-        </form>
+        </div>
 
         <footer className="login-foot">
           <span>{t('login.footer')}</span>
