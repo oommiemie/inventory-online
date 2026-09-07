@@ -299,10 +299,14 @@
   background: var(--surface-sunken); border: 1px solid var(--n-100);
 }
 [data-theme="dark"] .acct-linked { border-color: var(--n-200); }
-/* The asset is white artwork, so it needs a ground of its own to read on. */
+/* Painted through the artwork's alpha, so the mark takes the theme's colour
+   instead of needing a coloured plate behind white pixels. */
 .acct-linked-logo {
-  height: 26px; width: auto; flex: none; padding: 8px 12px; border-radius: 10px;
+  flex: none; width: 84px; height: 36px;
   background: linear-gradient(135deg, var(--hero-g1, #0447D8), var(--hero-g2, #1765DF));
+  mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat;
+  mask-position: center; -webkit-mask-position: center;
+  mask-size: contain; -webkit-mask-size: contain;
 }
 .acct-linked-main { flex: 1; min-width: 160px; }
 .acct-linked-main b {

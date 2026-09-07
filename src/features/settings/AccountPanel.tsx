@@ -112,7 +112,11 @@ export function AccountPanel() {
         <PanelHead title={t('acct.linked')} sub={t('acct.linkedDesc')} />
         <div className="panel-body">
           <div className="acct-linked">
-            <img className="acct-linked-logo" src={asset('/img/provider-id.png')} alt="" aria-hidden="true" />
+            {/* The artwork is a flat silhouette, so it is painted through a
+                mask and takes the brand colour rather than sitting on a plate. */}
+            <span className="acct-linked-logo" aria-hidden="true"
+                  style={{ maskImage: `url(${asset('/img/provider-id.png')})`,
+                           WebkitMaskImage: `url(${asset('/img/provider-id.png')})` }} />
             <div className="acct-linked-main">
               <b>{t('acct.linkedOk')} <Badge tone="green">{t('acct.active')}</Badge></b>
               <small>{t('acct.linkedNote')}</small>
