@@ -683,7 +683,8 @@
   .main { grid-column: 1; }
   /* The drawer slides over the page instead of sitting beside it, so it needs
      a surface of its own — transparent left the menu reading straight through
-     to the content behind. Frosted white keeps the shell's glass language. */
+     to the content behind. Frosted white keeps the shell's glass language;
+     square edges keep it reading as a panel flush to the screen. */
   .sidebar {
     inset-inline-start: 0;
     width: var(--sidebar-w); padding-inline: var(--s-3);
@@ -691,7 +692,6 @@
     background: color-mix(in srgb, var(--surface-solid) 86%, transparent);
     backdrop-filter: blur(24px) saturate(180%);
     -webkit-backdrop-filter: blur(24px) saturate(180%);
-    border-radius: 0 var(--r-lg) var(--r-lg) 0;
   }
   /* Specificity: the theme rule above sets transparent, so it is re-stated. */
   [data-theme="dark"] .sidebar {
