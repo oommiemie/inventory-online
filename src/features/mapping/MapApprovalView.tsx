@@ -60,7 +60,8 @@ export function MapApprovalView() {
         art={false}
         title={t('mapa.title')}
         sub={`${t('mapa.subtitle')} · ${total} ${t('c.items')}${facilities ? ` · ${facilities} ${t('req.facility')}` : ''}`}
-        controls={orgs.length > 1 ? (
+        filterCount={fOrg ? 1 : 0}
+        filters={orgs.length > 1 ? (
           <HeroSelect value={fOrg} onChange={setFOrg} ariaLabel={t('req.filterOrg')}>
             <option value="">{t('req.filterOrg')}</option>
             {orgs.map(o => <option key={o} value={o}>{orgName(o)}</option>)}

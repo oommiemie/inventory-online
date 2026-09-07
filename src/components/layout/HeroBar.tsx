@@ -5,6 +5,7 @@ import { ROLES, ORGS } from '@/data/seed'
 import { useT } from '@/hooks/useT'
 import { Icon } from '@/components/ui'
 import { asset } from '@/lib/asset'
+import { useMediaQuery } from '@/hooks/useMotion'
 import type { RoleId } from '@/types'
 
 /**
@@ -13,9 +14,15 @@ import type { RoleId } from '@/types'
  * search and filters; the identity cluster is always on the right.
  */
 export function HeroBar(
-  { title, eyebrow, sub, controls, actions, onMenu, identity = true, art = true }:
+  { title, eyebrow, sub, controls, filters, filterCount = 0, actions,
+    onMenu, identity = true, art = true }:
   { title?: ReactNode; eyebrow?: ReactNode; sub?: ReactNode
     controls?: ReactNode; actions?: ReactNode; onMenu?: () => void
+    /** Page filters. Inline beside the search on a wide screen; on a phone
+     *  they collapse behind one button that opens a sheet. */
+    filters?: ReactNode
+    /** How many of those filters are set, for the button's badge. */
+    filterCount?: number
     /** Role switch, notifications and the user card. Off for focused pages. */
     identity?: boolean
     /** The decorative supplies artwork. */
@@ -29,6 +36,10 @@ export function HeroBar(
 
   const markNotifsRead = useStore(s => s.markNotifsRead)
   const [notifOpen, setNotifOpen] = useState(false)
+  /* Filters move into a sheet on phones, so the row keeps one full-width
+     search field. Rendered in one place or the other, never both. */
+  const isPhone = useMediaQuery('(max-width: 860px)')
+  const [filterSheet, setFilterSheet] = useState(false)
   // Small grace period so the pointer can cross the gap to the panel.
   const closeTimer = useRef<number | undefined>(undefined)
   const anchorRef = useRef<HTMLDivElement>(null)
@@ -73,6 +84,17 @@ export function HeroBar(
         </div>
 
         <div className="spacer" />
+
+        {/* Phones fold every filter behind one round button, kept with the
+            other top-right controls rather than crowding the search field. */}
+        {filters && isPhone && (
+          <button type="button" className="hero-icon-btn hero-filter-btn"
+                  aria-label={t('c.filters')} aria-haspopup="dialog" aria-expanded={filterSheet}
+                  onClick={() => setFilterSheet(true)}>
+            <Icon name="filter" size={16} />
+            {filterCount > 0 && <em className="hero-filter-count">{filterCount}</em>}
+          </button>
+        )}
 
         {identity && <>
         <select
@@ -147,12 +169,33 @@ export function HeroBar(
         </>}
       </div>
 
-      {(controls || actions) && (
+      {(controls || filters || actions) && (
         <div className="herobar-row" style={{ marginTop: 'auto' }}>
           {controls}
+          {filters && !isPhone && filters}
           <div className="spacer" />
           {actions}
         </div>
+      )}
+
+      {filters && isPhone && filterSheet && createPortal(
+        <div className="sheet-scrim" onClick={() => setFilterSheet(false)}>
+          <div className="sheet" role="dialog" aria-modal="true" aria-label={t('c.filters')}
+               onClick={e => e.stopPropagation()}>
+            <div className="sheet-head">
+              <b>{t('c.filters')}</b>
+              <button type="button" className="sheet-close" aria-label={t('c.close')}
+                      onClick={() => setFilterSheet(false)}>
+                <Icon name="close" size={16} />
+              </button>
+            </div>
+            <div className="sheet-body">{filters}</div>
+            <button type="button" className="sheet-apply" onClick={() => setFilterSheet(false)}>
+              {t('c.showResults')}
+            </button>
+          </div>
+        </div>,
+        document.body,
       )}
      </div>
     </header>

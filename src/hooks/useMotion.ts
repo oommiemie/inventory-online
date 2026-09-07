@@ -45,3 +45,17 @@ export function useCountUp(target: number, duration = 900) {
   }, [target, duration])
   return shown
 }
+
+/** Subscribes to a media query, so a component can branch on layout, not just style. */
+export function useMediaQuery(query: string) {
+  const [matches, setMatches] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia(query).matches)
+  useEffect(() => {
+    const mq = window.matchMedia(query)
+    const on = () => setMatches(mq.matches)
+    on()
+    mq.addEventListener('change', on)
+    return () => mq.removeEventListener('change', on)
+  }, [query])
+  return matches
+}

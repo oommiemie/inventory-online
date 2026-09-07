@@ -205,7 +205,8 @@ export function ReportsView() {
         art={false}
         title={t('rep.title')}
         sub={`${t('rep.subtitle')} · ${t(`scope.${r.scope}`)}`}
-        controls={<>
+        filterCount={(fOrg ? 1 : 0) + (range !== 'all' ? 1 : 0)}
+        filters={<>
           <HeroSelect value={fOrg} onChange={setFOrg} ariaLabel={t('req.filterOrg')}>
             <option value="">{t('req.filterOrg')} ({all.length})</option>
             {orgs.map(o => <option key={o} value={o}>{orgName(o)}</option>)}

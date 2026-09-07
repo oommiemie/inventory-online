@@ -245,15 +245,14 @@ export function DocListPage(
         art={false}
         title={title}
         sub={sub}
-        controls={<>
-          <HeroSearch value={q} onChange={setQ} placeholder={t('req.searchPh')} />
-          {orgs.length > 1 && (
-            <HeroSelect value={fOrg} onChange={setFOrg} ariaLabel={t('req.filterOrg')}>
-              <option value="">{t('req.filterOrg')}</option>
-              {orgs.map(o => <option key={o} value={o}>{orgName(o)}</option>)}
-            </HeroSelect>
-          )}
-        </>}
+        controls={<HeroSearch value={q} onChange={setQ} placeholder={t('req.searchPh')} />}
+        filterCount={fOrg ? 1 : 0}
+        filters={orgs.length > 1 ? (
+          <HeroSelect value={fOrg} onChange={setFOrg} ariaLabel={t('req.filterOrg')}>
+            <option value="">{t('req.filterOrg')}</option>
+            {orgs.map(o => <option key={o} value={o}>{orgName(o)}</option>)}
+          </HeroSelect>
+        ) : undefined}
         actions={
           <HeroCta variant="ghost" icon="download" onClick={exportCsv}>{t('c.export')}</HeroCta>
         }

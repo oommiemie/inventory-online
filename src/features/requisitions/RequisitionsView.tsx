@@ -110,8 +110,9 @@ export function RequisitionsView() {
         art={false}
         title={t('req.title')}
         sub={t('req.subtitle')}
-        controls={<>
-          <HeroSearch value={q} onChange={setQ} placeholder={t('req.searchPh')} />
+        controls={<HeroSearch value={q} onChange={setQ} placeholder={t('req.searchPh')} />}
+        filterCount={(fState ? 1 : 0) + (fOrg ? 1 : 0)}
+        filters={<>
           <HeroSelect value={fState} onChange={setFState} ariaLabel={t('req.filterState')}>
             <option value="">{t('req.filterState')}</option>
             {ALL_STATES.map(x => <option key={x} value={x}>{t(`st.${x}`)}</option>)}

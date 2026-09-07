@@ -449,17 +449,12 @@
 
 /* Narrow screens: collapse the field into a circular icon button. Keeping a
    stretched pill here would eat the bar and clip its own placeholder. */
+/* Phones: the field takes the whole row and the filters sit behind one button,
+   so search stays typable instead of shrinking to an icon. */
 @media (max-width: 860px) {
-  .hero-search { flex: none; width: 44px; max-width: 44px; }
-  .hero-search--trigger {
-    width: 44px; padding: 0; justify-content: center; gap: 0;
-    border-radius: 50%; cursor: pointer;
-  }
-  .hero-search--trigger .hero-search-text,
+  .hero-search { flex: 1 1 auto; width: auto; max-width: none; }
   .hero-search--trigger .hero-search-kbd { display: none; }
-  /* Icon is centred by flex now, not absolutely positioned. */
-  .hero-search--trigger svg { position: static; transform: none; }
-  .hero-search--trigger:active { transform: scale(.92); }
+  .hero-search--trigger:active { transform: scale(.985); }
 }
 
 .hero-select {
@@ -479,6 +474,61 @@
 .hero-select:hover { background-color: rgba(255,255,255,.28); }
 .hero-select option { color: var(--text); background: var(--surface-solid); }
 .hero-select--tall { height: 44px; }
+
+/* One round button standing in for every filter on a phone; it rides the
+   top-right cluster with the bell, so the search keeps the row below. */
+.hero-filter-count {
+  position: absolute; top: -3px; right: -3px;
+  min-width: 18px; height: 18px; padding: 0 5px; border-radius: 100px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: #fff; color: var(--brand-600);
+  font-style: normal; font-size: 10px; font-weight: 700; line-height: 1;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--hero-g2, #1765DF) 85%, transparent);
+}
+
+/* Filter sheet: rises from the bottom, where a thumb can reach it. */
+.sheet-scrim {
+  position: fixed; inset: 0; z-index: var(--z-modal);
+  display: flex; align-items: flex-end;
+  background: rgba(8,20,34,.42); backdrop-filter: blur(2px);
+  animation: fadeIn var(--dur) ease;
+}
+.sheet {
+  width: 100%; max-height: 80vh; overflow-y: auto;
+  display: grid; gap: 14px; padding: 8px 16px calc(16px + env(safe-area-inset-bottom));
+  border-radius: var(--r-2xl) var(--r-2xl) 0 0;
+  background: var(--surface-solid); color: var(--text);
+  box-shadow: 0 -20px 50px -20px rgba(8,20,34,.5);
+  animation: sheetUp var(--dur) var(--ease-out);
+}
+@keyframes sheetUp { from { transform: translateY(100%); } }
+/* Grab handle, drawn on the header rather than an extra element. */
+.sheet-head {
+  position: relative; display: flex; align-items: center; justify-content: space-between;
+  padding-top: 14px;
+}
+.sheet-head::before {
+  content: ""; position: absolute; top: 4px; left: 50%; transform: translateX(-50%);
+  width: 36px; height: 4px; border-radius: 100px; background: var(--n-200);
+}
+.sheet-head b { font-size: var(--fs-lg); font-weight: 750; }
+.sheet-close {
+  width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center;
+  color: var(--text-muted); background: var(--n-100);
+}
+.sheet-body { display: grid; gap: 12px; }
+/* Hero controls are white-on-blue; inside the sheet they sit on a light card. */
+.sheet-body .hero-select {
+  width: 100%; height: 48px; color: var(--text);
+  background-color: var(--surface-sunken); border-color: var(--n-200);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236C757D' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+}
+.sheet-apply {
+  height: 48px; border-radius: var(--r-full); border: 0;
+  background: linear-gradient(135deg, var(--hero-g1, #0447D8), var(--hero-g2, #1765DF));
+  color: #fff; font-size: var(--fs-md); font-weight: 700;
+}
+.sheet-apply:active { transform: scale(.98); }
 
 /* CTA: white at 90%, blue label (Figma) */
 /* Frosted-glass CTA: translucent white that blurs the artwork behind it,

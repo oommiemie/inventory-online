@@ -100,15 +100,14 @@ export function DashboardView() {
         eyebrow={today}
         title={`${t('dash.greeting')}, ${greetName}`}
         sub={`${t('nav.systemOk')} · ${t('nav.lastSync')} ${lastSync.master}`}
-        controls={<>
-          <HeroSearchTrigger placeholder={t('sl.trigger')} onOpen={openSpotlight} />
-          {orgs.length > 1 && (
-            <HeroSelect value={fOrg} onChange={setFOrg} ariaLabel={t('req.filterOrg')}>
-              <option value="">{t('req.filterOrg')}</option>
-              {orgs.map(o => <option key={o} value={o}>{orgName(o)}</option>)}
-            </HeroSelect>
-          )}
-        </>}
+        controls={<HeroSearchTrigger placeholder={t('sl.trigger')} onOpen={openSpotlight} />}
+        filterCount={fOrg ? 1 : 0}
+        filters={orgs.length > 1 ? (
+          <HeroSelect value={fOrg} onChange={setFOrg} ariaLabel={t('req.filterOrg')}>
+            <option value="">{t('req.filterOrg')}</option>
+            {orgs.map(o => <option key={o} value={o}>{orgName(o)}</option>)}
+          </HeroSelect>
+        ) : undefined}
         actions={can('req.create')
           ? <HeroCta icon="plus" onClick={onNew}>{t('req.new')}</HeroCta>
           : undefined}

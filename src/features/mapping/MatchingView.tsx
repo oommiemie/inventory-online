@@ -70,8 +70,9 @@ export function MatchingView() {
         art={false}
         title={t('mat.title')}
         sub={`${orgName(org)} · ${t('mat.subtitle')}`}
-        controls={<>
-          <HeroSearch value={q} onChange={setQ} placeholder={t('c.search')} />
+        controls={<HeroSearch value={q} onChange={setQ} placeholder={t('c.search')} />}
+        filterCount={fState ? 1 : 0}
+        filters={<>
           <HeroSelect value={fState} onChange={setFState} ariaLabel={t('c.status')}>
             <option value="">{t('c.all')} ({all.length})</option>
             {(['UNMAPPED', 'DRAFT', 'REJECTED', 'PENDING_APPROVAL', 'ACTIVE', 'INACTIVE'] as MapState[])

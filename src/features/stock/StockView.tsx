@@ -91,8 +91,9 @@ export function StockView() {
         art={false}
         title={t('stk.title')}
         sub={t('stk.subtitle')}
-        controls={<>
-          <HeroSearch value={q} onChange={setQ} placeholder={t('stk.searchPh')} />
+        controls={<HeroSearch value={q} onChange={setQ} placeholder={t('stk.searchPh')} />}
+        filterCount={(org ? 1 : 0) + (wh ? 1 : 0)}
+        filters={<>
           {orgs.length > 1 && (
             <HeroSelect value={org} onChange={setOrg} ariaLabel={t('req.filterOrg')}>
               <option value="">{t('req.filterOrg')}</option>

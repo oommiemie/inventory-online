@@ -57,15 +57,14 @@ export function MonitorView() {
         art={false}
         title={t('mon.title')}
         sub={t('mon.subtitle')}
-        controls={<>
-          <HeroSearch value={q} onChange={setQ} placeholder={t('c.search')} />
-          {orgs.length > 1 && (
-            <HeroSelect value={fOrg} onChange={setFOrg} ariaLabel={t('req.filterOrg')}>
-              <option value="">{t('req.filterOrg')}</option>
-              {orgs.map(o => <option key={o} value={o}>{orgName(o)}</option>)}
-            </HeroSelect>
-          )}
-        </>}
+        controls={<HeroSearch value={q} onChange={setQ} placeholder={t('c.search')} />}
+        filterCount={fOrg ? 1 : 0}
+        filters={orgs.length > 1 ? (
+          <HeroSelect value={fOrg} onChange={setFOrg} ariaLabel={t('req.filterOrg')}>
+            <option value="">{t('req.filterOrg')}</option>
+            {orgs.map(o => <option key={o} value={o}>{orgName(o)}</option>)}
+          </HeroSelect>
+        ) : undefined}
         actions={
           <HeroCta icon="refresh" onClick={() => toast(t('mon.refresh'), 'ok')}>{t('mon.refresh')}</HeroCta>
         }
