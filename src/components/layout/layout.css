@@ -475,8 +475,8 @@
 .hero-select option { color: var(--text); background: var(--surface-solid); }
 .hero-select--tall { height: 44px; }
 
-/* One round button standing in for every filter on a phone; it rides the
-   top-right cluster with the bell, so the search keeps the row below. */
+/* One round button standing in for every filter on a phone, sitting at the end
+   of the search field so the two read as one control. */
 .hero-filter-count {
   position: absolute; top: -3px; right: -3px;
   min-width: 18px; height: 18px; padding: 0 5px; border-radius: 100px;
@@ -485,6 +485,7 @@
   font-style: normal; font-size: 10px; font-weight: 700; line-height: 1;
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--hero-g2, #1765DF) 85%, transparent);
 }
+.hero-filter-btn:active { transform: scale(.94); }
 
 /* Filter sheet: rises from the bottom, where a thumb can reach it. */
 .sheet-scrim {

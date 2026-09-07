@@ -85,17 +85,6 @@ export function HeroBar(
 
         <div className="spacer" />
 
-        {/* Phones fold every filter behind one round button, kept with the
-            other top-right controls rather than crowding the search field. */}
-        {filters && isPhone && (
-          <button type="button" className="hero-icon-btn hero-filter-btn"
-                  aria-label={t('c.filters')} aria-haspopup="dialog" aria-expanded={filterSheet}
-                  onClick={() => setFilterSheet(true)}>
-            <Icon name="filter" size={16} />
-            {filterCount > 0 && <em className="hero-filter-count">{filterCount}</em>}
-          </button>
-        )}
-
         {identity && <>
         <select
           className="hero-select hide-sm"
@@ -173,6 +162,16 @@ export function HeroBar(
         <div className="herobar-row" style={{ marginTop: 'auto' }}>
           {controls}
           {filters && !isPhone && filters}
+          {/* Phones fold every filter behind one round button at the end of
+              the search field, so the row keeps a single typable input. */}
+          {filters && isPhone && (
+            <button type="button" className="hero-icon-btn hero-filter-btn"
+                  aria-label={t('c.filters')} aria-haspopup="dialog" aria-expanded={filterSheet}
+                  onClick={() => setFilterSheet(true)}>
+                <Icon name="filter" size={16} />
+              {filterCount > 0 && <em className="hero-filter-count">{filterCount}</em>}
+              </button>
+          )}
           <div className="spacer" />
           {actions}
         </div>
