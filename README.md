@@ -32,7 +32,7 @@ push เข้า `main` แล้ว deploy ขึ้น GitHub Pages อัต
 src/
 ├── app/            store (Zustand), router, guard, ErrorBoundary, nav, selectors
 ├── components/
-│   ├── ui/         design-system primitives (Button, Card, Badge, Table…)
+│   ├── ui/         design-system primitives (Button, Card, Badge, Table, Combo…)
 │   ├── charts/     SVG bar chart
 │   ├── layout/     AppShell · Sidebar · HeroBar · ToastRegion
 │   ├── DocParts    stepper / header / timeline / summary shared by workflows
@@ -76,6 +76,11 @@ Token ทั้งหมดอยู่ใน `src/styles/tokens.css` — compon
 
 **Liquid glass** — คลาส `.glass` ให้พื้นผิวโปร่งแสงพร้อม `backdrop-filter` และเส้นขอบ
 specular ด้านบน (`::before`) แบบ Apple · รองรับ dark mode ครบทุก token
+
+**Combo** — every dropdown is the app's own control (`ui/Combo.tsx`), not the
+platform's: a button plus a listbox portalled to `<body>`, so it can be styled,
+keyboard-driven and filtered. The API mirrors a native select (`value` plus
+`<option>` children), and a search box appears once a list reaches eight items.
 
 **Tone map** — คลาส `tone-*` (info · green · amber · danger · teal · violet · indigo ·
 cyan · rose · slate · ok-done · gray) ประกาศไว้ที่เดียวใน `ui.css` และตั้งค่า `--tone` / `--tone-bg`

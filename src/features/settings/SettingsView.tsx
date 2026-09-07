@@ -4,10 +4,7 @@ import { useStore, hospitalWarehouses, supplyLinkFor } from '@/app/store'
 import { facilitiesInScope } from '@/app/selectors'
 import { ROLES, ORGS, WAREHOUSES } from '@/data/seed'
 import { useT } from '@/hooks/useT'
-import {
-  Card, PanelHead, Button, Badge, Select, TableWrap,
-  Chip, Empty, Icon, Switch, Segmented,
-} from '@/components/ui'
+import { Card, PanelHead, Button, Badge, TableWrap, Chip, Empty, Icon, Switch, Segmented, Combo } from '@/components/ui'
 import { MapBadge } from '@/components/StateBadge'
 import { DocSummary } from '@/components/DocParts'
 import type { IssueMode, RoleId, MapState } from '@/types'
@@ -309,14 +306,14 @@ export function SettingsView() {
                       </td>
                       <td>
                         {editable ? (
-                          <Select value={cur} style={{ minWidth: 240 }}
-                                  aria-label={`${t('set.supply')} ${orgName(o)}`}
-                                  onChange={e => setSupplyWh(o, e.target.value)}>
+                          <Combo value={cur} className="sel-supply"
+                                 ariaLabel={`${t('set.supply')} ${orgName(o)}`}
+                                 onChange={v => setSupplyWh(o, v)}>
                             <option value="">{t('set.pickSupply')}</option>
                             {hospitalWarehouses().map(w => (
                               <option key={w} value={w}>{whName(w)} · {orgName(WAREHOUSES[w].org)}</option>
                             ))}
-                          </Select>
+                          </Combo>
                         ) : cur
                           ? <span className="cell-strong">{whName(cur)}</span>
                           : <span className="cell-sub">{t('ref.notMapped')}</span>}

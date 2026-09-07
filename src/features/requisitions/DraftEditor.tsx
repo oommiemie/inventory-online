@@ -5,10 +5,7 @@ import { useStore } from '@/app/store'
 import { ROLES, MASTER } from '@/data/seed'
 import { M, num, mapOf, uomOf, toBase, toLocal, available, onHand, mapIsActive } from '@/lib/domain'
 import { useT } from '@/hooks/useT'
-import {
-  Card, PanelHead, Button, Select, Input, NumberInput, Textarea, Field,
-  TableWrap, Empty, Note, LinkButton, Modal, KV,
-} from '@/components/ui'
+import { Card, PanelHead, Button, Input, NumberInput, Textarea, Field, TableWrap, Empty, Note, LinkButton, Modal, KV, Combo } from '@/components/ui'
 import { DocHeader } from '@/components/DocParts'
 import { MapBadge, StateBadge } from '@/components/StateBadge'
 
@@ -48,17 +45,19 @@ export function DraftEditor({ doc }: { doc: Requisition }) {
           title={t('req.lines')}
           sub={`${doc.lines.length} ${t('c.items')} · ${t('c.baht')} ${num(Math.round(totalValue))}`}
         >
-          <Select
+          {/* Acts as a menu rather than a field: the value stays empty so the
+              trigger always reads as the invitation to add a line. */}
+          <Combo
             className="select-cta"
             value=""
-            aria-label={t('req.addLine')}
-            onChange={e => { if (e.target.value) addLine(doc.no, e.target.value) }}
+            ariaLabel={t('req.addLine')}
+            onChange={v => { if (v) addLine(doc.no, v) }}
           >
             <option value="">+ {t('req.addLine')}…</option>
             {available_.map(m => (
               <option key={m.code} value={m.code}>{m.code} · {itemName(m.code)}</option>
             ))}
-          </Select>
+          </Combo>
         </PanelHead>
 
         {doc.lines.length === 0 ? (

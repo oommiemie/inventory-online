@@ -5,10 +5,7 @@ import { byState } from '@/app/selectors'
 import { ROLES } from '@/data/seed'
 import { M, num } from '@/lib/domain'
 import { useT } from '@/hooks/useT'
-import {
-  Card, PanelHead, Button, NumberInput, Select, Textarea, Field,
-  TableWrap, Badge, KV, Note, Modal,
-} from '@/components/ui'
+import { Card, PanelHead, Button, NumberInput, Textarea, Field, TableWrap, Badge, KV, Note, Modal, Combo } from '@/components/ui'
 import { DocHeader, DocSummary, DocTimeline, DocListPage } from '@/components/DocParts'
 import { StateBadge, SyncBadge } from '@/components/StateBadge'
 import { useMenuToggle } from '@/components/layout/AppShell'
@@ -187,11 +184,11 @@ export function ReceiveView() {
       >
         <div className="stack">
           <Field label={t('rcv.discrepancyType')}>
-            <Select value={dType} onChange={e => setDType(e.target.value)}>
+            <Combo value={dType} ariaLabel={t('rcv.discrepancyType')} onChange={setDType}>
               <option value="qty">{t('rcv.dt.qty')}</option>
               <option value="lot">{t('rcv.dt.lot')}</option>
               <option value="damaged">{t('rcv.dt.damaged')}</option>
-            </Select>
+            </Combo>
           </Field>
           <Field label={t('c.note')}
                  hint={diffs.map(l => `${M(l.item).code} ${(l.received || 0) - l.issued}`).join(', ')}>

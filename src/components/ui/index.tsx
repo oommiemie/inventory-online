@@ -1,5 +1,5 @@
 import {
-  type ButtonHTMLAttributes, type InputHTMLAttributes, type SelectHTMLAttributes,
+  type ButtonHTMLAttributes, type InputHTMLAttributes,
   type TextareaHTMLAttributes, type ReactNode, useEffect, useId,
 } from 'react'
 import { Icon, type IconName } from './Icon'
@@ -8,6 +8,7 @@ import './ui.css'
 
 export { Icon }
 export type { IconName }
+export { Combo } from './Combo'
 
 /* ---------------- Button ---------------- */
 type Variant = 'default' | 'primary' | 'teal' | 'danger' | 'ghost'
@@ -107,9 +108,6 @@ export const Input = ({ className = '', ...rest }: InputHTMLAttributes<HTMLInput
 
 export const NumberInput = ({ className = '', ...rest }: InputHTMLAttributes<HTMLInputElement>) =>
   <input inputMode="numeric" className={`input input-num ${className}`} {...rest} />
-
-export const Select = ({ className = '', children, ...rest }: SelectHTMLAttributes<HTMLSelectElement>) =>
-  <select className={`select ${className}`} {...rest}>{children}</select>
 
 export const Textarea = ({ className = '', ...rest }: TextareaHTMLAttributes<HTMLTextAreaElement>) =>
   <textarea className={`textarea ${className}`} {...rest} />

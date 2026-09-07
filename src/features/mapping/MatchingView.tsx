@@ -4,9 +4,7 @@ import { currentMapOrg, facilitiesInScope } from '@/app/selectors'
 import { ROLES, MASTER } from '@/data/seed'
 import { num, uomChoices, mappingReady } from '@/lib/domain'
 import { useT } from '@/hooks/useT'
-import {
-  Card, PanelHead, Button, Select, TableWrap, Empty, Chip, LinkButton, NumberInput,
-} from '@/components/ui'
+import { Card, PanelHead, Button, TableWrap, Empty, Chip, LinkButton, NumberInput, Combo } from '@/components/ui'
 import { MapBadge } from '@/components/StateBadge'
 import type { MapState } from '@/types'
 import './mapping.css'
@@ -143,14 +141,14 @@ export function MatchingView() {
                     </td>
                     <td>
                       {editable ? (
-                        <Select value={m.item} className="sel-master"
-                                aria-label={`${t('mat.master')} ${m.local}`}
-                                onChange={e => patch(i, { item: e.target.value })}>
+                        <Combo value={m.item} className="sel-master"
+                               ariaLabel={`${t('mat.master')} ${m.local}`}
+                               onChange={v => patch(i, { item: v })}>
                           <option value="">{t('mat.pickMaster')}</option>
                           {MASTER.map(x => (
                             <option key={x.code} value={x.code}>{x.code} · {itemName(x.code)}</option>
                           ))}
-                        </Select>
+                        </Combo>
                       ) : m.item ? (<>
                         <span className="cell-strong">{m.item}</span>
                         <span className="cell-sub">{itemName(m.item)}</span>
@@ -159,12 +157,12 @@ export function MatchingView() {
                     <td>
                       {!m.item ? <span className="cell-sub">{t('mat.selectMaster')}</span>
                         : editable ? (
-                          <Select value={m.localUom} className="sel-uom"
-                                  aria-label={`${t('req.localUnit')} ${m.local}`}
-                                  onChange={e => patch(i, { localUom: e.target.value })}>
+                          <Combo value={m.localUom} className="sel-uom"
+                                 ariaLabel={`${t('req.localUnit')} ${m.local}`}
+                                 onChange={v => patch(i, { localUom: v })}>
                             <option value="">{t('mat.pickUom')}</option>
                             {uomChoices(m.item).map(u => <option key={u} value={u}>{u}</option>)}
-                          </Select>
+                          </Combo>
                         ) : <span className="cell-strong">{m.localUom}</span>}
                     </td>
                     <td className="num">

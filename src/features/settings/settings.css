@@ -287,3 +287,7 @@
 
 /* A dependent setting, indented under the switch that enables it. */
 .set-row--sub { padding-left: 20px; border-left: 2px solid var(--brand-200); margin-left: 2px; }
+
+/* Supply picker in the table: wide enough for a warehouse plus its owner. */
+.sel-supply { min-width: 240px; }
+@media (max-width: 720px) { .sel-supply { min-width: 260px; } }

@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom'
 import { useStore } from '@/app/store'
 import { ROLES, ORGS } from '@/data/seed'
 import { useT } from '@/hooks/useT'
-import { Icon } from '@/components/ui'
+import { Icon, Combo } from '@/components/ui'
 import { asset } from '@/lib/asset'
 import { useMediaQuery } from '@/hooks/useMotion'
 import type { RoleId } from '@/types'
@@ -90,16 +90,13 @@ export function HeroBar(
         {isPhone && actions}
 
         {identity && <>
-        <select
-          className="hero-select hide-sm"
-          value={role}
-          aria-label={t('role.switch')}
-          onChange={e => setRole(e.target.value as RoleId)}
-        >
+        <Combo className="hero-select hide-sm" value={role}
+               ariaLabel={t('role.switch')}
+               onChange={v => setRole(v as RoleId)}>
           {(Object.keys(ROLES) as RoleId[]).map(id => (
             <option key={id} value={id}>{lang === 'EN' ? ROLES[id].label : ROLES[id].labelTh}</option>
           ))}
-        </select>
+        </Combo>
 
         <div className="notif-anchor" ref={anchorRef}
              onMouseEnter={openNotifs} onMouseLeave={closeNotifs}>
@@ -239,10 +236,10 @@ export function HeroSelect(
   { value: string; onChange: (v: string) => void; children: ReactNode; ariaLabel: string },
 ) {
   return (
-    <select className="hero-select hero-select--filter" value={value} aria-label={ariaLabel}
-            onChange={e => onChange(e.target.value)}>
+    <Combo className="hero-select hero-select--filter" value={value}
+           onChange={onChange} ariaLabel={ariaLabel}>
       {children}
-    </select>
+    </Combo>
   )
 }
 
