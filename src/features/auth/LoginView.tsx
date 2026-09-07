@@ -82,17 +82,16 @@ export function LoginView() {
             <small>{t('login.sub')}</small>
           </div>
 
+          {/* The mark alone carries the button, so the label it replaces becomes
+              the accessible name. */}
           <Button variant="primary" size="lg" block disabled={busy}
                   onClick={signInWithProvider}
-                  iconRight={busy ? undefined : 'arrowR'}
+                  aria-label={busy ? t('login.connecting') : t('login.submit')}
                   className={`login-submit${busy ? ' login-busy' : ''}`}>
             {busy
-              ? <><Icon name="refresh" /> {t('login.connecting')}</>
-              : (<>
-                  <img className="login-provider-logo" src={asset('/img/provider-id.png')}
-                       alt="" aria-hidden="true" />
-                  {t('login.submit')}
-                </>)}
+              ? <Icon name="refresh" />
+              : <img className="login-provider-logo" src={asset('/img/provider-id.png')}
+                     alt="" aria-hidden="true" />}
           </Button>
 
           <p className="login-provider-note">{t('login.providerNote')}</p>
