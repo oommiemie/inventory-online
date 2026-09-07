@@ -681,9 +681,21 @@
 @media (max-width: 860px) {
   .shell, .shell.collapsed { grid-template-columns: minmax(0, 1fr); }
   .main { grid-column: 1; }
+  /* The drawer slides over the page instead of sitting beside it, so it needs
+     a surface of its own — transparent left the menu reading straight through
+     to the content behind. Frosted white keeps the shell's glass language. */
   .sidebar {
+    inset-inline-start: 0;
     width: var(--sidebar-w); padding-inline: var(--s-3);
     transform: translateX(-100%); box-shadow: 0 0 0 100vmax rgba(8,20,34,0);
+    background: color-mix(in srgb, var(--surface-solid) 86%, transparent);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border-radius: 0 var(--r-lg) var(--r-lg) 0;
+  }
+  /* Specificity: the theme rule above sets transparent, so it is re-stated. */
+  [data-theme="dark"] .sidebar {
+    background: color-mix(in srgb, var(--surface-solid) 88%, transparent);
   }
   .sidebar.open { transform: translateX(0); box-shadow: 24px 0 60px -20px rgba(8,20,34,.55); }
   .sidebar.open ~ .scrim { opacity: 1; pointer-events: auto; }
