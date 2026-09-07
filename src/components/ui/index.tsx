@@ -9,6 +9,7 @@ import './ui.css'
 export { Icon }
 export type { IconName }
 export { Combo } from './Combo'
+export { DatePicker } from './DatePicker'
 
 /* ---------------- Button ---------------- */
 type Variant = 'default' | 'primary' | 'teal' | 'danger' | 'ghost'

@@ -80,7 +80,12 @@ specular ด้านบน (`::before`) แบบ Apple · รองรับ d
 **Combo** — every dropdown is the app's own control (`ui/Combo.tsx`), not the
 platform's: a button plus a listbox portalled to `<body>`, so it can be styled,
 keyboard-driven and filtered. The API mirrors a native select (`value` plus
-`<option>` children), and a search box appears once a list reaches eight items.
+`<option>` children), and a search box appears once a list reaches six items.
+
+**DatePicker** — the same treatment for dates (`ui/DatePicker.tsx`): the browser's
+picker cannot be styled and shows Gregorian years, so the month grid is drawn
+here. Thai months and Buddhist years come from the locale while the value stays
+an ISO string.
 
 **Tone map** — คลาส `tone-*` (info · green · amber · danger · teal · violet · indigo ·
 cyan · rose · slate · ok-done · gray) ประกาศไว้ที่เดียวใน `ui.css` และตั้งค่า `--tone` / `--tone-bg`

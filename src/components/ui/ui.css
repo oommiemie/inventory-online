@@ -603,6 +603,9 @@ input[type="checkbox"]:disabled {
   flex: 1; min-width: 0; border: 0; outline: none; background: none;
   font-size: var(--fs-sm); color: var(--text);
 }
+/* The panel itself is the focused surface; a ring around the field inside it
+   would draw a second box within a box. */
+.combo-search input:focus, .combo-search input:focus-visible { box-shadow: none; outline: none; }
 .combo-search input::placeholder { color: var(--text-muted); }
 
 .combo-list { max-height: min(320px, 52vh); overflow-y: auto; margin: 0; padding: 6px; list-style: none; }
@@ -618,3 +621,72 @@ input[type="checkbox"]:disabled {
 .combo-option.is-on { font-weight: 650; color: var(--brand-ink); }
 .combo-option > svg { flex: none; color: var(--brand-ink); }
 .combo-empty { padding: 18px 10px; text-align: center; font-size: var(--fs-xs); color: var(--text-muted); }
+
+/* ---------------- Date field + calendar ----------------
+   The browser's own picker cannot be styled and shows Gregorian years, so the
+   month grid is drawn here and the Buddhist year comes from the locale. */
+.datefield {
+  display: inline-flex; align-items: center; gap: 10px;
+  width: 100%; height: 40px; padding: 0 12px;
+  border: 1px solid var(--n-200); border-radius: var(--r-sm);
+  background: var(--surface-raised); color: var(--text);
+  font-size: var(--fs-sm); font-weight: 500; text-align: left; cursor: pointer;
+  transition: border-color var(--dur-fast), box-shadow var(--dur-fast);
+}
+.datefield:hover:not(:disabled) { border-color: var(--n-300); }
+.datefield[aria-expanded="true"], .datefield:focus-visible {
+  outline: none; border-color: var(--brand-400); box-shadow: var(--focus-ring);
+}
+.datefield > i { flex: none; font-size: 14px; line-height: 1; color: var(--brand-ink); }
+.datefield-value { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.datefield-value.is-empty { color: var(--text-muted); font-weight: 400; }
+.datefield > svg { flex: none; color: var(--n-400); transition: transform var(--dur-fast); }
+.datefield[aria-expanded="true"] > svg { transform: rotate(180deg); }
+
+.cal {
+  position: fixed; z-index: var(--z-modal); width: 300px;
+  padding: 12px; border-radius: var(--r-lg);
+  background: var(--surface-solid); border: 1px solid var(--n-100);
+  box-shadow: var(--sh-lg); animation: fadeUp var(--dur-fast) var(--ease-out);
+}
+[data-theme="dark"] .cal { border-color: var(--n-200); }
+.cal.is-above { transform: translateY(-100%); }
+
+.cal-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.cal-head b { font-size: var(--fs-md); font-weight: 750; }
+.cal-nav {
+  width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center;
+  color: var(--text-soft); background: transparent;
+  transition: background var(--dur-fast), color var(--dur-fast);
+}
+.cal-nav:hover { background: var(--n-100); color: var(--brand-ink); }
+.cal-nav:active { transform: scale(.92); }
+
+.cal-week, .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); }
+.cal-week { margin-top: 8px; }
+.cal-week span {
+  text-align: center; font-size: 10px; font-weight: 700; letter-spacing: .04em;
+  color: var(--text-muted); padding-bottom: 4px;
+}
+.cal-grid { gap: 2px; }
+.cal-day {
+  height: 34px; border-radius: 10px; border: 0; background: transparent;
+  font-size: var(--fs-sm); font-weight: 550; color: var(--text);
+  font-variant-numeric: tabular-nums; cursor: pointer;
+  transition: background var(--dur-fast), color var(--dur-fast);
+}
+.cal-day:hover { background: var(--surface-sunken); }
+.cal-day.is-out { color: var(--n-400); font-weight: 400; }
+/* Today is outlined; the selection is filled, so the two never read alike. */
+.cal-day.is-today { box-shadow: inset 0 0 0 1.5px var(--brand-300); color: var(--brand-ink); }
+.cal-day.is-on {
+  background: linear-gradient(135deg, var(--hero-g1, #0447D8), var(--hero-g2, #1765DF));
+  color: #fff; font-weight: 700; box-shadow: 0 6px 14px -8px color-mix(in srgb, var(--hero-g1, #0447D8) 90%, transparent);
+}
+.cal-day.is-on:hover { filter: brightness(1.05); }
+
+.cal-foot {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--glass-edge);
+}
+.cal-foot .linkbtn { font-size: var(--fs-xs); }

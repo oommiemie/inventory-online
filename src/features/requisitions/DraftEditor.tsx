@@ -5,7 +5,7 @@ import { useStore } from '@/app/store'
 import { ROLES, MASTER } from '@/data/seed'
 import { M, num, mapOf, uomOf, toBase, toLocal, available, onHand, mapIsActive } from '@/lib/domain'
 import { useT } from '@/hooks/useT'
-import { Card, PanelHead, Button, Input, NumberInput, Textarea, Field, TableWrap, Empty, Note, LinkButton, Modal, KV, Combo } from '@/components/ui'
+import { Card, PanelHead, Button, NumberInput, Textarea, Field, TableWrap, Empty, Note, LinkButton, Modal, KV, Combo, DatePicker } from '@/components/ui'
 import { DocHeader } from '@/components/DocParts'
 import { MapBadge, StateBadge } from '@/components/StateBadge'
 
@@ -24,6 +24,7 @@ export function DraftEditor({ doc }: { doc: Requisition }) {
   const toast = useStore(s => s.toast)
 
   const [confirmCancel, setConfirmCancel] = useState(false)
+  const [needBy, setNeedBy] = useState('2026-08-31')
   const r = ROLES[role]
 
   const unmapped = useMemo(
@@ -135,7 +136,7 @@ export function DraftEditor({ doc }: { doc: Requisition }) {
 
               <div className="side-fields">
                 <Field label={t('req.needBy')}>
-                  <Input type="date" defaultValue="2026-08-31" />
+                  <DatePicker value={needBy} onChange={setNeedBy} ariaLabel={t('req.needBy')} />
                 </Field>
                 <Field label={t('c.note')}>
                   <Textarea rows={3} value={doc.note} onChange={e => setNote(doc.no, e.target.value)} />

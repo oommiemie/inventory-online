@@ -37,7 +37,7 @@ function readOptions(children: ReactNode): Item[] {
  * caller swaps one for the other without restructuring.
  */
 export function Combo(
-  { value, onChange, children, ariaLabel, className = '', disabled, searchFrom = 8 }:
+  { value, onChange, children, ariaLabel, className = '', disabled, searchFrom = 6 }:
   { value: string; onChange: (v: string) => void; children: ReactNode
     ariaLabel: string; className?: string; disabled?: boolean
     /** Show the search box once the list is at least this long. */
