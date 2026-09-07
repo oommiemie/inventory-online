@@ -344,8 +344,11 @@
 .herobar--plain .herobar-inner { min-height: 0; padding: 16px; gap: 16px; }
 .herobar--plain .herobar-row { margin-top: 0 !important; }
 /* On pages that scroll as a whole, the compact hero carries the search and
-   filters, so it stays pinned instead of scrolling out of reach. */
+   filters, so it stays pinned instead of scrolling out of reach. Phones opt
+   out below: there the hero runs 160–280px tall, and holding a third of the
+   viewport hostage costs more than the scroll back up to reach the search. */
 .herobar--plain { position: sticky; top: 10px; z-index: var(--z-sticky); }
+@media (max-width: 860px) { .herobar--plain { position: static; } }
 
 /* Segmented control riding the blue hero: translucent white track, solid
    white thumb — the inverse of its light-background form. */
@@ -619,8 +622,9 @@
 .popover-item small { display: block; font-size: 10px; color: var(--text-muted); margin-top: 3px; }
 
 .notif-anchor { position: relative; }
-/* Bridges the 10px gap so the pointer can travel button -> panel. */
-.notif-anchor .popover::before {
+/* Bridges the 10px gap so the pointer can travel button -> panel. The panel
+   is portalled to <body>, so this hangs off the panel rather than the anchor. */
+.popover::before {
   content: ""; position: absolute; top: -10px; left: 0; right: 0; height: 10px;
 }
 .popover-list { max-height: min(340px, 60vh); }

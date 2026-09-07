@@ -1,4 +1,5 @@
 import { useRef, useState, type ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 import { useStore } from '@/app/store'
 import { ROLES, ORGS } from '@/data/seed'
 import { useT } from '@/hooks/useT'
@@ -98,9 +99,12 @@ export function HeroBar(
             {unread > 0 && <span className="ping" />}
           </button>
 
-          {notifOpen && (
+          {/* Rendered into <body>: the hero crops its artwork with overflow
+              hidden, which was slicing the bottom off this panel. */}
+          {notifOpen && createPortal(
             <div className="popover" role="dialog" aria-label={t('dash.notifs')}
-                 style={{ top: pos.top, right: pos.right }}>
+                 style={{ top: pos.top, right: pos.right }}
+                 onMouseEnter={openNotifs} onMouseLeave={closeNotifs}>
               <div className="popover-head">
                 {t('dash.notifs')}
                 {unread > 0 && <span className="popover-count">{unread}</span>}
@@ -120,7 +124,8 @@ export function HeroBar(
                   ))}
                 </div>
               )}
-            </div>
+            </div>,
+            document.body,
           )}
         </div>
 
