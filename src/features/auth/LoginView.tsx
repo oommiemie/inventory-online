@@ -88,7 +88,11 @@ export function LoginView() {
                   className={`login-submit${busy ? ' login-busy' : ''}`}>
             {busy
               ? <><Icon name="refresh" /> {t('login.connecting')}</>
-              : t('login.submit')}
+              : (<>
+                  <img className="login-provider-logo" src={asset('/img/provider-id.png')}
+                       alt="" aria-hidden="true" />
+                  {t('login.submit')}
+                </>)}
           </Button>
 
           <p className="login-provider-note">{t('login.providerNote')}</p>

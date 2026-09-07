@@ -172,6 +172,11 @@
 .login-submit.btn-primary:active:not(:disabled) { transform: translateY(0) scale(.98); }
 .login-submit svg { transition: transform var(--dur-fast) var(--ease); }
 .login-submit:hover:not(:disabled) svg { transform: translateX(3px); }
+/* The service's own mark, sized to sit on the text baseline of the label. */
+.login-provider-logo {
+  height: 20px; width: auto; flex: none; margin-right: 2px;
+  /* The asset is already white, so it carries the button's foreground. */
+}
 .login-provider-note {
   font-size: var(--fs-xs); line-height: 1.6; color: var(--text-muted); text-align: center;
 }
