@@ -33,7 +33,11 @@ export function MatchingView() {
      short scannable line per item. */
   const [open, setOpen] = useState<Set<number>>(new Set())
   const toggleOpen = (i: number) =>
-    setOpen(prev => { const n = new Set(prev); n.has(i) ? n.delete(i) : n.add(i); return n })
+    setOpen(prev => {
+      const n = new Set(prev)
+      if (n.has(i)) n.delete(i); else n.add(i)
+      return n
+    })
 
   /* The screen belongs to the facility signed in: it lists that facility's own
      items against the hospital master, so there is nothing to switch between. */
