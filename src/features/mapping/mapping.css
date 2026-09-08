@@ -55,9 +55,6 @@
 /* ---- Grouped header ----
    Each organisation owns a unit + quantity pair, so a hairline marks where one
    group starts and the group label sits centred above it. */
-table.tbl thead tr.grouped th.col-group { text-align: center; letter-spacing: .06em; }
-table.tbl th.col-group, table.tbl td.col-group { border-left: 1px solid var(--n-200); }
-table.tbl thead tr.grouped + tr th { padding-top: 4px; font-size: 10px; color: var(--n-400); }
 /* The pair reads as one block, so the quantity keeps no border of its own. */
 table.tbl tbody td.col-group { padding-left: 14px; }
 
@@ -69,22 +66,48 @@ table.tbl tbody td.col-group { padding-left: 14px; }
 }
 
 /* ---- Mapping table ----
-   Each unit is a row of its own, so the columns line up without nesting a
-   layout inside a cell; the item, master and status span their unit rows. */
-.map-group + .map-group td { border-top: 1px solid var(--n-200); }
-.map-group td { border-bottom: 0; }
-/* The item's own rows are separated by the lightest rule the theme has. */
-.map-group tr + tr td { border-top: 1px solid var(--glass-edge); }
-.map-group + .map-group tr + tr td { border-top: 1px solid var(--glass-edge); }
-.map-group tr:hover td { background: color-mix(in srgb, var(--brand-500) 4%, transparent); }
+   A short line per item: what it is, what it maps to, its units in brief. The
+   editing lives in a panel that opens under the row, so the list stays
+   scannable and nothing has to be squeezed into a cell. */
+.map-toggle {
+  width: 26px; height: 26px; border-radius: 50%;
+  display: grid; place-items: center; color: var(--text-muted); background: transparent;
+  transition: background var(--dur-fast), color var(--dur-fast), transform var(--dur-fast);
+}
+.map-toggle:hover { background: var(--n-100); color: var(--brand-ink); }
+.map-toggle.is-open { transform: rotate(180deg); color: var(--brand-ink); }
 
-/* A group heading spans its pair, and a hairline marks where the pair starts. */
-table.tbl thead tr.grouped th.col-group { text-align: center; letter-spacing: .06em; }
-table.tbl th.col-group, table.tbl td.col-group { border-left: 1px solid var(--n-200); }
-table.tbl thead tr.grouped + tr th { padding-top: 4px; font-size: 10px; color: var(--n-400); }
+/* Units in brief: unit name with its quantity, quiet enough to scan past. */
+.map-summary { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.map-chip {
+  display: inline-flex; align-items: baseline; gap: 5px;
+  padding: 3px 9px; border-radius: 100px;
+  background: var(--surface-sunken); font-size: var(--fs-xs); color: var(--text-soft);
+}
+.map-chip .num { font-weight: 750; color: var(--text); }
+
+/* The panel reads as part of its row, not as another row. */
+.map-detail-row > td { padding: 0 !important; background: var(--surface-sunken); }
+.map-detail {
+  display: grid; gap: 12px; justify-items: start;
+  padding: 14px 16px 16px;
+}
+.map-detail-master { display: flex; align-items: center; gap: 12px; }
+.map-detail-key { font-size: var(--fs-xs); color: var(--text-muted); white-space: nowrap; }
+.map-detail .sel-master { min-width: 260px; }
+
+.map-units-table { border-collapse: separate; border-spacing: 0 4px; }
+.map-units-table th {
+  padding: 0 10px 2px; text-align: left;
+  font-size: 10px; font-weight: 700; letter-spacing: .05em; color: var(--text-muted);
+}
+.map-units-table td { padding: 2px 10px; vertical-align: middle; }
+.map-units-table td:first-child { padding-left: 0; }
+.map-units-table .combo { width: 132px; }
+.map-units-table .cell-strong { font-weight: 650; }
+.map-units-table .num { font-weight: 750; min-width: 56px; text-align: right; }
 
 .map-uom-add { padding-left: 0; white-space: nowrap; }
-.map-drop-cell { text-align: right; }
 .map-uom-drop {
   width: 26px; height: 26px; border-radius: 50%;
   display: inline-grid; place-items: center; color: var(--n-300); background: transparent;
@@ -92,3 +115,8 @@ table.tbl thead tr.grouped + tr th { padding-top: 4px; font-size: 10px; color: v
 }
 .map-uom-drop:hover { background: var(--danger-bg); color: var(--danger); }
 .row-attention td { background: color-mix(in srgb, var(--warn) 6%, transparent); }
+
+@media (max-width: 720px) {
+  /* The detail table gets its own scroller rather than stretching the page. */
+  .map-detail { width: 100%; overflow-x: auto; }
+}

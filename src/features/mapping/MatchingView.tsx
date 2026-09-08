@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { Fragment, useMemo, useState } from 'react'
 import { useStore } from '@/app/store'
 import { ROLES, MASTER } from '@/data/seed'
 import { num, uomChoices, mappingReady, mappedUoms } from '@/lib/domain'
@@ -29,6 +29,11 @@ export function MatchingView() {
   const [q, setQ] = useState('')
   const [fState, setFState] = useState('')
   const [picked, setPicked] = useState<Set<number>>(new Set())
+  /* Units are edited in a panel under the row, so the list itself stays a
+     short scannable line per item. */
+  const [open, setOpen] = useState<Set<number>>(new Set())
+  const toggleOpen = (i: number) =>
+    setOpen(prev => { const n = new Set(prev); n.has(i) ? n.delete(i) : n.add(i); return n })
 
   /* The screen belongs to the facility signed in: it lists that facility's own
      items against the hospital master, so there is nothing to switch between. */
@@ -150,113 +155,149 @@ export function MatchingView() {
         {rows.length === 0 ? (
           <Empty icon="link" title={t('c.noResults')} hint={t('c.noResultsHint')} />
         ) : (
-          <TableWrap>
-            {/* Two header rows: each organisation labels its own unit and
-                quantity pair, rather than four columns that look alike. */}
+          <TableWrap className="map-table">
             <thead>
-              <tr className="grouped">
-                {canPropose && <th rowSpan={2} style={{ width: 40 }}>
+              <tr>
+                <th style={{ width: 34 }} aria-label={t('mat.expand')} />
+                {canPropose && <th style={{ width: 34 }}>
                   <input type="checkbox" checked={allPicked} aria-label={t('c.all')}
                          onChange={e => setPicked(e.target.checked ? new Set(pickable.map(x => x.i)) : new Set())} />
                 </th>}
-                <th rowSpan={2}>{t('mat.ourItem')}</th>
-                <th rowSpan={2}>{t('mat.master')}</th>
-                <th colSpan={2} className="col-group">{t('mat.sidePcu')}</th>
-                <th colSpan={2} className="col-group">{t('mat.sideHosp')}</th>
-                <th rowSpan={2}>{t('c.status')}</th>
-                <th rowSpan={2} aria-label="actions" />
-              </tr>
-              <tr>
-                <th className="col-group">{t('req.localUnit')}</th>
-                <th className="num">{t('mat.qty')}</th>
-                <th className="col-group">{t('req.localUnit')}</th>
-                <th className="num">{t('mat.qty')}</th>
+                <th>{t('mat.ourItem')}</th>
+                <th>{t('mat.master')}</th>
+                <th>{t('mat.units')}</th>
+                <th>{t('c.status')}</th>
+                <th className="cell-action" aria-label="actions" />
               </tr>
             </thead>
-
-            {/* One <tbody> per item: its units are rows of their own, so every
-                column lines up without nesting a layout inside a cell. */}
-            {rows.map(({ m, i }) => {
-              const editable = canPropose && EDITABLE.includes(m.state)
-              const ready = mappingReady(m)
-              const units = mappedUoms(m)
-              const span = units.length + (editable ? 1 : 0)
-              return (
-                <tbody className="map-group" key={`${m.org}-${m.local}`}>
-                  {units.map((_u, k) => (
-                    <tr key={k} className={k === 0 && m.state === 'UNMAPPED' ? 'row-attention' : undefined}>
-                      {k === 0 && <>
-                        {canPropose && (
-                          <td rowSpan={span}>
-                            {editable && (
-                              <input type="checkbox" checked={picked.has(i)}
-                                     aria-label={`${t('c.selected')} ${m.local}`}
-                                     onChange={() => toggle(i)} />
-                            )}
-                          </td>
-                        )}
-                        <td rowSpan={span}>
-                          <span className="cell-strong">{m.local}</span>
-                          <span className="cell-sub">{m.localName}{m.src === 'API' ? ' · API' : ''}</span>
-                        </td>
-                        <td rowSpan={span}>
-                          {editable ? (
-                            <Combo value={m.item} className="sel-master"
-                                   ariaLabel={`${t('mat.master')} ${m.local}`}
-                                   onChange={v => patch(i, { item: v })}>
-                              <option value="">{t('mat.pickMaster')}</option>
-                              {MASTER.map(x => (
-                                <option key={x.code} value={x.code}>{x.code} · {itemName(x.code)}</option>
-                              ))}
-                            </Combo>
-                          ) : m.item ? (<>
-                            <span className="cell-strong">{m.item}</span>
-                            <span className="cell-sub">{itemName(m.item)}</span>
-                          </>) : <span className="cell-sub">{t('mat.selectMaster')}</span>}
-                        </td>
-                      </>}
-
-                      <td className="col-group">{unitCell(i, m, k, 'pcu', editable)}</td>
-                      <td className="num">{qtyCell(i, m, k, 'pcu', editable)}</td>
-                      <td className="col-group">{unitCell(i, m, k, 'hosp', editable)}</td>
-                      <td className="num">{qtyCell(i, m, k, 'hosp', editable)}</td>
-
-                      {k === 0 && <>
-                        <td rowSpan={span}>
-                          <MapBadge state={m.state} />
-                          {m.reason && <span className="cell-sub" style={{ color: 'var(--danger)' }}>{m.reason}</span>}
-                        </td>
-                        <td rowSpan={span} className="cell-action">
-                          {editable && ready && (
-                            <LinkButton onClick={() => propose(i)}>{t('mat.propose')} ›</LinkButton>
+            <tbody>
+              {rows.map(({ m, i }) => {
+                const editable = canPropose && EDITABLE.includes(m.state)
+                const ready = mappingReady(m)
+                const units = mappedUoms(m)
+                const isOpen = open.has(i)
+                /* Worth surfacing: the hospital counts a unit differently. */
+                const differs = Boolean(m.item) &&
+                  units.some(u => u.uom !== u.hospUom || u.factor !== u.hospFactor)
+                return (
+                  <Fragment key={`${m.org}-${m.local}`}>
+                    <tr className={m.state === 'UNMAPPED' ? 'row-attention' : undefined}>
+                      <td>
+                        <button type="button" className={`map-toggle${isOpen ? ' is-open' : ''}`}
+                                aria-expanded={isOpen}
+                                aria-label={isOpen ? t('mat.collapse') : t('mat.expand')}
+                                onClick={() => toggleOpen(i)}>
+                          <Icon name="chevD" size={16} />
+                        </button>
+                      </td>
+                      {canPropose && (
+                        <td>
+                          {editable && (
+                            <input type="checkbox" checked={picked.has(i)}
+                                   aria-label={`${t('c.selected')} ${m.local}`}
+                                   onChange={() => toggle(i)} />
                           )}
                         </td>
-                      </>}
-
-                      {k > 0 && editable && (
-                        <td className="map-drop-cell">
-                          <button type="button" className="map-uom-drop"
-                                  aria-label={t('mat.removeUom')}
-                                  onClick={() => removeUom(i, m, k)}>
-                            <Icon name="close" size={14} />
-                          </button>
-                        </td>
                       )}
-                    </tr>
-                  ))}
-
-                  {editable && (
-                    <tr>
-                      <td colSpan={4} className="col-group">
-                        <LinkButton className="map-uom-add" onClick={() => addUom(i, m)}>
-                          + {t('mat.addUom')}
-                        </LinkButton>
+                      <td>
+                        <span className="cell-strong">{m.local}</span>
+                        <span className="cell-sub">{m.localName}{m.src === 'API' ? ' · API' : ''}</span>
+                      </td>
+                      <td>
+                        {m.item ? (<>
+                          <span className="cell-strong">{m.item}</span>
+                          <span className="cell-sub">{itemName(m.item)}</span>
+                        </>) : <span className="cell-sub">{t('mat.selectMaster')}</span>}
+                      </td>
+                      <td>
+                        {m.item ? (
+                          <div className="map-summary">
+                            {units.map((u, k) => (
+                              <span className="map-chip" key={k}>
+                                {u.uom || '—'} <b className="num">{num(u.factor)}</b>
+                              </span>
+                            ))}
+                            {differs && <Chip warn>{t('mat.differs')}</Chip>}
+                          </div>
+                        ) : <span className="cell-sub">—</span>}
+                      </td>
+                      <td>
+                        <MapBadge state={m.state} />
+                        {m.reason && <span className="cell-sub" style={{ color: 'var(--danger)' }}>{m.reason}</span>}
+                      </td>
+                      <td className="cell-action">
+                        {editable && (ready
+                          ? <LinkButton onClick={() => propose(i)}>{t('mat.propose')} ›</LinkButton>
+                          : <LinkButton onClick={() => { if (!isOpen) toggleOpen(i) }}>{t('mat.incomplete')}</LinkButton>)}
                       </td>
                     </tr>
-                  )}
-                </tbody>
-              )
-            })}
+
+                    {isOpen && (
+                      <tr className="map-detail-row">
+                        <td colSpan={canPropose ? 7 : 6}>
+                          <div className="map-detail">
+                            {editable && (
+                              <div className="map-detail-master">
+                                <span className="map-detail-key">{t('mat.master')}</span>
+                                <Combo value={m.item} className="sel-master"
+                                       ariaLabel={`${t('mat.master')} ${m.local}`}
+                                       onChange={v => patch(i, { item: v })}>
+                                  <option value="">{t('mat.pickMaster')}</option>
+                                  {MASTER.map(x => (
+                                    <option key={x.code} value={x.code}>{x.code} · {itemName(x.code)}</option>
+                                  ))}
+                                </Combo>
+                              </div>
+                            )}
+
+                            {m.item ? (
+                              <table className="map-units-table">
+                                <thead>
+                                  <tr>
+                                    <th />
+                                    <th colSpan={2}>{t('mat.sidePcu')}</th>
+                                    <th colSpan={2}>{t('mat.sideHosp')}</th>
+                                    <th />
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {units.map((_u, k) => (
+                                    <tr key={k}>
+                                      <td className="map-detail-key">
+                                        {k === 0 ? t('mat.mainUom') : `${t('mat.extraUoms')} ${k}`}
+                                      </td>
+                                      <td>{unitCell(i, m, k, 'pcu', editable)}</td>
+                                      <td className="num">{qtyCell(i, m, k, 'pcu', editable)}</td>
+                                      <td>{unitCell(i, m, k, 'hosp', editable)}</td>
+                                      <td className="num">{qtyCell(i, m, k, 'hosp', editable)}</td>
+                                      <td className="cell-action">
+                                        {editable && k > 0 && (
+                                          <button type="button" className="map-uom-drop"
+                                                  aria-label={t('mat.removeUom')}
+                                                  onClick={() => removeUom(i, m, k)}>
+                                            <Icon name="close" size={14} />
+                                          </button>
+                                        )}
+                                      </td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            ) : <p className="cell-sub">{t('mat.selectMaster')}</p>}
+
+                            {editable && m.item && (
+                              <LinkButton className="map-uom-add" onClick={() => addUom(i, m)}>
+                                + {t('mat.addUom')}
+                              </LinkButton>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </Fragment>
+                )
+              })}
+            </tbody>
           </TableWrap>
         )}
       </Card>
