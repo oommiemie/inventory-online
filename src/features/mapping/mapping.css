@@ -67,3 +67,75 @@ table.tbl tbody td.col-group { padding-left: 14px; }
   font-style: normal; font-size: 10px; font-weight: 700; letter-spacing: .04em;
   color: var(--text-muted); min-width: 34px;
 }
+
+/* ---- Mapping list ----
+   One card per item. A card has the width a table column never had, so both
+   organisations' unit and quantity fit on one line and line up down the list. */
+.map-list { display: grid; gap: 12px; }
+.map-all {
+  display: inline-flex; align-items: center; gap: 8px; justify-self: start;
+  font-size: var(--fs-xs); font-weight: 600; color: var(--text-soft); cursor: pointer;
+}
+.map-card {
+  display: grid; gap: 12px; padding: 14px 16px;
+  border-radius: 16px; background: var(--surface-solid);
+  border: 1px solid var(--n-100); box-shadow: var(--sh-xs);
+  transition: border-color var(--dur-fast), box-shadow var(--dur-fast);
+}
+[data-theme="dark"] .map-card { border-color: var(--n-200); }
+.map-card:hover { border-color: var(--brand-200); box-shadow: 0 6px 18px -10px rgba(16,24,40,.22); }
+/* Items with no master yet are the ones asking for work. */
+.map-card.is-attention { border-left: 3px solid var(--warn); }
+
+.map-card-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.map-card-id { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.map-card-id b { font-size: var(--fs-md); font-weight: 750; letter-spacing: -.01em; }
+.map-card-id > span { font-size: var(--fs-sm); color: var(--text-soft); }
+.map-tag {
+  font-style: normal; font-size: 10px; font-weight: 700; letter-spacing: .04em;
+  padding: 2px 6px; border-radius: 6px; background: var(--n-100); color: var(--text-muted);
+}
+.map-card-reason { font-size: var(--fs-xs); color: var(--danger); }
+
+.map-master { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.map-label {
+  font-size: 10px; font-weight: 700; letter-spacing: .05em; color: var(--text-muted);
+  min-width: 128px;
+}
+.map-master-value { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+.map-master-value b { font-weight: 750; }
+.map-master-value > span { font-size: var(--fs-sm); color: var(--text-soft); }
+
+/* Units grid: label, one column per organisation, then the remove control. */
+.map-units {
+  display: grid; gap: 8px;
+  padding: 12px; border-radius: 12px; background: var(--surface-sunken);
+}
+.map-units-head, .map-unit {
+  display: grid; align-items: center; gap: 12px;
+  grid-template-columns: 128px minmax(0, 1fr) minmax(0, 1fr) 30px;
+}
+.map-side-head {
+  font-size: 10px; font-weight: 700; letter-spacing: .05em; color: var(--text-muted);
+}
+.map-unit-tag { font-size: var(--fs-xs); font-weight: 600; color: var(--text-soft); }
+.map-unit-side { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.map-unit-side .combo { width: 132px; min-width: 0; }
+.map-unit-base { font-style: normal; font-size: var(--fs-xs); color: var(--text-muted); white-space: nowrap; }
+.map-uom-add { justify-self: start; padding-left: 0; }
+
+@media (max-width: 900px) {
+  /* Too narrow for two sides abreast: each takes its own line, still labelled.
+     The base unit repeats what the card already says, so it stands down and
+     the unit box takes the width instead of collapsing to a stub. */
+  .map-units-head { display: none; }
+  .map-unit { grid-template-columns: minmax(0, 1fr) 30px; }
+  .map-unit-tag { grid-column: 1 / -1; }
+  .map-unit-side { grid-column: 1; }
+  .map-unit-side::before {
+    content: attr(data-side); font-size: 10px; font-weight: 700;
+    color: var(--text-muted); min-width: 32px; flex: none;
+  }
+  .map-unit-side .combo { width: auto; flex: 1 1 auto; min-width: 96px; }
+  .map-unit-base { display: none; }
+}
