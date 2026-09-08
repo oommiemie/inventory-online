@@ -66,11 +66,23 @@
   display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 34px;
   gap: 1px 14px; align-items: stretch;
 }
-.map-box-head, .map-box-cell { background: var(--surface-solid); }
+.map-box-head, .map-box-cols, .map-box-cell { background: var(--surface-solid); }
 .map-box-head {
-  padding: 8px 14px; border-radius: 12px 12px 0 0;
-  font-size: 10px; font-weight: 700; letter-spacing: .05em; color: var(--text-muted);
+  padding: 10px 14px 2px; border-radius: 12px 12px 0 0;
+  font-size: var(--fs-xs); font-weight: 750; color: var(--text);
 }
+/* Names the two fields once per box, on the same tracks as the rows below. */
+.map-box-cols {
+  display: flex; align-items: center; gap: 10px; padding: 0 14px 8px;
+}
+.map-box-cols > em {
+  font-style: normal; font-size: 10px; font-weight: 700;
+  letter-spacing: .05em; color: var(--text-muted);
+}
+.map-box-cols > em:nth-child(1) { flex: none; min-width: 54px; }
+.map-box-cols > em:nth-child(2) { flex: 1 1 auto; min-width: 0; }
+/* Matches the stepper's own width, so the label sits over the field it names. */
+.map-box-cols > em:nth-child(3) { flex: none; width: 124px; text-align: center; }
 .map-box-cell {
   display: flex; align-items: center; gap: 10px; min-width: 0;
   padding: 8px 14px;

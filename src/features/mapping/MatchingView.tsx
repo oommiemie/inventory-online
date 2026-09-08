@@ -259,6 +259,19 @@ export function MatchingView() {
                                 <div className="map-box-head">{t('mat.sidePcu')}</div>
                                 <div className="map-box-head">{t('mat.sideHosp')}</div>
                                 <div />
+                                {/* Column labels once per box, sitting over the
+                                    fields they name. */}
+                                <div className="map-box-cols">
+                                  <em />
+                                  <em>{t('req.localUnit')}</em>
+                                  <em>{t('mat.qty')}</em>
+                                </div>
+                                <div className="map-box-cols">
+                                  <em />
+                                  <em>{t('req.localUnit')}</em>
+                                  <em>{t('mat.qty')}</em>
+                                </div>
+                                <div />
                                 {units.map((_u, k) => (
                                   <Fragment key={k}>
                                     <div className="map-box-cell">

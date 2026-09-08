@@ -698,7 +698,8 @@ input[type="checkbox"]:disabled {
   /* Fixed: the control clips its own overflow, so under space pressure it would
      otherwise collapse to its borders instead of widening its column. */
   display: inline-flex; align-items: center; flex: none; width: 124px;
-  height: 36px; border-radius: var(--r-full);
+  /* Same height and corner as the fields it sits beside. */
+  height: 40px; border-radius: var(--r-sm);
   border: 1px solid var(--n-200); background: var(--surface-raised);
   overflow: hidden;
   transition: border-color var(--dur-fast), box-shadow var(--dur-fast);
@@ -706,7 +707,7 @@ input[type="checkbox"]:disabled {
 .qty-stepper:hover { border-color: var(--n-300); }
 .qty-stepper:focus-within { border-color: var(--brand-400); box-shadow: var(--focus-ring); }
 .qty-stepper-btn {
-  width: 32px; height: 100%; flex: none; display: grid; place-items: center;
+  width: 32px; height: 100%; flex: none; display: grid; place-items: center; border-radius: 0;
   color: var(--brand-ink); background: transparent;
   transition: background var(--dur-fast), color var(--dur-fast);
 }
