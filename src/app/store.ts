@@ -830,7 +830,9 @@ export const useStore = create<State>()(persist((set, get) => {
         const next = get().mappings.map(m => ({ ...m }))
         for (const [code, name] of inbox) {
           if (!next.some(m => m.org === org && m.local === code)) {
-            next.push({ org, local: code, localName: name, item: '', localUom: '', factor: 1, state: 'UNMAPPED', src: 'API' })
+            next.push({ org, local: code, localName: name, item: '',
+                        localUom: '', factor: 1, hospUom: '', hospFactor: 1,
+                        state: 'UNMAPPED', src: 'API' })
             added++
           }
         }

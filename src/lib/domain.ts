@@ -1,6 +1,4 @@
-import type {
-  DocState, Permission, StockRow, LotAlloc, Mapping, MasterItem, SyncState,
-} from '@/types'
+import type { DocState, Permission, StockRow, LotAlloc, Mapping, MasterItem, SyncState, MappedUom } from '@/types'
 import { MASTER, UOM_CHOICES } from '@/data/seed'
 
 /* ---------------- Item master helpers ---------------- */
@@ -43,12 +41,15 @@ export const toLocal = (maps: Mapping[], org: string, item: string, base: number
 }
 
 /** Every unit a mapping carries: the primary one first, then any extras. */
-export const mappedUoms = (m: Mapping) =>
-  [{ uom: m.localUom, factor: m.factor }, ...(m.extraUoms ?? [])]
+export const mappedUoms = (m: Mapping): MappedUom[] => [
+  { uom: m.localUom, factor: m.factor, hospUom: m.hospUom, hospFactor: m.hospFactor },
+  ...(m.extraUoms ?? []),
+]
 
-/** Complete only with a master and every unit named with a quantity >= 1. */
+/** Complete only with a master and every unit named and counted on both sides. */
 export const mappingReady = (m: Mapping): boolean =>
-  Boolean(m.item) && mappedUoms(m).every(u => Boolean(u.uom) && u.factor >= 1)
+  Boolean(m.item) && mappedUoms(m).every(u =>
+    Boolean(u.uom) && u.factor >= 1 && Boolean(u.hospUom) && u.hospFactor >= 1)
 
 /* ---------------- Stock ---------------- */
 export const stockRows = (stock: StockRow[], wh: string, item?: string): StockRow[] =>

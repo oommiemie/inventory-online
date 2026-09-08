@@ -11,7 +11,8 @@ const lot = (lotNo: string, exp: string, qty: number, res = 0): StockRow =>
 
 const mapping = (over: Partial<Mapping> = {}): Mapping => ({
   org: 'PCU01', local: 'L-1', localName: 'พารา', item: 'PCM500',
-  localUom: 'กล่อง', factor: 100, state: 'ACTIVE', ...over,
+  localUom: 'กล่อง', factor: 100, hospUom: 'กล่อง', hospFactor: 100,
+  state: 'ACTIVE', ...over,
 })
 
 describe('item master', () => {

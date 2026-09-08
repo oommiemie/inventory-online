@@ -20,20 +20,19 @@
   .sel-uom { min-width: 130px; }
 }
 
-/* ---- Requisition units on a mapping row ----
-   A facility can order the same item in more than one unit, so the cell holds
-   a stack of unit + quantity pairs rather than a single pair of columns. */
-.map-uoms { display: grid; gap: 6px; justify-items: start; }
-.map-uom { display: flex; align-items: center; gap: 8px; }
+/* ---- Further units on a mapping row ----
+   The same item can be ordered in more than one unit, and each is named on
+   both sides, so a row pairs the facility's unit with the hospital's. */
+.map-extra { display: grid; gap: 8px; justify-items: start; }
+.map-extra-row { display: flex; align-items: center; gap: 10px; }
+.map-extra-side { display: inline-flex; align-items: center; gap: 6px; }
 .map-uom-qty { width: 76px; }
-.map-uom-base { font-size: var(--fs-xs); color: var(--text-muted); white-space: nowrap; }
 .map-uom-drop {
   width: 26px; height: 26px; flex: none; border-radius: 50%;
   display: grid; place-items: center; color: var(--text-muted); background: transparent;
   transition: background var(--dur-fast), color var(--dur-fast);
 }
 .map-uom-drop:hover { background: var(--danger-bg); color: var(--danger); }
-.map-uom-add { padding-left: 0; }
-/* Read-only rows line their figures up under one another. */
-.map-uom .num { min-width: 42px; text-align: right; font-weight: 700; }
-.map-formulas { display: grid; gap: 4px; justify-items: start; }
+.map-uom-add { padding-left: 0; white-space: nowrap; }
+/* Read-only figures line up under one another. */
+.map-extra .num, td.num .num { font-weight: 700; }

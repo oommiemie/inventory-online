@@ -56,15 +56,55 @@ export function MatchingView() {
   const setUom = (i: number, m: Mapping, k: number, patchUom: Partial<MappedUom>) => {
     if (k === 0) {
       patch(i, { ...(patchUom.uom !== undefined && { localUom: patchUom.uom }),
-                 ...(patchUom.factor !== undefined && { factor: patchUom.factor }) })
+                 ...(patchUom.factor !== undefined && { factor: patchUom.factor }),
+                 ...(patchUom.hospUom !== undefined && { hospUom: patchUom.hospUom }),
+                 ...(patchUom.hospFactor !== undefined && { hospFactor: patchUom.hospFactor }) })
       return
     }
     const extra = [...(m.extraUoms ?? [])]
     extra[k - 1] = { ...extra[k - 1], ...patchUom }
     patch(i, { extraUoms: extra })
   }
+  /* One renderer per side, so the pair of columns stays in step and the extras
+     cell can reuse exactly what the primary row uses. */
+  const unitCell = (i: number, m: Mapping, k: number, side: 'pcu' | 'hosp', editable: boolean) => {
+    if (!m.item) return <span className="cell-sub">{t('mat.selectMaster')}</span>
+    const units = mappedUoms(m)
+    const u = units[k]
+    const value = side === 'pcu' ? u.uom : u.hospUom
+    if (!editable) return <span className="cell-strong">{value || '—'}</span>
+    const taken = units.filter((_, x) => x !== k).map(o => (side === 'pcu' ? o.uom : o.hospUom))
+    return (
+      <Combo value={value} className="sel-uom"
+             ariaLabel={`${t('req.localUnit')} ${m.local} ${k + 1}`}
+             onChange={v => setUom(i, m, k, side === 'pcu' ? { uom: v } : { hospUom: v })}>
+        <option value="">{t('mat.pickUom')}</option>
+        {/* A unit already claimed by another row would give one item two
+            conflicting conversions on the same side. */}
+        {uomChoices(m.item)
+          .filter(x => x === value || !taken.includes(x))
+          .map(x => <option key={x} value={x}>{x}</option>)}
+      </Combo>
+    )
+  }
+
+  const qtyCell = (i: number, m: Mapping, k: number, side: 'pcu' | 'hosp', editable: boolean) => {
+    if (!m.item) return '—'
+    const u = mappedUoms(m)[k]
+    const value = side === 'pcu' ? u.factor : u.hospFactor
+    if (!editable) return <b className="num">{num(value)}</b>
+    return (
+      <NumberInput className="map-uom-qty" value={value}
+                   aria-label={`${side === 'pcu' ? t('mat.qtyPcu') : t('mat.qtyHosp')} ${m.local}`}
+                   onChange={e => {
+                     const v = Number(String(e.target.value).replace(/[^\d]/g, '')) || 0
+                     setUom(i, m, k, side === 'pcu' ? { factor: v } : { hospFactor: v })
+                   }} />
+    )
+  }
+
   const addUom = (i: number, m: Mapping) =>
-    patch(i, { extraUoms: [...(m.extraUoms ?? []), { uom: '', factor: 1 }] })
+    patch(i, { extraUoms: [...(m.extraUoms ?? []), { uom: '', factor: 1, hospUom: '', hospFactor: 1 }] })
   const removeUom = (i: number, m: Mapping, k: number) =>
     patch(i, { extraUoms: (m.extraUoms ?? []).filter((_, x) => x !== k - 1) })
 
@@ -123,9 +163,12 @@ export function MatchingView() {
                   </th>
                 )}
                 <th>{t('mat.ourItem')}</th>
+                <th>{t('req.localUnit')}</th>
+                <th className="num">{t('mat.qtyPcu')}</th>
                 <th>{t('mat.master')}</th>
-                <th>{t('mat.units')}</th>
-                <th>{t('mat.conversion')}</th>
+                <th>{t('mat.uomHosp')}</th>
+                <th className="num">{t('mat.qtyHosp')}</th>
+                <th>{t('mat.extraUoms')}</th>
                 <th>{t('c.status')}</th>
                 <th aria-label="actions" />
               </tr>
@@ -148,6 +191,9 @@ export function MatchingView() {
                       <span className="cell-strong">{m.local}</span>
                       <span className="cell-sub">{m.localName}{m.src === 'API' ? ' · API' : ''}</span>
                     </td>
+                    <td>{unitCell(i, m, 0, 'pcu', editable)}</td>
+                    <td className="num">{qtyCell(i, m, 0, 'pcu', editable)}</td>
+
                     <td>
                       {editable ? (
                         <Combo value={m.item} className="sel-master"
@@ -163,60 +209,43 @@ export function MatchingView() {
                         <span className="cell-sub">{itemName(m.item)}</span>
                       </>) : '—'}
                     </td>
+
+                    <td>{unitCell(i, m, 0, 'hosp', editable)}</td>
+                    <td className="num">{qtyCell(i, m, 0, 'hosp', editable)}</td>
+
                     <td>
                       {!m.item ? <span className="cell-sub">{t('mat.selectMaster')}</span> : (
-                        <div className="map-uoms">
-                          {units.map((u, k) => (
-                            <div className="map-uom" key={k}>
-                              {editable ? (
-                                <Combo value={u.uom} className="sel-uom"
-                                       ariaLabel={`${t('req.localUnit')} ${m.local} ${k + 1}`}
-                                       onChange={v => setUom(i, m, k, { uom: v })}>
-                                  <option value="">{t('mat.pickUom')}</option>
-                                  {/* A unit already claimed by another row here would
-                                      make two conflicting conversions for one item. */}
-                                  {uomChoices(m.item)
-                                    .filter(x => x === u.uom || !units.some(other => other.uom === x))
-                                    .map(x => <option key={x} value={x}>{x}</option>)}
-                                </Combo>
-                              ) : <span className="cell-strong">{u.uom}</span>}
-
-                              {editable ? (
-                                <NumberInput className="map-uom-qty" value={u.factor}
-                                             aria-label={`${t('mat.factor')} ${m.local} ${u.uom}`}
-                                             onChange={e => {
-                                               const v = Number(String(e.target.value).replace(/[^\d]/g, '')) || 0
-                                               setUom(i, m, k, { factor: v })
-                                             }} />
-                              ) : <b className="num">{num(u.factor)}</b>}
-                              <span className="map-uom-base">{uomName(m.item)}</span>
-
-                              {editable && k > 0 && (
+                        <div className="map-extra">
+                          {units.slice(1).map((u, k) => (
+                            <div className="map-extra-row" key={k + 1}>
+                              <span className="map-extra-side">
+                                {editable
+                                  ? <>{unitCell(i, m, k + 1, 'pcu', true)}{qtyCell(i, m, k + 1, 'pcu', true)}</>
+                                  : <Chip accent>1 {u.uom} = {num(u.factor)} {uomName(m.item)}</Chip>}
+                              </span>
+                              <span className="map-extra-side">
+                                {editable
+                                  ? <>{unitCell(i, m, k + 1, 'hosp', true)}{qtyCell(i, m, k + 1, 'hosp', true)}</>
+                                  : <Chip accent>1 {u.hospUom} = {num(u.hospFactor)} {uomName(m.item)}</Chip>}
+                              </span>
+                              {editable && (
                                 <button type="button" className="map-uom-drop"
                                         aria-label={t('mat.removeUom')}
-                                        onClick={() => removeUom(i, m, k)}>
+                                        onClick={() => removeUom(i, m, k + 1)}>
                                   <Icon name="close" size={14} />
                                 </button>
                               )}
                             </div>
                           ))}
-                          {editable && (
+                          {editable ? (
                             <LinkButton className="map-uom-add" onClick={() => addUom(i, m)}>
                               + {t('mat.addUom')}
                             </LinkButton>
-                          )}
+                          ) : units.length === 1 && <span className="cell-sub">—</span>}
                         </div>
                       )}
                     </td>
-                    <td>
-                      {ready ? (
-                        <div className="map-formulas">
-                          {units.map((u, k) => (
-                            <Chip accent key={k}>1 {u.uom} = {num(u.factor)} {uomName(m.item)}</Chip>
-                          ))}
-                        </div>
-                      ) : <span className="cell-sub">{t('mat.incomplete')}</span>}
-                    </td>
+
                     <td>
                       <MapBadge state={m.state} />
                       {m.reason && <span className="cell-sub" style={{ color: 'var(--danger)' }}>{m.reason}</span>}

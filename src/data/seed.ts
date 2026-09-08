@@ -79,7 +79,7 @@ export const MASTER: MasterItem[] = [
 
 /** Units a facility may requisition each master item in. */
 export const UOM_CHOICES: Record<string, string[]> = {
-  PCM500: ['เม็ด', 'แผง', 'กล่อง'],
+  PCM500: ['เม็ด', 'แผง', 'กล่อง', 'กระปุก'],
   AMX500: ['แคปซูล', 'แผง', 'กระปุก'],
   ORS001: ['ซอง', 'กล่อง'],
   NSS100: ['ขวด', 'ลัง'],
@@ -87,17 +87,37 @@ export const UOM_CHOICES: Record<string, string[]> = {
 }
 
 /* ---------------- Item mappings (local code -> master) ---------------- */
+/* Units are named on both sides: what the facility orders in, and what the
+   hospital issues in. `factor` is that unit's size in base units. */
 export const SEED_MAPPINGS: Mapping[] = [
-  { org:'PCU01', local:'P001', localName:'พาราเซตามอล 500 มก.', item:'PCM500', localUom:'แผง',   factor:10,  state:'ACTIVE' },
-  { org:'PCU01', local:'A011', localName:'อะม็อกซี่ 500',        item:'AMX500', localUom:'แผง',   factor:10,  state:'ACTIVE' },
-  { org:'PCU01', local:'N020', localName:'น้ำเกลือเล็ก',          item:'NSS100', localUom:'ขวด',   factor:1,   state:'ACTIVE' },
-  { org:'PCU01', local:'O055', localName:'ผงเกลือแร่',            item:'ORS001', localUom:'กล่อง', factor:50,  state:'PENDING_APPROVAL' },
-  { org:'PCU01', local:'G100', localName:'ถุงมือตรวจ M',          item:'GLVM',   localUom:'ลัง',   factor:12,  state:'DRAFT' },
-  { org:'PCU02', local:'PA01', localName:'พารา 500',              item:'PCM500', localUom:'กล่อง', factor:500, state:'ACTIVE' },
-  { org:'PCU02', local:'OR02', localName:'ORS',                   item:'ORS001', localUom:'ซอง',   factor:1,   state:'REJECTED', reason:'รหัสซ้ำกับ OR01' },
-  { org:'PCU01', local:'S082', localName:'ชุดทำแผลกลาง',          item:'',       localUom:'',      factor:1,   state:'UNMAPPED' },
-  { org:'PCU01', local:'V204', localName:'วิตามินบีรวม',           item:'',       localUom:'',      factor:1,   state:'UNMAPPED' },
-  { org:'PCU02', local:'NS10', localName:'น้ำเกลือ 100',           item:'',       localUom:'',      factor:1,   state:'UNMAPPED' },
+  { org:'PCU01', local:'P001', localName:'พาราเซตามอล 500 มก.', item:'PCM500',
+    localUom:'กระปุก', factor:200, hospUom:'กระปุก', hospFactor:200, state:'ACTIVE',
+    extraUoms:[
+      { uom:'เม็ด',   factor:1,    hospUom:'เม็ด',   hospFactor:1 },
+      { uom:'กล่อง',  factor:1000, hospUom:'กล่อง',  hospFactor:1000 },
+    ] },
+  { org:'PCU01', local:'A011', localName:'อะม็อกซี่ 500',        item:'AMX500',
+    localUom:'แผง',   factor:10,  hospUom:'แผง',   hospFactor:10,  state:'ACTIVE' },
+  { org:'PCU01', local:'N020', localName:'น้ำเกลือเล็ก',          item:'NSS100',
+    localUom:'ขวด',   factor:1,   hospUom:'ขวด',   hospFactor:1,   state:'ACTIVE' },
+  { org:'PCU01', local:'O055', localName:'ผงเกลือแร่',            item:'ORS001',
+    localUom:'กล่อง', factor:50,  hospUom:'กล่อง', hospFactor:50,  state:'PENDING_APPROVAL' },
+  { org:'PCU01', local:'G100', localName:'ถุงมือตรวจ M',          item:'GLVM',
+    localUom:'ลัง',   factor:12,  hospUom:'ลัง',   hospFactor:12,  state:'DRAFT' },
+  { org:'PCU02', local:'PA01', localName:'พารา 500',              item:'PCM500',
+    localUom:'กล่อง', factor:500, hospUom:'กล่อง', hospFactor:500, state:'ACTIVE' },
+  { org:'PCU02', local:'OR02', localName:'ORS',                   item:'ORS001',
+    localUom:'ซอง',   factor:1,   hospUom:'ซอง',   hospFactor:1,   state:'REJECTED', reason:'รหัสซ้ำกับ OR01' },
+  { org:'PCU01', local:'S082', localName:'ชุดทำแผลกลาง',          item:'',
+    localUom:'', factor:1, hospUom:'', hospFactor:1, state:'UNMAPPED' },
+  { org:'PCU01', local:'V204', localName:'วิตามินบีรวม',           item:'',
+    localUom:'', factor:1, hospUom:'', hospFactor:1, state:'UNMAPPED' },
+  { org:'PCU01', local:'S090', localName:'ชุดทำแผลเล็ก',          item:'',
+    localUom:'', factor:1, hospUom:'', hospFactor:1, state:'UNMAPPED', src:'API' },
+  { org:'PCU01', local:'B012', localName:'เบตาดีน 15 มล.',        item:'',
+    localUom:'', factor:1, hospUom:'', hospFactor:1, state:'UNMAPPED', src:'API' },
+  { org:'PCU02', local:'NS10', localName:'น้ำเกลือ 100',           item:'',
+    localUom:'', factor:1, hospUom:'', hospFactor:1, state:'UNMAPPED' },
 ]
 
 /** Items waiting at each connector, revealed by "pull local items". */
