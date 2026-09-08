@@ -69,113 +69,75 @@ table.tbl tbody td.col-group { padding-left: 14px; }
 }
 
 /* ---- Mapping list ----
-   One card per item. The pairing leads — the facility's item, an arrow, the
-   master it maps to — and the units sit beneath it in a panel of their own. */
-.map-list { display: grid; gap: 12px; align-content: start; }
-/* The card is capped to the viewport, so the list scrolls inside it — the job
-   the table wrapper used to do before this became a card list. */
+   Quiet by design: no fills, no badges of its own. A hairline separates the
+   pairing from the units, and grey labels carry the structure. */
+.map-list { display: grid; gap: 10px; align-content: start; }
+/* The card is capped to the viewport, so the list scrolls inside it. */
 .glass.card.fill-view .map-list { flex: 1; min-height: 0; overflow-y: auto; }
 .map-all {
   display: inline-flex; align-items: center; gap: 8px; justify-self: start;
   font-size: var(--fs-xs); font-weight: 600; color: var(--text-soft); cursor: pointer;
 }
 .map-card {
-  display: grid; gap: 12px; padding: 14px 16px;
-  border-radius: 16px; background: var(--surface-solid);
-  border: 1px solid var(--n-100); box-shadow: var(--sh-xs);
-  transition: border-color var(--dur-fast), box-shadow var(--dur-fast);
+  display: grid; gap: 10px; padding: 16px 18px;
+  border-radius: 14px; background: var(--surface-solid);
+  border: 1px solid var(--n-100);
+  transition: border-color var(--dur-fast);
 }
 [data-theme="dark"] .map-card { border-color: var(--n-200); }
-.map-card:hover { border-color: var(--brand-200); box-shadow: 0 6px 18px -10px rgba(16,24,40,.22); }
-/* Items with no master yet are the ones asking for work. */
-.map-card.is-attention { border-left: 3px solid var(--warn); }
+.map-card:hover { border-color: var(--n-200); }
+.map-card.is-attention { border-left: 2px solid var(--warn); }
 .map-card-reason { font-size: var(--fs-xs); color: var(--danger); }
 
-/* ---- The pairing ---- */
-.map-pair {
-  display: grid; align-items: center; gap: 14px;
-  grid-template-columns: auto minmax(0, 1fr) 28px minmax(0, 1fr) auto;
-}
-.map-pair > input[type="checkbox"] { justify-self: start; }
-.map-pair:not(:has(> input[type="checkbox"])) { grid-template-columns: minmax(0, 1fr) 28px minmax(0, 1fr) auto; }
-.map-side {
-  display: grid; gap: 2px; min-width: 0;
-  padding: 10px 12px; border-radius: 12px; background: var(--surface-sunken);
-}
-.map-side-label {
-  font-size: 10px; font-weight: 700; letter-spacing: .05em; color: var(--text-muted);
-}
-.map-side b {
-  font-size: var(--fs-md); font-weight: 750; letter-spacing: -.01em;
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-}
-.map-side-name {
-  display: flex; align-items: center; gap: 6px; min-width: 0;
-  font-size: var(--fs-xs); color: var(--text-soft);
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-}
-.map-side-empty { font-size: var(--fs-sm); color: var(--text-muted); }
-/* The master side is the one being decided, so it carries the brand tint. */
-.map-side--master { background: var(--brand-50); }
-[data-theme="dark"] .map-side--master {
-  background: color-mix(in srgb, var(--brand-400) 10%, transparent);
-}
-.map-side--master .sel-master { width: 100%; margin-top: 2px; }
-.map-arrow {
-  width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center;
-  background: var(--brand-100); color: var(--brand-ink);
-}
-[data-theme="dark"] .map-arrow { background: color-mix(in srgb, var(--brand-400) 18%, transparent); }
-.map-pair-end { display: flex; align-items: center; gap: 10px; justify-self: end; }
+.map-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.map-head .spacer { flex: 1; }
+.map-code { font-size: var(--fs-md); font-weight: 750; letter-spacing: -.01em; }
+.map-name { font-size: var(--fs-sm); color: var(--text-soft); min-width: 0; }
 .map-tag {
   font-style: normal; font-size: 10px; font-weight: 700; letter-spacing: .04em;
-  padding: 1px 6px; border-radius: 6px; background: var(--n-100); color: var(--text-muted);
-  flex: none;
+  color: var(--text-muted);
 }
 
-/* ---- Units panel ---- */
-.map-units { display: grid; gap: 8px; }
-.map-units-head, .map-unit {
+/* Label / value rows share one label column with the units below. */
+.map-row { display: grid; grid-template-columns: 96px minmax(0, 1fr); align-items: center; gap: 12px; }
+.map-key { font-size: var(--fs-xs); color: var(--text-muted); }
+.map-val { font-size: var(--fs-sm); }
+.map-val b { font-weight: 700; }
+.map-val.is-empty { color: var(--text-muted); }
+.map-row .sel-master { max-width: 340px; }
+
+.map-units {
+  display: grid; gap: 6px;
+  padding-top: 10px; border-top: 1px solid var(--glass-edge);
+}
+.map-unit {
   display: grid; align-items: center; gap: 12px;
-  grid-template-columns: 128px minmax(0, 1fr) minmax(0, 1fr) 30px;
+  grid-template-columns: 96px minmax(0, 1fr) minmax(0, 1fr) 26px;
 }
-.map-units-title, .map-unit-tag {
-  font-size: var(--fs-xs); font-weight: 600; color: var(--text-soft);
-}
-.map-units-title { font-size: 10px; font-weight: 700; letter-spacing: .05em; color: var(--text-muted); }
-.map-side-head {
+.map-unit--head > span {
   font-size: 10px; font-weight: 700; letter-spacing: .05em; color: var(--text-muted);
 }
-.map-unit-side {
-  display: flex; align-items: center; gap: 8px; min-width: 0;
-  padding: 6px 10px; border-radius: 10px; background: var(--surface-sunken);
-}
-.map-unit-side .combo { width: 132px; min-width: 0; }
-.map-unit-base { font-style: normal; font-size: var(--fs-xs); color: var(--text-muted); white-space: nowrap; }
-.map-uom-add { justify-self: start; padding-left: 0; }
+.map-unit-side { display: flex; align-items: center; gap: 8px; min-width: 0; font-size: var(--fs-sm); }
+.map-unit-side .combo { width: 128px; min-width: 0; }
+.map-unit-side .cell-strong { font-weight: 600; }
+.map-unit-side .num { min-width: 52px; text-align: right; font-weight: 700; }
+.map-uom-add { justify-self: start; padding-left: 0; margin-top: 2px; }
 .map-uom-drop {
   width: 26px; height: 26px; flex: none; border-radius: 50%;
-  display: grid; place-items: center; color: var(--text-muted); background: transparent;
+  display: grid; place-items: center; color: var(--n-300); background: transparent;
   transition: background var(--dur-fast), color var(--dur-fast);
 }
 .map-uom-drop:hover { background: var(--danger-bg); color: var(--danger); }
 
 @media (max-width: 900px) {
-  /* Stacked: the pairing reads down the card, and each unit's two sides follow
-     one another, each keeping its label. */
-  .map-pair, .map-pair:not(:has(> input[type="checkbox"])) { grid-template-columns: minmax(0, 1fr) auto; }
-  .map-pair > input[type="checkbox"] { grid-row: 1; }
-  .map-side { grid-column: 1 / -1; }
-  .map-arrow { grid-column: 1 / -1; justify-self: center; transform: rotate(90deg); }
-  .map-pair-end { grid-column: 1 / -1; justify-self: start; }
-  .map-units-head { display: none; }
-  .map-unit { grid-template-columns: minmax(0, 1fr) 30px; }
-  .map-unit-tag { grid-column: 1 / -1; }
+  /* Each unit's two sides follow one another, each keeping its label. */
+  .map-row, .map-unit { grid-template-columns: minmax(0, 1fr) 26px; }
+  .map-row > .map-key, .map-unit > .map-key { grid-column: 1 / -1; }
+  .map-unit--head { display: none; }
   .map-unit-side { grid-column: 1; }
   .map-unit-side::before {
     content: attr(data-side); font-size: 10px; font-weight: 700;
     color: var(--text-muted); min-width: 32px; flex: none;
   }
   .map-unit-side .combo { width: auto; flex: 1 1 auto; min-width: 96px; }
-  .map-unit-base { display: none; }
 }
