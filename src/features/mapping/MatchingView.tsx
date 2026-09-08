@@ -169,47 +169,58 @@ export function MatchingView() {
               return (
                 <article className={`map-card${m.state === 'UNMAPPED' ? ' is-attention' : ''}`}
                          key={`${m.org}-${m.local}`}>
-                  <header className="map-card-head">
+                  {/* The pairing is the point of the screen, so it leads: the
+                      facility's item on the left, the master it maps to on the
+                      right, with the status of that pairing beside them. */}
+                  <header className="map-pair">
                     {canPropose && (
                       <input type="checkbox" checked={picked.has(i)} disabled={!editable}
                              aria-label={`${t('c.selected')} ${m.local}`}
                              onChange={() => toggle(i)} />
                     )}
-                    <div className="map-card-id">
+
+                    <div className="map-side map-side--ours">
+                      <span className="map-side-label">{t('mat.ourItem')}</span>
                       <b>{m.local}</b>
-                      <span>{m.localName}</span>
-                      {m.src === 'API' && <em className="map-tag">API</em>}
+                      <span className="map-side-name">
+                        {m.localName}
+                        {m.src === 'API' && <em className="map-tag">API</em>}
+                      </span>
                     </div>
-                    <MapBadge state={m.state} />
-                    {editable && ready && (
-                      <LinkButton onClick={() => propose(i)}>{t('mat.propose')} ›</LinkButton>
-                    )}
+
+                    <span className="map-arrow" aria-hidden="true"><Icon name="arrowR" size={16} /></span>
+
+                    <div className="map-side map-side--master">
+                      <span className="map-side-label">{t('mat.master')}</span>
+                      {editable ? (
+                        <Combo value={m.item} className="sel-master"
+                               ariaLabel={`${t('mat.master')} ${m.local}`}
+                               onChange={v => patch(i, { item: v })}>
+                          <option value="">{t('mat.pickMaster')}</option>
+                          {MASTER.map(x => (
+                            <option key={x.code} value={x.code}>{x.code} · {itemName(x.code)}</option>
+                          ))}
+                        </Combo>
+                      ) : m.item ? (<>
+                        <b>{m.item}</b>
+                        <span className="map-side-name">{itemName(m.item)}</span>
+                      </>) : <span className="map-side-empty">{t('mat.selectMaster')}</span>}
+                    </div>
+
+                    <div className="map-pair-end">
+                      <MapBadge state={m.state} />
+                      {editable && ready && (
+                        <LinkButton onClick={() => propose(i)}>{t('mat.propose')} ›</LinkButton>
+                      )}
+                    </div>
                   </header>
 
                   {m.reason && <p className="map-card-reason">{m.reason}</p>}
 
-                  <div className="map-master">
-                    <span className="map-label">{t('mat.master')}</span>
-                    {editable ? (
-                      <Combo value={m.item} className="sel-master"
-                             ariaLabel={`${t('mat.master')} ${m.local}`}
-                             onChange={v => patch(i, { item: v })}>
-                        <option value="">{t('mat.pickMaster')}</option>
-                        {MASTER.map(x => (
-                          <option key={x.code} value={x.code}>{x.code} · {itemName(x.code)}</option>
-                        ))}
-                      </Combo>
-                    ) : m.item ? (
-                      <span className="map-master-value">
-                        <b>{m.item}</b><span>{itemName(m.item)}</span>
-                      </span>
-                    ) : <span className="cell-sub">{t('mat.selectMaster')}</span>}
-                  </div>
-
                   {m.item && (
                     <div className="map-units">
                       <div className="map-units-head">
-                        <span />
+                        <span className="map-units-title">{t('mat.units')}</span>
                         <span className="map-side-head">{t('mat.sidePcu')}</span>
                         <span className="map-side-head">{t('mat.sideHosp')}</span>
                         <span />

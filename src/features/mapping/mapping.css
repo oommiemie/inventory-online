@@ -69,8 +69,8 @@ table.tbl tbody td.col-group { padding-left: 14px; }
 }
 
 /* ---- Mapping list ----
-   One card per item. A card has the width a table column never had, so both
-   organisations' unit and quantity fit on one line and line up down the list. */
+   One card per item. The pairing leads — the facility's item, an arrow, the
+   master it maps to — and the units sit beneath it in a panel of their own. */
 .map-list { display: grid; gap: 12px; align-content: start; }
 /* The card is capped to the viewport, so the list scrolls inside it — the job
    the table wrapper used to do before this became a card list. */
@@ -89,48 +89,85 @@ table.tbl tbody td.col-group { padding-left: 14px; }
 .map-card:hover { border-color: var(--brand-200); box-shadow: 0 6px 18px -10px rgba(16,24,40,.22); }
 /* Items with no master yet are the ones asking for work. */
 .map-card.is-attention { border-left: 3px solid var(--warn); }
-
-.map-card-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-.map-card-id { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
-.map-card-id b { font-size: var(--fs-md); font-weight: 750; letter-spacing: -.01em; }
-.map-card-id > span { font-size: var(--fs-sm); color: var(--text-soft); }
-.map-tag {
-  font-style: normal; font-size: 10px; font-weight: 700; letter-spacing: .04em;
-  padding: 2px 6px; border-radius: 6px; background: var(--n-100); color: var(--text-muted);
-}
 .map-card-reason { font-size: var(--fs-xs); color: var(--danger); }
 
-.map-master { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-.map-label {
+/* ---- The pairing ---- */
+.map-pair {
+  display: grid; align-items: center; gap: 14px;
+  grid-template-columns: auto minmax(0, 1fr) 28px minmax(0, 1fr) auto;
+}
+.map-pair > input[type="checkbox"] { justify-self: start; }
+.map-pair:not(:has(> input[type="checkbox"])) { grid-template-columns: minmax(0, 1fr) 28px minmax(0, 1fr) auto; }
+.map-side {
+  display: grid; gap: 2px; min-width: 0;
+  padding: 10px 12px; border-radius: 12px; background: var(--surface-sunken);
+}
+.map-side-label {
   font-size: 10px; font-weight: 700; letter-spacing: .05em; color: var(--text-muted);
-  min-width: 128px;
 }
-.map-master-value { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
-.map-master-value b { font-weight: 750; }
-.map-master-value > span { font-size: var(--fs-sm); color: var(--text-soft); }
+.map-side b {
+  font-size: var(--fs-md); font-weight: 750; letter-spacing: -.01em;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.map-side-name {
+  display: flex; align-items: center; gap: 6px; min-width: 0;
+  font-size: var(--fs-xs); color: var(--text-soft);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.map-side-empty { font-size: var(--fs-sm); color: var(--text-muted); }
+/* The master side is the one being decided, so it carries the brand tint. */
+.map-side--master { background: var(--brand-50); }
+[data-theme="dark"] .map-side--master {
+  background: color-mix(in srgb, var(--brand-400) 10%, transparent);
+}
+.map-side--master .sel-master { width: 100%; margin-top: 2px; }
+.map-arrow {
+  width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--brand-100); color: var(--brand-ink);
+}
+[data-theme="dark"] .map-arrow { background: color-mix(in srgb, var(--brand-400) 18%, transparent); }
+.map-pair-end { display: flex; align-items: center; gap: 10px; justify-self: end; }
+.map-tag {
+  font-style: normal; font-size: 10px; font-weight: 700; letter-spacing: .04em;
+  padding: 1px 6px; border-radius: 6px; background: var(--n-100); color: var(--text-muted);
+  flex: none;
+}
 
-/* Units grid: label, one column per organisation, then the remove control. */
-.map-units {
-  display: grid; gap: 8px;
-  padding: 12px; border-radius: 12px; background: var(--surface-sunken);
-}
+/* ---- Units panel ---- */
+.map-units { display: grid; gap: 8px; }
 .map-units-head, .map-unit {
   display: grid; align-items: center; gap: 12px;
   grid-template-columns: 128px minmax(0, 1fr) minmax(0, 1fr) 30px;
 }
+.map-units-title, .map-unit-tag {
+  font-size: var(--fs-xs); font-weight: 600; color: var(--text-soft);
+}
+.map-units-title { font-size: 10px; font-weight: 700; letter-spacing: .05em; color: var(--text-muted); }
 .map-side-head {
   font-size: 10px; font-weight: 700; letter-spacing: .05em; color: var(--text-muted);
 }
-.map-unit-tag { font-size: var(--fs-xs); font-weight: 600; color: var(--text-soft); }
-.map-unit-side { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.map-unit-side {
+  display: flex; align-items: center; gap: 8px; min-width: 0;
+  padding: 6px 10px; border-radius: 10px; background: var(--surface-sunken);
+}
 .map-unit-side .combo { width: 132px; min-width: 0; }
 .map-unit-base { font-style: normal; font-size: var(--fs-xs); color: var(--text-muted); white-space: nowrap; }
 .map-uom-add { justify-self: start; padding-left: 0; }
+.map-uom-drop {
+  width: 26px; height: 26px; flex: none; border-radius: 50%;
+  display: grid; place-items: center; color: var(--text-muted); background: transparent;
+  transition: background var(--dur-fast), color var(--dur-fast);
+}
+.map-uom-drop:hover { background: var(--danger-bg); color: var(--danger); }
 
 @media (max-width: 900px) {
-  /* Too narrow for two sides abreast: each takes its own line, still labelled.
-     The base unit repeats what the card already says, so it stands down and
-     the unit box takes the width instead of collapsing to a stub. */
+  /* Stacked: the pairing reads down the card, and each unit's two sides follow
+     one another, each keeping its label. */
+  .map-pair, .map-pair:not(:has(> input[type="checkbox"])) { grid-template-columns: minmax(0, 1fr) auto; }
+  .map-pair > input[type="checkbox"] { grid-row: 1; }
+  .map-side { grid-column: 1 / -1; }
+  .map-arrow { grid-column: 1 / -1; justify-self: center; transform: rotate(90deg); }
+  .map-pair-end { grid-column: 1 / -1; justify-self: start; }
   .map-units-head { display: none; }
   .map-unit { grid-template-columns: minmax(0, 1fr) 30px; }
   .map-unit-tag { grid-column: 1 / -1; }
