@@ -181,7 +181,14 @@ export function MatchingView() {
                   units.some(u => u.uom !== u.hospUom || u.factor !== u.hospFactor)
                 return (
                   <Fragment key={`${m.org}-${m.local}`}>
-                    <tr className={m.state === 'UNMAPPED' ? 'row-attention' : undefined}>
+                    {/* The whole row opens the panel; the chevron stays as the
+                        control a keyboard and a screen reader use. Clicks that
+                        start on something interactive are left to it. */}
+                    <tr className={`map-row-click${m.state === 'UNMAPPED' ? ' row-attention' : ''}`}
+                        onClick={e => {
+                          const el = e.target as HTMLElement
+                          if (!el.closest('button, input, a, label, .combo')) toggleOpen(i)
+                        }}>
                       <td>
                         <button type="button" className={`map-toggle${isOpen ? ' is-open' : ''}`}
                                 aria-expanded={isOpen}

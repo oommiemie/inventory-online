@@ -25,6 +25,9 @@
    A short line per item: what it is, what it maps to, its units in brief. The
    editing lives in a panel that opens under the row, so the list stays
    scannable and nothing has to be squeezed into a cell. */
+/* The row is a target in its own right, so it says so on hover. */
+.map-row-click { cursor: pointer; }
+
 .map-toggle {
   width: 26px; height: 26px; border-radius: 50%;
   display: grid; place-items: center; color: var(--text-muted); background: transparent;
