@@ -695,7 +695,9 @@ input[type="checkbox"]:disabled {
    Named apart from .stepper, which is the document stage indicator: sharing
    the name handed this control that one's 16px padding. */
 .qty-stepper {
-  display: inline-flex; align-items: center; flex: none;
+  /* Fixed: the control clips its own overflow, so under space pressure it would
+     otherwise collapse to its borders instead of widening its column. */
+  display: inline-flex; align-items: center; flex: none; width: 124px;
   height: 36px; border-radius: var(--r-full);
   border: 1px solid var(--n-200); background: var(--surface-raised);
   overflow: hidden;
@@ -715,7 +717,7 @@ input[type="checkbox"]:disabled {
   background: color-mix(in srgb, var(--brand-400) 16%, transparent);
 }
 .qty-stepper-input {
-  width: 58px; height: 100%; min-width: 0; padding: 0 2px;
+  flex: 1; min-width: 0; height: 100%; min-width: 0; padding: 0 2px;
   border: 0; outline: none; background: transparent; color: var(--text);
   text-align: center; font-size: var(--fs-sm); font-weight: 700;
   font-variant-numeric: tabular-nums;

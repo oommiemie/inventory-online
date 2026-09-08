@@ -220,6 +220,7 @@ export function MatchingView() {
                         <div className="map-extra">
                           {units.slice(1).map((u, k) => (
                             <div className="map-extra-row" key={k + 1}>
+                              <div className="map-extra-sides">
                               <span className="map-extra-side">
                                 <em className="map-extra-tag">{t('mat.sidePcu')}</em>
                                 {editable
@@ -232,6 +233,7 @@ export function MatchingView() {
                                   ? <>{unitCell(i, m, k + 1, 'hosp', true)}{qtyCell(i, m, k + 1, 'hosp', true)}</>
                                   : <Chip accent>1 {u.hospUom} = {num(u.hospFactor)} {uomName(m.item)}</Chip>}
                               </span>
+                              </div>
                               {editable && (
                                 <button type="button" className="map-uom-drop"
                                         aria-label={t('mat.removeUom')}

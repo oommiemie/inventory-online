@@ -14,7 +14,8 @@
    wrapping, so on a phone — where the table scrolls anyway — they get the room
    the longest item name needs instead of the column's leftovers. */
 .sel-master { min-width: 190px; }
-.sel-uom { min-width: 110px; }
+/* Fills its column rather than sizing to the chosen word. */
+.sel-uom { width: 100%; min-width: 110px; }
 @media (max-width: 720px) {
   .sel-master { min-width: 240px; }
   .sel-uom { min-width: 130px; }
@@ -23,9 +24,23 @@
 /* ---- Further units on a mapping row ----
    The same item can be ordered in more than one unit, and each is named on
    both sides, so a row pairs the facility's unit with the hospital's. */
-.map-extra { display: grid; gap: 8px; justify-items: start; }
-.map-extra-row { display: flex; align-items: center; gap: 10px; }
-.map-extra-side { display: inline-flex; align-items: center; gap: 6px; }
+.map-extra { display: grid; gap: 10px; justify-items: stretch; }
+/* One unit per block, its two sides stacked: side by side the pair needed more
+   than twice this column's width, which squeezed the steppers to nothing. */
+.map-extra-row {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center; gap: 8px;
+  padding-top: 10px; border-top: 1px dashed var(--n-200);
+}
+.map-extra-row:first-child { padding-top: 0; border-top: 0; }
+.map-extra-sides { display: grid; gap: 6px; }
+/* Fixed tracks, so both sides line up whatever the chosen unit is called. */
+.map-extra-side {
+  display: grid; grid-template-columns: 34px 132px auto;
+  align-items: center; gap: 6px;
+}
+.map-extra-side .combo { width: 100%; min-width: 0; }
+.map-extra-side .chip { grid-column: 2 / -1; justify-self: start; }
 .map-uom-qty { width: 76px; }
 .map-uom-drop {
   width: 26px; height: 26px; flex: none; border-radius: 50%;
