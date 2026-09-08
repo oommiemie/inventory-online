@@ -690,3 +690,36 @@ input[type="checkbox"]:disabled {
   margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--glass-edge);
 }
 .cal-foot .linkbtn { font-size: var(--fs-xs); }
+
+/* ---------------- Quantity stepper ----------------
+   Named apart from .stepper, which is the document stage indicator: sharing
+   the name handed this control that one's 16px padding. */
+.qty-stepper {
+  display: inline-flex; align-items: center; flex: none;
+  height: 36px; border-radius: var(--r-full);
+  border: 1px solid var(--n-200); background: var(--surface-raised);
+  overflow: hidden;
+  transition: border-color var(--dur-fast), box-shadow var(--dur-fast);
+}
+.qty-stepper:hover { border-color: var(--n-300); }
+.qty-stepper:focus-within { border-color: var(--brand-400); box-shadow: var(--focus-ring); }
+.qty-stepper-btn {
+  width: 32px; height: 100%; flex: none; display: grid; place-items: center;
+  color: var(--brand-ink); background: transparent;
+  transition: background var(--dur-fast), color var(--dur-fast);
+}
+.qty-stepper-btn:hover:not(:disabled) { background: var(--brand-100); }
+.qty-stepper-btn:active:not(:disabled) { transform: scale(.9); }
+.qty-stepper-btn:disabled { color: var(--n-300); cursor: not-allowed; }
+[data-theme="dark"] .qty-stepper-btn:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--brand-400) 16%, transparent);
+}
+.qty-stepper-input {
+  width: 58px; height: 100%; min-width: 0; padding: 0 2px;
+  border: 0; outline: none; background: transparent; color: var(--text);
+  text-align: center; font-size: var(--fs-sm); font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+/* The frame already shows focus; a ring on the field would double it. */
+.qty-stepper-input:focus, .qty-stepper-input:focus-visible { box-shadow: none; outline: none; }
+.qty-stepper-input:disabled { color: var(--text-muted); }

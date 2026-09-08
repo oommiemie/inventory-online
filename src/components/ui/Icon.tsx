@@ -11,6 +11,7 @@ const P: Record<string, string> = {
   pulse:  'M3 12h4l2-6 4 12 2-6h6',
   search: 'M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14ZM16.5 16.5 21 21',
   plus:   'M12 5v14M5 12h14',
+  minus:  'M5 12h14',
   bell:   'M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4',
   menu:   'M4 7h16M4 12h16M4 17h16',
   chevL:  'm15 6-6 6 6 6',

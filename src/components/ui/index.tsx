@@ -10,6 +10,7 @@ export { Icon }
 export type { IconName }
 export { Combo } from './Combo'
 export { DatePicker } from './DatePicker'
+export { QtyStepper } from './QtyStepper'
 
 /* ---------------- Button ---------------- */
 type Variant = 'default' | 'primary' | 'teal' | 'danger' | 'ghost'

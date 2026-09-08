@@ -3,7 +3,7 @@ import { useStore } from '@/app/store'
 import { ROLES, MASTER } from '@/data/seed'
 import { num, uomChoices, mappingReady, mappedUoms } from '@/lib/domain'
 import { useT } from '@/hooks/useT'
-import { Card, PanelHead, Button, TableWrap, Empty, Chip, LinkButton, NumberInput, Combo, Icon } from '@/components/ui'
+import { Card, PanelHead, Button, TableWrap, Empty, Chip, LinkButton, Combo, Icon, QtyStepper } from '@/components/ui'
 import { MapBadge } from '@/components/StateBadge'
 import type { MapState, Mapping, MappedUom } from '@/types'
 import './mapping.css'
@@ -94,12 +94,9 @@ export function MatchingView() {
     const value = side === 'pcu' ? u.factor : u.hospFactor
     if (!editable) return <b className="num">{num(value)}</b>
     return (
-      <NumberInput className="map-uom-qty" value={value}
-                   aria-label={`${side === 'pcu' ? t('mat.qtyPcu') : t('mat.qtyHosp')} ${m.local}`}
-                   onChange={e => {
-                     const v = Number(String(e.target.value).replace(/[^\d]/g, '')) || 0
-                     setUom(i, m, k, side === 'pcu' ? { factor: v } : { hospFactor: v })
-                   }} />
+      <QtyStepper value={value}
+                  ariaLabel={`${side === 'pcu' ? t('mat.qtyPcu') : t('mat.qtyHosp')} ${m.local}`}
+                  onChange={(v: number) => setUom(i, m, k, side === 'pcu' ? { factor: v } : { hospFactor: v })} />
     )
   }
 
