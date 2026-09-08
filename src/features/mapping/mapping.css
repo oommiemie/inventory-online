@@ -71,7 +71,10 @@ table.tbl tbody td.col-group { padding-left: 14px; }
 /* ---- Mapping list ----
    One card per item. A card has the width a table column never had, so both
    organisations' unit and quantity fit on one line and line up down the list. */
-.map-list { display: grid; gap: 12px; }
+.map-list { display: grid; gap: 12px; align-content: start; }
+/* The card is capped to the viewport, so the list scrolls inside it — the job
+   the table wrapper used to do before this became a card list. */
+.glass.card.fill-view .map-list { flex: 1; min-height: 0; overflow-y: auto; }
 .map-all {
   display: inline-flex; align-items: center; gap: 8px; justify-self: start;
   font-size: var(--fs-xs); font-weight: 600; color: var(--text-soft); cursor: pointer;
