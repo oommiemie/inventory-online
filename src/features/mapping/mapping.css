@@ -68,83 +68,27 @@ table.tbl tbody td.col-group { padding-left: 14px; }
   color: var(--text-muted); min-width: 34px;
 }
 
-/* ---- Mapping list ----
-   Quiet by design: no fills, no badges of its own. A hairline separates the
-   pairing from the units, and grey labels carry the structure. */
-.map-list { display: grid; gap: 10px; align-content: start; }
-/* The card is capped to the viewport, so the list scrolls inside it. */
-.glass.card.fill-view .map-list { flex: 1; min-height: 0; overflow-y: auto; }
-.map-all {
-  display: inline-flex; align-items: center; gap: 8px; justify-self: start;
-  font-size: var(--fs-xs); font-weight: 600; color: var(--text-soft); cursor: pointer;
-}
-.map-card {
-  display: grid; gap: 10px; padding: 16px 18px;
-  border-radius: 14px; background: var(--surface-solid);
-  border: 1px solid var(--n-100);
-  transition: border-color var(--dur-fast);
-}
-[data-theme="dark"] .map-card { border-color: var(--n-200); }
-.map-card:hover { border-color: var(--n-200); }
-.map-card.is-attention { border-left: 2px solid var(--warn); }
-.map-card-reason { font-size: var(--fs-xs); color: var(--danger); }
+/* ---- Mapping table ----
+   Each unit is a row of its own, so the columns line up without nesting a
+   layout inside a cell; the item, master and status span their unit rows. */
+.map-group + .map-group td { border-top: 1px solid var(--n-200); }
+.map-group td { border-bottom: 0; }
+/* The item's own rows are separated by the lightest rule the theme has. */
+.map-group tr + tr td { border-top: 1px solid var(--glass-edge); }
+.map-group + .map-group tr + tr td { border-top: 1px solid var(--glass-edge); }
+.map-group tr:hover td { background: color-mix(in srgb, var(--brand-500) 4%, transparent); }
 
-.map-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-.map-head .spacer { flex: 1; }
-.map-code { font-size: var(--fs-md); font-weight: 750; letter-spacing: -.01em; }
-.map-name { font-size: var(--fs-sm); color: var(--text-soft); min-width: 0; }
-.map-tag {
-  font-style: normal; font-size: 10px; font-weight: 700; letter-spacing: .04em;
-  color: var(--text-muted);
-}
+/* A group heading spans its pair, and a hairline marks where the pair starts. */
+table.tbl thead tr.grouped th.col-group { text-align: center; letter-spacing: .06em; }
+table.tbl th.col-group, table.tbl td.col-group { border-left: 1px solid var(--n-200); }
+table.tbl thead tr.grouped + tr th { padding-top: 4px; font-size: 10px; color: var(--n-400); }
 
-/* Label / value rows share one label column with the units below. */
-.map-row { display: grid; grid-template-columns: 64px minmax(0, 1fr); align-items: center; gap: 8px 28px; }
-.map-key { font-size: var(--fs-xs); color: var(--text-muted); }
-.map-val { font-size: var(--fs-sm); }
-.map-val b { font-weight: 700; }
-.map-val.is-empty { color: var(--text-muted); }
-.map-row .sel-master { max-width: 340px; }
-
-/* No rules between rows: a wide gap between the two organisations and a steady
-   left edge do the separating, which keeps the card quiet. */
-.map-units { display: grid; gap: 8px; margin-top: 4px; }
-.map-unit {
-  display: grid; align-items: center; gap: 8px 28px;
-  grid-template-columns: 64px minmax(0, 1fr) minmax(0, 1fr) 26px;
-}
-.map-unit--head { margin-bottom: 2px; }
-.map-unit--head > span {
-  font-size: 10px; font-weight: 700; letter-spacing: .05em; color: var(--text-muted);
-}
-.map-unit-side { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
-.map-unit-side .combo { width: 128px; min-width: 0; align-self: center; }
-.map-unit-side .qty-stepper { align-self: center; }
-/* The figure carries the row, so it reads a size up from its labels. */
-.map-unit-side .cell-strong { font-size: var(--fs-md); font-weight: 650; }
-.map-unit-side .num { font-size: var(--fs-md); min-width: 56px; text-align: right; font-weight: 800; }
-.map-unit-base { font-style: normal; font-size: var(--fs-xs); color: var(--text-muted); white-space: nowrap; }
-.map-uom-add { justify-self: start; padding-left: 0; margin-top: 2px; }
+.map-uom-add { padding-left: 0; white-space: nowrap; }
+.map-drop-cell { text-align: right; }
 .map-uom-drop {
-  width: 26px; height: 26px; flex: none; border-radius: 50%;
-  display: grid; place-items: center; color: var(--n-300); background: transparent;
+  width: 26px; height: 26px; border-radius: 50%;
+  display: inline-grid; place-items: center; color: var(--n-300); background: transparent;
   transition: background var(--dur-fast), color var(--dur-fast);
 }
 .map-uom-drop:hover { background: var(--danger-bg); color: var(--danger); }
-
-@media (max-width: 900px) {
-  /* Each unit's two sides follow one another, each keeping its label. */
-  .map-row, .map-unit { grid-template-columns: minmax(0, 1fr) 26px; }
-  .map-row > .map-key, .map-unit > .map-key { grid-column: 1 / -1; }
-  .map-unit--head { display: none; }
-  .map-unit-side { grid-column: 1; }
-  .map-unit-side::before {
-    content: attr(data-side); font-size: 10px; font-weight: 700;
-    color: var(--text-muted); min-width: 32px; flex: none;
-  }
-  .map-unit-side .combo { width: auto; flex: 1 1 auto; min-width: 96px; }
-  /* Stacked, so the divider between organisations would cut across them. */
-  /* Room is tight only while editing, where a stepper sits in the row; a
-     read-only row keeps the base unit so its figure still says what it counts. */
-  .map-unit-side:has(.qty-stepper) .map-unit-base { display: none; }
-}
+.row-attention td { background: color-mix(in srgb, var(--warn) 6%, transparent); }
