@@ -59,27 +59,37 @@
 .map-detail-key { font-size: var(--fs-xs); color: var(--text-muted); white-space: nowrap; }
 .map-detail .sel-master { width: 100%; max-width: 420px; }
 
-/* Fixed tracks across the panel's full width: a label column, then the two
-   organisations sharing what is left evenly. */
-.map-units-table {
-  width: 100%; table-layout: fixed;
-  border-collapse: separate; border-spacing: 0 6px;
+/* Two boxes side by side, one per organisation. The box is painted on the
+   cells of a shared grid, so a row on the left always sits level with its pair
+   on the right — which two separate boxes could not guarantee. */
+.map-sides {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 34px;
+  gap: 1px 14px; align-items: stretch;
 }
-.map-units-table .c-label { width: 132px; }
-.map-units-table .c-qty { width: 140px; }
-.map-units-table .c-drop { width: 40px; }
-.map-units-table th {
-  padding: 0 8px 2px; text-align: left;
+.map-box-head, .map-box-cell { background: var(--surface-solid); }
+.map-box-head {
+  padding: 8px 14px; border-radius: 12px 12px 0 0;
   font-size: 10px; font-weight: 700; letter-spacing: .05em; color: var(--text-muted);
 }
-.map-units-table td { padding: 2px 8px; vertical-align: middle; }
-.map-units-table th:first-child, .map-units-table td:first-child { padding-left: 0; }
-.map-units-table th:last-child, .map-units-table td:last-child { padding-right: 0; }
-/* The unit box takes the share its column is given; the figure stays fixed. */
-.map-units-table .combo { width: 100%; }
-.map-units-table .cell-strong { font-weight: 650; }
-.map-units-table .num { font-weight: 750; text-align: right; display: block; }
-.map-units-table .qty-stepper { float: right; }
+.map-box-cell {
+  display: flex; align-items: center; gap: 10px; min-width: 0;
+  padding: 8px 14px;
+}
+/* The last row of each box closes it off. */
+.map-sides > .map-box-cell:nth-last-child(3),
+.map-sides > .map-box-cell:nth-last-child(2) { border-radius: 0 0 12px 12px; padding-bottom: 12px; }
+[data-theme="dark"] .map-box-head, [data-theme="dark"] .map-box-cell {
+  background: color-mix(in srgb, var(--surface-solid) 70%, transparent);
+}
+/* Which unit this is: the primary is named, the rest are numbered. */
+.map-unit-no {
+  flex: none; min-width: 54px; font-style: normal;
+  font-size: var(--fs-xs); color: var(--text-muted);
+}
+.map-box-cell .combo { flex: 1 1 auto; min-width: 0; }
+.map-box-cell .cell-strong { flex: 1 1 auto; min-width: 0; font-weight: 650; }
+.map-box-cell .num { flex: none; min-width: 64px; text-align: right; font-weight: 750; }
+.map-drop-cell { display: flex; align-items: center; justify-content: center; }
 
 .map-uom-add { padding-left: 0; white-space: nowrap; justify-self: start; }
 .map-uom-drop {

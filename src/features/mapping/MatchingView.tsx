@@ -251,46 +251,42 @@ export function MatchingView() {
                             )}
 
                             {m.item ? (
-                              <table className="map-units-table">
-                                {/* Fixed tracks: a label column, then the two
-                                    organisations sharing what is left evenly. */}
-                                <colgroup>
-                                  <col className="c-label" />
-                                  <col /><col className="c-qty" />
-                                  <col /><col className="c-qty" />
-                                  <col className="c-drop" />
-                                </colgroup>
-                                <thead>
-                                  <tr>
-                                    <th />
-                                    <th colSpan={2}>{t('mat.sidePcu')}</th>
-                                    <th colSpan={2}>{t('mat.sideHosp')}</th>
-                                    <th />
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {units.map((_u, k) => (
-                                    <tr key={k}>
-                                      <td className="map-detail-key">
-                                        {k === 0 ? t('mat.mainUom') : `${t('mat.extraUoms')} ${k}`}
-                                      </td>
-                                      <td>{unitCell(i, m, k, 'pcu', editable)}</td>
-                                      <td className="num">{qtyCell(i, m, k, 'pcu', editable)}</td>
-                                      <td>{unitCell(i, m, k, 'hosp', editable)}</td>
-                                      <td className="num">{qtyCell(i, m, k, 'hosp', editable)}</td>
-                                      <td className="cell-action">
-                                        {editable && k > 0 && (
-                                          <button type="button" className="map-uom-drop"
-                                                  aria-label={t('mat.removeUom')}
-                                                  onClick={() => removeUom(i, m, k)}>
-                                            <Icon name="close" size={14} />
-                                          </button>
-                                        )}
-                                      </td>
-                                    </tr>
-                                  ))}
-                                </tbody>
-                              </table>
+                              /* Two boxes, one per organisation, drawn as
+                                 backgrounds on a shared grid so rows in the
+                                 left box stay level with their pair on the
+                                 right. */
+                              <div className="map-sides">
+                                <div className="map-box-head">{t('mat.sidePcu')}</div>
+                                <div className="map-box-head">{t('mat.sideHosp')}</div>
+                                <div />
+                                {units.map((_u, k) => (
+                                  <Fragment key={k}>
+                                    <div className="map-box-cell">
+                                      <em className="map-unit-no">
+                                        {k === 0 ? t('mat.mainUom') : `${k + 1}`}
+                                      </em>
+                                      {unitCell(i, m, k, 'pcu', editable)}
+                                      {qtyCell(i, m, k, 'pcu', editable)}
+                                    </div>
+                                    <div className="map-box-cell">
+                                      <em className="map-unit-no">
+                                        {k === 0 ? t('mat.mainUom') : `${k + 1}`}
+                                      </em>
+                                      {unitCell(i, m, k, 'hosp', editable)}
+                                      {qtyCell(i, m, k, 'hosp', editable)}
+                                    </div>
+                                    <div className="map-drop-cell">
+                                      {editable && k > 0 && (
+                                        <button type="button" className="map-uom-drop"
+                                                aria-label={t('mat.removeUom')}
+                                                onClick={() => removeUom(i, m, k)}>
+                                          <Icon name="close" size={14} />
+                                        </button>
+                                      )}
+                                    </div>
+                                  </Fragment>
+                                ))}
+                              </div>
                             ) : <p className="cell-sub">{t('mat.selectMaster')}</p>}
 
                             {editable && m.item && (
