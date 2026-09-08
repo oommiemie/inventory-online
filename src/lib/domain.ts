@@ -42,9 +42,13 @@ export const toLocal = (maps: Mapping[], org: string, item: string, base: number
   return f ? base / f : base
 }
 
-/** A mapping proposal is complete only with a master, a unit, and factor >= 1. */
+/** Every unit a mapping carries: the primary one first, then any extras. */
+export const mappedUoms = (m: Mapping) =>
+  [{ uom: m.localUom, factor: m.factor }, ...(m.extraUoms ?? [])]
+
+/** Complete only with a master and every unit named with a quantity >= 1. */
 export const mappingReady = (m: Mapping): boolean =>
-  Boolean(m.item) && Boolean(m.localUom) && m.factor >= 1
+  Boolean(m.item) && mappedUoms(m).every(u => Boolean(u.uom) && u.factor >= 1)
 
 /* ---------------- Stock ---------------- */
 export const stockRows = (stock: StockRow[], wh: string, item?: string): StockRow[] =>

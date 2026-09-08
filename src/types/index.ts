@@ -62,13 +62,19 @@ export interface MasterItem {
   price: number
 }
 
+/** One extra requisition unit for the same item, with its own quantity. */
+export interface MappedUom { uom: string; factor: number }
+
 export interface Mapping {
   org: string
   local: string
   localName: string
   item: string
+  /** The primary requisition unit and how many base units it holds. */
   localUom: string
   factor: number
+  /** Further units the facility orders this item in. */
+  extraUoms?: MappedUom[]
   state: MapState
   reason?: string
   pendingReason?: string

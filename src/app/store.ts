@@ -11,7 +11,7 @@ import {
   CONNECTOR_INBOX,
 } from '@/data/seed'
 import {
-  M, fefo, mapIsActive, ACTION_FROM, ACTION_PERM, fmtStamp, uid, uomChoices,
+  M, fefo, mapIsActive, ACTION_FROM, ACTION_PERM, fmtStamp, uid, uomChoices, mappingReady,
 } from '@/lib/domain'
 
 /* ---------------- Toast plumbing ---------------- */
@@ -755,7 +755,7 @@ export const useStore = create<State>()(persist((set, get) => {
       const s = get()
       const m = s.mappings[idx]
       if (!m) return
-      if (!m.item || !m.localUom || !(m.factor >= 1)) { toast('Complete Master, unit and factor first', 'warn'); return }
+      if (!mappingReady(m)) { toast('Complete Master, unit and quantity first', 'warn'); return }
       if (s.mappings.some((x, i) => i !== idx && x.org === m.org && x.item === m.item && ['ACTIVE', 'PENDING_APPROVAL'].includes(x.state))) {
         toast('This Master is already mapped here (1 item : 1 Master)', 'danger'); return
       }

@@ -3,6 +3,9 @@ import type {
 } from '@/types'
 
 /* ---------------- Roles & permission matrix ---------------- */
+/* `menu` is the whole story on visibility: a screen appears for a role only if
+   it is listed here. "ผูกกับ Master" is a sub-district task, so only the PCU
+   role carries it — a new role gets it by adding 'matching' to its list. */
 export const ROLES: Record<RoleId, Role> = {
   INVENTORY_PCU: {
     id: 'INVENTORY_PCU', label: 'Inventory PCU', labelTh: 'เจ้าหน้าที่คลัง รพ.สต.',
@@ -22,7 +25,7 @@ export const ROLES: Record<RoleId, Role> = {
   PROVINCIAL_ADMIN: {
     id: 'PROVINCIAL_ADMIN', label: 'Provincial Admin', labelTh: 'ผู้ดูแลระดับจังหวัด',
     org: 'PROV', scope: 'PROVINCE',
-    menu: ['dashboard', 'requisitions', 'review', 'issue', 'receive', 'stock', 'matching', 'mapapprove', 'reference', 'monitor', 'reports', 'settings'],
+    menu: ['dashboard', 'requisitions', 'review', 'issue', 'receive', 'stock', 'mapapprove', 'reference', 'monitor', 'reports', 'settings'],
     can: ['req.review', 'req.approve', 'req.reject', 'req.return', 'req.close_short',
           'req.cancel', 'req.settle', 'req.issue', 'req.receive', 'stock.adjust',
           'map.view', 'map.approve', 'map.propose', 'master.edit', 'monitor.view',
@@ -32,7 +35,7 @@ export const ROLES: Record<RoleId, Role> = {
   BMS: {
     id: 'BMS', label: 'BMS Group', labelTh: 'ผู้ดูแลระบบส่วนกลาง',
     org: 'BMS', scope: 'ALL',
-    menu: ['dashboard', 'requisitions', 'review', 'issue', 'receive', 'stock', 'matching', 'mapapprove', 'reference', 'monitor', 'reports', 'settings'],
+    menu: ['dashboard', 'requisitions', 'review', 'issue', 'receive', 'stock', 'mapapprove', 'reference', 'monitor', 'reports', 'settings'],
     can: ['req.create', 'req.submit', 'req.cancel', 'req.review', 'req.approve',
           'req.reject', 'req.return', 'req.close_short', 'req.issue', 'req.receive',
           'req.settle', 'stock.adjust', 'map.view', 'map.approve', 'map.propose',
