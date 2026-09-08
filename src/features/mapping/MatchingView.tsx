@@ -13,7 +13,7 @@ import { useMenuToggle } from '@/components/layout/AppShell'
 const EDITABLE: MapState[] = ['UNMAPPED', 'DRAFT', 'REJECTED']
 
 export function MatchingView() {
-  const { t, orgName, itemName } = useT()
+  const { t, orgName, itemName, uomName } = useT()
   const role = useStore(s => s.role)
   const onMenu = useMenuToggle()
   const maps = useStore(s => s.mappings)
@@ -219,10 +219,13 @@ export function MatchingView() {
                           <span className="map-unit-side" data-side={t('mat.sidePcu')}>
                             {unitCell(i, m, k, 'pcu', editable)}
                             {qtyCell(i, m, k, 'pcu', editable)}
+                            {/* Names what the quantity counts, so "200" is never bare. */}
+                            <em className="map-unit-base">{uomName(m.item)}</em>
                           </span>
                           <span className="map-unit-side" data-side={t('mat.sideHosp')}>
                             {unitCell(i, m, k, 'hosp', editable)}
                             {qtyCell(i, m, k, 'hosp', editable)}
+                            <em className="map-unit-base">{uomName(m.item)}</em>
                           </span>
                           {editable && k > 0 ? (
                             <button type="button" className="map-uom-drop"

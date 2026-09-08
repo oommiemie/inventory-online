@@ -107,20 +107,28 @@ table.tbl tbody td.col-group { padding-left: 14px; }
 .map-row .sel-master { max-width: 340px; }
 
 .map-units {
-  display: grid; gap: 6px;
+  display: grid;
   padding-top: 10px; border-top: 1px solid var(--glass-edge);
 }
 .map-unit {
-  display: grid; align-items: center; gap: 12px;
+  display: grid; align-items: center; gap: 12px; padding: 7px 0;
   grid-template-columns: 96px minmax(0, 1fr) minmax(0, 1fr) 26px;
 }
+/* A hairline between rows, and one between the two organisations, so the eye
+   can follow a single column down without a fill to guide it. */
+.map-unit + .map-unit { border-top: 1px solid var(--glass-edge); }
+.map-unit-side + .map-unit-side { border-left: 1px solid var(--glass-edge); padding-left: 14px; }
+.map-unit--head { padding-bottom: 6px; }
 .map-unit--head > span {
   font-size: 10px; font-weight: 700; letter-spacing: .05em; color: var(--text-muted);
 }
-.map-unit-side { display: flex; align-items: center; gap: 8px; min-width: 0; font-size: var(--fs-sm); }
-.map-unit-side .combo { width: 128px; min-width: 0; }
-.map-unit-side .cell-strong { font-weight: 600; }
-.map-unit-side .num { min-width: 52px; text-align: right; font-weight: 700; }
+.map-unit-side { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+.map-unit-side .combo { width: 128px; min-width: 0; align-self: center; }
+.map-unit-side .qty-stepper { align-self: center; }
+/* The figure carries the row, so it reads a size up from its labels. */
+.map-unit-side .cell-strong { font-size: var(--fs-md); font-weight: 650; }
+.map-unit-side .num { font-size: var(--fs-md); min-width: 56px; text-align: right; font-weight: 800; }
+.map-unit-base { font-style: normal; font-size: var(--fs-xs); color: var(--text-muted); white-space: nowrap; }
 .map-uom-add { justify-self: start; padding-left: 0; margin-top: 2px; }
 .map-uom-drop {
   width: 26px; height: 26px; flex: none; border-radius: 50%;
@@ -140,4 +148,9 @@ table.tbl tbody td.col-group { padding-left: 14px; }
     color: var(--text-muted); min-width: 32px; flex: none;
   }
   .map-unit-side .combo { width: auto; flex: 1 1 auto; min-width: 96px; }
+  /* Stacked, so the divider between organisations would cut across them. */
+  .map-unit-side + .map-unit-side { border-left: 0; padding-left: 0; }
+  /* Room is tight only while editing, where a stepper sits in the row; a
+     read-only row keeps the base unit so its figure still says what it counts. */
+  .map-unit-side:has(.qty-stepper) .map-unit-base { display: none; }
 }
