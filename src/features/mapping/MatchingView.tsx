@@ -213,9 +213,9 @@ export function MatchingView() {
                       </div>
                       {units.map((_u, k) => (
                         <div className="map-unit" key={k}>
-                          <span className="map-key">
-                            {k === 0 ? t('mat.mainUom') : `${t('mat.extraUoms')} ${k}`}
-                          </span>
+                          {/* Only the primary is named; the rest are simply the
+                              rows beneath it. */}
+                          <span className="map-key">{k === 0 ? t('mat.mainUom') : ''}</span>
                           <span className="map-unit-side" data-side={t('mat.sidePcu')}>
                             {unitCell(i, m, k, 'pcu', editable)}
                             {qtyCell(i, m, k, 'pcu', editable)}

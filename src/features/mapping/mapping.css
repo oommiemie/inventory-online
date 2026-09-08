@@ -99,26 +99,21 @@ table.tbl tbody td.col-group { padding-left: 14px; }
 }
 
 /* Label / value rows share one label column with the units below. */
-.map-row { display: grid; grid-template-columns: 96px minmax(0, 1fr); align-items: center; gap: 12px; }
+.map-row { display: grid; grid-template-columns: 64px minmax(0, 1fr); align-items: center; gap: 8px 28px; }
 .map-key { font-size: var(--fs-xs); color: var(--text-muted); }
 .map-val { font-size: var(--fs-sm); }
 .map-val b { font-weight: 700; }
 .map-val.is-empty { color: var(--text-muted); }
 .map-row .sel-master { max-width: 340px; }
 
-.map-units {
-  display: grid;
-  padding-top: 10px; border-top: 1px solid var(--glass-edge);
-}
+/* No rules between rows: a wide gap between the two organisations and a steady
+   left edge do the separating, which keeps the card quiet. */
+.map-units { display: grid; gap: 8px; margin-top: 4px; }
 .map-unit {
-  display: grid; align-items: center; gap: 12px; padding: 7px 0;
-  grid-template-columns: 96px minmax(0, 1fr) minmax(0, 1fr) 26px;
+  display: grid; align-items: center; gap: 8px 28px;
+  grid-template-columns: 64px minmax(0, 1fr) minmax(0, 1fr) 26px;
 }
-/* A hairline between rows, and one between the two organisations, so the eye
-   can follow a single column down without a fill to guide it. */
-.map-unit + .map-unit { border-top: 1px solid var(--glass-edge); }
-.map-unit-side + .map-unit-side { border-left: 1px solid var(--glass-edge); padding-left: 14px; }
-.map-unit--head { padding-bottom: 6px; }
+.map-unit--head { margin-bottom: 2px; }
 .map-unit--head > span {
   font-size: 10px; font-weight: 700; letter-spacing: .05em; color: var(--text-muted);
 }
@@ -149,7 +144,6 @@ table.tbl tbody td.col-group { padding-left: 14px; }
   }
   .map-unit-side .combo { width: auto; flex: 1 1 auto; min-width: 96px; }
   /* Stacked, so the divider between organisations would cut across them. */
-  .map-unit-side + .map-unit-side { border-left: 0; padding-left: 0; }
   /* Room is tight only while editing, where a stepper sits in the row; a
      read-only row keeps the base unit so its figure still says what it counts. */
   .map-unit-side:has(.qty-stepper) .map-unit-base { display: none; }
