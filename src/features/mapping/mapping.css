@@ -21,50 +21,6 @@
   .sel-uom { min-width: 130px; }
 }
 
-/* ---- Further units on a mapping row ----
-   The same item can be ordered in more than one unit, and each is named on
-   both sides, so a row pairs the facility's unit with the hospital's. */
-.map-extra { display: grid; gap: 10px; justify-items: stretch; }
-/* One unit per block, its two sides stacked: side by side the pair needed more
-   than twice this column's width, which squeezed the steppers to nothing. */
-.map-extra-row {
-  display: grid; grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center; gap: 8px;
-  padding-top: 10px; border-top: 1px dashed var(--n-200);
-}
-.map-extra-row:first-child { padding-top: 0; border-top: 0; }
-.map-extra-sides { display: grid; gap: 6px; }
-/* Fixed tracks, so both sides line up whatever the chosen unit is called. */
-.map-extra-side {
-  display: grid; grid-template-columns: 34px 132px auto;
-  align-items: center; gap: 6px;
-}
-.map-extra-side .combo { width: 100%; min-width: 0; }
-.map-extra-side .chip { grid-column: 2 / -1; justify-self: start; }
-.map-uom-qty { width: 76px; }
-.map-uom-drop {
-  width: 26px; height: 26px; flex: none; border-radius: 50%;
-  display: grid; place-items: center; color: var(--text-muted); background: transparent;
-  transition: background var(--dur-fast), color var(--dur-fast);
-}
-.map-uom-drop:hover { background: var(--danger-bg); color: var(--danger); }
-.map-uom-add { padding-left: 0; white-space: nowrap; }
-/* Read-only figures line up under one another. */
-.map-extra .num, td.num .num { font-weight: 700; }
-
-/* ---- Grouped header ----
-   Each organisation owns a unit + quantity pair, so a hairline marks where one
-   group starts and the group label sits centred above it. */
-/* The pair reads as one block, so the quantity keeps no border of its own. */
-table.tbl tbody td.col-group { padding-left: 14px; }
-
-/* Side tag on an extra unit, so a control is never ambiguous about which
-   organisation it belongs to. */
-.map-extra-tag {
-  font-style: normal; font-size: 10px; font-weight: 700; letter-spacing: .04em;
-  color: var(--text-muted); min-width: 34px;
-}
-
 /* ---- Mapping table ----
    A short line per item: what it is, what it maps to, its units in brief. The
    editing lives in a panel that opens under the row, so the list stays
@@ -89,25 +45,43 @@ table.tbl tbody td.col-group { padding-left: 14px; }
 /* The panel reads as part of its row, not as another row. */
 .map-detail-row > td { padding: 0 !important; background: var(--surface-sunken); }
 .map-detail {
-  display: grid; gap: 12px; justify-items: start;
-  padding: 14px 16px 16px;
+  display: grid; gap: 14px; justify-items: stretch;
+  padding: 16px 20px 18px;
 }
-.map-detail-master { display: flex; align-items: center; gap: 12px; }
+/* The master row shares the units table's label column, so every value in the
+   panel starts on the same left edge. */
+/* 140px = the table's 132px label column plus its 8px cell padding, so the
+   master picker starts exactly where the unit boxes below it do. */
+.map-detail-master {
+  display: grid; grid-template-columns: 140px minmax(0, 1fr);
+  align-items: center; gap: 0;
+}
 .map-detail-key { font-size: var(--fs-xs); color: var(--text-muted); white-space: nowrap; }
-.map-detail .sel-master { min-width: 260px; }
+.map-detail .sel-master { width: 100%; max-width: 420px; }
 
-.map-units-table { border-collapse: separate; border-spacing: 0 4px; }
+/* Fixed tracks across the panel's full width: a label column, then the two
+   organisations sharing what is left evenly. */
+.map-units-table {
+  width: 100%; table-layout: fixed;
+  border-collapse: separate; border-spacing: 0 6px;
+}
+.map-units-table .c-label { width: 132px; }
+.map-units-table .c-qty { width: 140px; }
+.map-units-table .c-drop { width: 40px; }
 .map-units-table th {
-  padding: 0 10px 2px; text-align: left;
+  padding: 0 8px 2px; text-align: left;
   font-size: 10px; font-weight: 700; letter-spacing: .05em; color: var(--text-muted);
 }
-.map-units-table td { padding: 2px 10px; vertical-align: middle; }
-.map-units-table td:first-child { padding-left: 0; }
-.map-units-table .combo { width: 132px; }
+.map-units-table td { padding: 2px 8px; vertical-align: middle; }
+.map-units-table th:first-child, .map-units-table td:first-child { padding-left: 0; }
+.map-units-table th:last-child, .map-units-table td:last-child { padding-right: 0; }
+/* The unit box takes the share its column is given; the figure stays fixed. */
+.map-units-table .combo { width: 100%; }
 .map-units-table .cell-strong { font-weight: 650; }
-.map-units-table .num { font-weight: 750; min-width: 56px; text-align: right; }
+.map-units-table .num { font-weight: 750; text-align: right; display: block; }
+.map-units-table .qty-stepper { float: right; }
 
-.map-uom-add { padding-left: 0; white-space: nowrap; }
+.map-uom-add { padding-left: 0; white-space: nowrap; justify-self: start; }
 .map-uom-drop {
   width: 26px; height: 26px; border-radius: 50%;
   display: inline-grid; place-items: center; color: var(--n-300); background: transparent;

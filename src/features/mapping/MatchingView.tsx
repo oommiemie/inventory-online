@@ -252,6 +252,14 @@ export function MatchingView() {
 
                             {m.item ? (
                               <table className="map-units-table">
+                                {/* Fixed tracks: a label column, then the two
+                                    organisations sharing what is left evenly. */}
+                                <colgroup>
+                                  <col className="c-label" />
+                                  <col /><col className="c-qty" />
+                                  <col /><col className="c-qty" />
+                                  <col className="c-drop" />
+                                </colgroup>
                                 <thead>
                                   <tr>
                                     <th />
