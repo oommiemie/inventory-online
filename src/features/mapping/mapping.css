@@ -36,3 +36,19 @@
 .map-uom-add { padding-left: 0; white-space: nowrap; }
 /* Read-only figures line up under one another. */
 .map-extra .num, td.num .num { font-weight: 700; }
+
+/* ---- Grouped header ----
+   Each organisation owns a unit + quantity pair, so a hairline marks where one
+   group starts and the group label sits centred above it. */
+table.tbl thead tr.grouped th.col-group { text-align: center; letter-spacing: .06em; }
+table.tbl th.col-group, table.tbl td.col-group { border-left: 1px solid var(--n-200); }
+table.tbl thead tr.grouped + tr th { padding-top: 4px; font-size: 10px; color: var(--n-400); }
+/* The pair reads as one block, so the quantity keeps no border of its own. */
+table.tbl tbody td.col-group { padding-left: 14px; }
+
+/* Side tag on an extra unit, so a control is never ambiguous about which
+   organisation it belongs to. */
+.map-extra-tag {
+  font-style: normal; font-size: 10px; font-weight: 700; letter-spacing: .04em;
+  color: var(--text-muted); min-width: 34px;
+}

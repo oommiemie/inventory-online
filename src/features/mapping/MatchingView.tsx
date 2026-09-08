@@ -151,23 +151,29 @@ export function MatchingView() {
           <Empty icon="link" title={t('c.noResults')} hint={t('c.noResultsHint')} />
         ) : (
           <TableWrap>
+            {/* Two header rows: the unit and quantity pair reads under the
+                organisation it belongs to, instead of four look-alike columns. */}
             <thead>
-              <tr>
+              <tr className="grouped">
                 {canPropose && (
-                  <th style={{ width: 40 }}>
+                  <th rowSpan={2} style={{ width: 40 }}>
                     <input type="checkbox" checked={allPicked} aria-label={t('c.all')}
                            onChange={e => setPicked(e.target.checked ? new Set(pickable.map(x => x.i)) : new Set())} />
                   </th>
                 )}
-                <th>{t('mat.ourItem')}</th>
-                <th>{t('req.localUnit')}</th>
-                <th className="num">{t('mat.qtyPcu')}</th>
-                <th>{t('mat.master')}</th>
-                <th>{t('mat.uomHosp')}</th>
-                <th className="num">{t('mat.qtyHosp')}</th>
-                <th>{t('mat.extraUoms')}</th>
-                <th>{t('c.status')}</th>
-                <th aria-label="actions" />
+                <th rowSpan={2}>{t('mat.ourItem')}</th>
+                <th rowSpan={2}>{t('mat.master')}</th>
+                <th colSpan={2} className="col-group">{t('mat.sidePcu')}</th>
+                <th colSpan={2} className="col-group">{t('mat.sideHosp')}</th>
+                <th rowSpan={2} className="col-group">{t('mat.extraUoms')}</th>
+                <th rowSpan={2}>{t('c.status')}</th>
+                <th rowSpan={2} aria-label="actions" />
+              </tr>
+              <tr>
+                <th className="col-group">{t('req.localUnit')}</th>
+                <th className="num">{t('mat.qty')}</th>
+                <th className="col-group">{t('req.localUnit')}</th>
+                <th className="num">{t('mat.qty')}</th>
               </tr>
             </thead>
             <tbody>
@@ -188,9 +194,6 @@ export function MatchingView() {
                       <span className="cell-strong">{m.local}</span>
                       <span className="cell-sub">{m.localName}{m.src === 'API' ? ' · API' : ''}</span>
                     </td>
-                    <td>{unitCell(i, m, 0, 'pcu', editable)}</td>
-                    <td className="num">{qtyCell(i, m, 0, 'pcu', editable)}</td>
-
                     <td>
                       {editable ? (
                         <Combo value={m.item} className="sel-master"
@@ -207,20 +210,24 @@ export function MatchingView() {
                       </>) : '—'}
                     </td>
 
-                    <td>{unitCell(i, m, 0, 'hosp', editable)}</td>
+                    <td className="col-group">{unitCell(i, m, 0, 'pcu', editable)}</td>
+                    <td className="num">{qtyCell(i, m, 0, 'pcu', editable)}</td>
+                    <td className="col-group">{unitCell(i, m, 0, 'hosp', editable)}</td>
                     <td className="num">{qtyCell(i, m, 0, 'hosp', editable)}</td>
 
-                    <td>
+                    <td className="col-group">
                       {!m.item ? <span className="cell-sub">{t('mat.selectMaster')}</span> : (
                         <div className="map-extra">
                           {units.slice(1).map((u, k) => (
                             <div className="map-extra-row" key={k + 1}>
                               <span className="map-extra-side">
+                                <em className="map-extra-tag">{t('mat.sidePcu')}</em>
                                 {editable
                                   ? <>{unitCell(i, m, k + 1, 'pcu', true)}{qtyCell(i, m, k + 1, 'pcu', true)}</>
                                   : <Chip accent>1 {u.uom} = {num(u.factor)} {uomName(m.item)}</Chip>}
                               </span>
                               <span className="map-extra-side">
+                                <em className="map-extra-tag">{t('mat.sideHosp')}</em>
                                 {editable
                                   ? <>{unitCell(i, m, k + 1, 'hosp', true)}{qtyCell(i, m, k + 1, 'hosp', true)}</>
                                   : <Chip accent>1 {u.hospUom} = {num(u.hospFactor)} {uomName(m.item)}</Chip>}
