@@ -1,15 +1,16 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useStore } from '@/app/store'
 import { pcuOrgs } from '@/app/selectors'
 import { ROLES, MASTER } from '@/data/seed'
 import { num, uomChoices, mapOf } from '@/lib/domain'
 import { useT } from '@/hooks/useT'
 import {
-  Card, PanelHead, TableWrap, Segmented, Chip, Note, Empty,
+  Card, PanelHead, TableWrap, Segmented, Chip, Note, Empty, Pagination,
 } from '@/components/ui'
 import { HeroBar, HeroSearch, HeroCta } from '@/components/layout/HeroBar'
 import { useMenuToggle } from '@/components/layout/AppShell'
 import { MapBadge } from '@/components/StateBadge'
+import './reference.css'
 
 const REJECTED_ROWS = [
   { row: 184, code: 'PCM500', reasonTh: 'รหัสซ้ำกับข้อมูลที่ส่งมา', reasonEn: 'Duplicate code in the incoming data set' },
@@ -40,6 +41,17 @@ export function ReferenceView() {
       m.th.toLowerCase().includes(needle))
   }, [q])
 
+  /* The catalogue is long enough to page rather than scroll forever. */
+  const PER_PAGE = 10
+  const [page, setPage] = useState(1)
+  const pageCount = Math.max(1, Math.ceil(list.length / PER_PAGE))
+  const safePage = Math.min(page, pageCount)
+  const rows = useMemo(
+    () => list.slice((safePage - 1) * PER_PAGE, safePage * PER_PAGE),
+    [list, safePage],
+  )
+  useEffect(() => { setPage(1) }, [q, tab])
+
   return (
     <>
       <HeroBar
@@ -65,8 +77,12 @@ export function ReferenceView() {
           : undefined}
       />
 
-      {/* Grows with the list; the page scrolls, not the table. */}
-      <Card>
+      {/* Catalogue and its ingest report share a row, 2:1, the way the
+          integration screen pairs its two logs. */}
+      {/* The ingest report belongs to the master catalogue, so on the other
+          tab there is no second column and the table takes the full width. */}
+      <div className={`ref-split${tab === 'master' ? '' : ' ref-split--single'}`}>
+      <Card className="fill-view">
         <PanelHead
           title={tab === 'master' ? t('ref.tabMaster') : t('ref.tabUom')}
           sub={`${list.length} ${t('c.items')} · ${t('ref.lastSync')} ${lastSync.master}`}
@@ -79,7 +95,6 @@ export function ReferenceView() {
             <thead>
               <tr>
                 <th>{t('ref.masterCode')}</th>
-                <th>{t('ref.genericName')}</th>
                 <th>{t('ref.thaiName')}</th>
                 <th>{t('ref.category')}</th>
                 <th>{t('ref.baseUom')}</th>
@@ -88,10 +103,15 @@ export function ReferenceView() {
               </tr>
             </thead>
             <tbody>
-              {list.map(m => (
+              {rows.map(m => (
                 <tr key={m.code}>
-                  <td className="cell-strong">{m.code}</td>
-                  <td>{m.name}</td>
+                  {/* Code first, the generic name under it: one column fewer to
+                      wrap now that the catalogue shares the row with its
+                      ingest report. */}
+                  <td>
+                    <span className="cell-strong">{m.code}</span>
+                    <span className="cell-sub">{m.name}</span>
+                  </td>
                   <td>{m.th}</td>
                   <td>{catName(m.code)}</td>
                   <td className="cell-strong">{uomName(m.code)}</td>
@@ -117,7 +137,7 @@ export function ReferenceView() {
                 </tr>
               </thead>
               <tbody>
-                {list.map(mi => (
+                {rows.map(mi => (
                   <tr key={mi.code}>
                     <td>
                       <span className="cell-strong">{mi.code}</span>
@@ -145,23 +165,22 @@ export function ReferenceView() {
             </TableWrap>
           </>
         )}
+        <Pagination page={safePage} pageCount={pageCount} onPage={setPage} />
       </Card>
 
       {tab === 'master' && (
-        <Card>
+        <Card className="fill-view">
           <PanelHead title={t('ref.ingestResult')} sub={`GET /hosxp/item-master · ${lastSync.master}`}>
             <Chip accent>{t('ref.accepted')} {MASTER.length}</Chip>
             <Chip warn>{t('ref.rejected')} {REJECTED_ROWS.length}</Chip>
           </PanelHead>
           <TableWrap>
             <colgroup>
-              <col style={{ width: 64 }} />
-              <col style={{ width: 200 }} />
+              <col style={{ width: 110 }} />
               <col />
             </colgroup>
             <thead>
               <tr>
-                <th>{t('ref.row')}</th>
                 <th>{t('ref.masterCode')}</th>
                 <th>{t('ref.rejectedRows')}</th>
               </tr>
@@ -169,8 +188,10 @@ export function ReferenceView() {
             <tbody>
               {REJECTED_ROWS.map(x => (
                 <tr key={x.row}>
-                  <td className="num" style={{ textAlign: 'left' }}>{x.row}</td>
-                  <td className="cell-strong">{x.code}</td>
+                  <td>
+                    <span className="cell-strong">{x.code}</span>
+                    <span className="cell-sub">{t('ref.row')} {x.row}</span>
+                  </td>
                   <td>
                     <span className="reject-reason">
                       <i className="fi fi-rr-triangle-warning" aria-hidden="true" />
@@ -183,6 +204,7 @@ export function ReferenceView() {
           </TableWrap>
         </Card>
       )}
+      </div>
     </>
   )
 }

@@ -11,7 +11,7 @@ import {
   CONNECTOR_INBOX,
 } from '@/data/seed'
 import {
-  M, fefo, mapIsActive, ACTION_FROM, ACTION_PERM, fmtStamp, uid, uomChoices, mappingReady,
+  M, fefo, mapIsActive, ACTION_FROM, ACTION_PERM, fmtStamp, uid, uomChoices, uomFactor, mappingReady,
 } from '@/lib/domain'
 
 /* ---------------- Toast plumbing ---------------- */
@@ -743,10 +743,17 @@ export const useStore = create<State>()(persist((set, get) => {
           const next = { ...m, ...patch }
           if (patch.item !== undefined) {
             if (next.state === 'UNMAPPED' && next.item) next.state = 'DRAFT'
+            /* A unit from the previous master means nothing here, so both
+               sides fall back to the new master's first unit — with that
+               unit's own pack size, not a bare 1. */
             const choices = uomChoices(next.item)
             if (!next.localUom || !choices.includes(next.localUom)) {
               next.localUom = choices[0] ?? ''
-              next.factor = 1
+              next.factor = uomFactor(next.item, next.localUom)
+            }
+            if (!next.hospUom || !choices.includes(next.hospUom)) {
+              next.hospUom = choices[0] ?? ''
+              next.hospFactor = uomFactor(next.item, next.hospUom)
             }
           }
           return next
@@ -849,10 +856,11 @@ export const useStore = create<State>()(persist((set, get) => {
         if (!found || taken.has(found.code)) return
         taken.add(found.code)
         const uom = uomChoices(found.code)[0] ?? found.uom
+        const size = uomFactor(found.code, uom)
         Object.assign(m, {
           item: found.code, state: 'DRAFT' as const, reason: undefined,
-          localUom: m.localUom || uom, factor: m.factor >= 1 ? m.factor : 1,
-          hospUom: m.hospUom || uom, hospFactor: m.hospFactor >= 1 ? m.hospFactor : 1,
+          localUom: m.localUom || uom, factor: m.localUom ? m.factor : size,
+          hospUom: m.hospUom || uom, hospFactor: m.hospUom ? m.hospFactor : size,
         })
         hit.push(i)
       })
@@ -1039,8 +1047,21 @@ export const useStore = create<State>()(persist((set, get) => {
   /* Saved so a reload continues where the user left off. Bump `version` when
      the shape changes; an old payload is dropped rather than half-read. */
   name: 'io.state',
-  version: 1,
+  version: 2,
   storage: createJSONStorage(() => localStorage),
+  /* A browser that has been here before holds its own copy of the sample data,
+     which would otherwise outlive every change to the seed. A bump drops the
+     seeded slices — item mappings, supply routes, the warehouse diff — so the
+     new sample data is picked up, while what the user chose (role, language,
+     appearance, profile) survives the reload. */
+  migrate: (persisted: unknown) => {
+    if (!persisted || typeof persisted !== 'object') return persisted as State
+    const keep = { ...(persisted as Record<string, unknown>) }
+    delete keep.mappings
+    delete keep.supply
+    delete keep.whPatch
+    return keep as unknown as State
+  },
   partialize: s => ({
     role: s.role, lang: s.lang, prefs: s.prefs, profile: s.profile,
     sidebarCollapsed: s.sidebarCollapsed,
@@ -1055,6 +1076,7 @@ export const useStore = create<State>()(persist((set, get) => {
        neither is React state, so both are replayed by hand after a reload.
        A payload written by an older build can be missing either, so both are
        defaulted: a stale save must never blank the app. */
+    if (state.lang !== 'TH' && state.lang !== 'EN') state.lang = 'TH'
     const prefs = { ...DEFAULT_PREFS, ...(state.prefs ?? {}) }
     state.prefs = prefs
     applyAppearance(prefs)

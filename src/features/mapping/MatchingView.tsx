@@ -1,9 +1,9 @@
-import { Fragment, useMemo, useState } from 'react'
+import { Fragment, useEffect, useMemo, useState } from 'react'
 import { useStore } from '@/app/store'
 import { ROLES, MASTER } from '@/data/seed'
-import { num, uomChoices, mappingReady, mappedUoms } from '@/lib/domain'
+import { num, uomChoices, uomFactor, mappingReady, mappedUoms } from '@/lib/domain'
 import { useT } from '@/hooks/useT'
-import { Card, PanelHead, Button, TableWrap, Empty, Chip, LinkButton, Combo, Icon, QtyStepper } from '@/components/ui'
+import { Card, PanelHead, Button, TableWrap, Empty, Chip, LinkButton, Combo, Icon, QtyStepper, Pagination } from '@/components/ui'
 import { MapBadge } from '@/components/StateBadge'
 import type { MapState, Mapping, MappedUom } from '@/types'
 import './mapping.css'
@@ -55,8 +55,20 @@ export function MatchingView() {
         (m.item && (m.item.toLowerCase().includes(needle) || itemName(m.item).toLowerCase().includes(needle)))))
   }, [all, q, fState, itemName])
 
+  /* Read a page at a time; selection and open panels key off the mapping's own
+     index, so both survive a page turn. */
+  const PER_PAGE = 12
+  const [page, setPage] = useState(1)
+  const pageCount = Math.max(1, Math.ceil(rows.length / PER_PAGE))
+  const safePage = Math.min(page, pageCount)
+  const pageRows = useMemo(
+    () => rows.slice((safePage - 1) * PER_PAGE, safePage * PER_PAGE),
+    [rows, safePage],
+  )
+  useEffect(() => { setPage(1) }, [q, fState])
+
   const count = (s: MapState) => all.filter(x => x.m.state === s).length
-  const pickable = rows.filter(x => canPropose && EDITABLE.includes(x.m.state))
+  const pickable = pageRows.filter(x => canPropose && EDITABLE.includes(x.m.state))
   const pickedRows = [...picked].map(i => maps[i]).filter(m => m && m.org === org)
   const pickedReady = pickedRows.filter(mappingReady)
   const allPicked = pickable.length > 0 && pickable.every(x => picked.has(x.i))
@@ -87,7 +99,11 @@ export function MatchingView() {
     return (
       <Combo value={value} className="sel-uom"
              ariaLabel={`${t('req.localUnit')} ${m.local} ${k + 1}`}
-             onChange={v => setUom(i, m, k, side === 'pcu' ? { uom: v } : { hospUom: v })}>
+             /* Choosing a unit brings its standard pack size with it, so the
+                common case needs no typing; the stepper still overrides it. */
+             onChange={v => setUom(i, m, k, side === 'pcu'
+               ? { uom: v, factor: uomFactor(m.item, v) }
+               : { hospUom: v, hospFactor: uomFactor(m.item, v) })}>
         <option value="">{t('mat.pickUom')}</option>
         {/* A unit already claimed by another row would give one item two
             conflicting conversions on the same side. */}
@@ -183,7 +199,7 @@ export function MatchingView() {
               </tr>
             </thead>
             <tbody>
-              {rows.map(({ m, i }) => {
+              {pageRows.map(({ m, i }) => {
                 const editable = canPropose && EDITABLE.includes(m.state)
                 const ready = mappingReady(m)
                 const units = mappedUoms(m)
@@ -336,6 +352,7 @@ export function MatchingView() {
             </tbody>
           </TableWrap>
         )}
+        <Pagination page={safePage} pageCount={pageCount} onPage={setPage} />
       </Card>
 
       {canPropose && picked.size > 0 && (

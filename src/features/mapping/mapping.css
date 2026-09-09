@@ -5,11 +5,6 @@
 [data-theme="dark"] .row-attention { background: rgba(245,180,85,.07); }
 .map-section + .map-section { margin-top: var(--s-4); }
 
-/* The two short approval queues share a row; each is a small table, so half a
-   screen each keeps their text columns from wrapping. */
-/* Supply requests and warehouse links stack full-width, one after the other. */
-.mapa-split { display: grid; gap: var(--s-4); grid-template-columns: minmax(0, 1fr); }
-
 /* Mapping table controls. A native select truncates its label rather than
    wrapping, so on a phone — where the table scrolls anyway — they get the room
    the longest item name needs instead of the column's leftovers. */
@@ -44,6 +39,16 @@
   background: var(--surface-sunken); font-size: var(--fs-xs); color: var(--text-soft);
 }
 .map-chip .num { font-weight: 750; color: var(--text); }
+
+/* Approval reads the proposal in the same shape the facility wrote it: a line
+   per item, with the units in a panel underneath. The two boxes there are
+   read-only, so the quantity sits under its label instead of in a stepper. */
+/* Compound on purpose: the base .map-sides rule below is later in the file and
+   would otherwise keep its third, editor-only column. */
+.map-sides.map-sides--read { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+.map-sides--read > .map-box-cell:nth-last-child(2),
+.map-sides--read > .map-box-cell:last-child { border-radius: 0 0 12px 12px; padding-bottom: 12px; }
+.map-sides--read .map-box-cell > .num { width: 124px; min-width: 0; text-align: center; }
 
 /* The panel reads as part of its row, not as another row. */
 .map-detail-row > td { padding: 0 !important; background: var(--surface-sunken); }
@@ -103,7 +108,10 @@
 }
 .map-box-cell .combo { flex: 1 1 auto; min-width: 0; }
 .map-box-cell .cell-strong { flex: 1 1 auto; min-width: 0; font-weight: 650; }
-.map-box-cell .num { flex: none; min-width: 64px; text-align: right; font-weight: 750; }
+/* The read-only quantity, which is a direct child. Scoped with `>` because the
+   stepper's own input also carries .num, and this rule would otherwise stop it
+   shrinking — pushing its buttons out of a box that hides its overflow. */
+.map-box-cell > .num { flex: none; min-width: 64px; text-align: right; font-weight: 750; }
 .map-drop-cell { display: flex; align-items: center; justify-content: center; }
 
 .map-uom-add { padding-left: 0; white-space: nowrap; justify-self: start; }

@@ -8,7 +8,13 @@ const FALLBACK: MasterItem = {
 export const M = (code: string): MasterItem =>
   MASTER.find(m => m.code === code) ?? { ...FALLBACK, code, name: code, th: code }
 
-export const uomChoices = (item: string): string[] => UOM_CHOICES[item] ?? [M(item).uom]
+export const uomChoices = (item: string): string[] =>
+  Object.keys(UOM_CHOICES[item] ?? {}).length ? Object.keys(UOM_CHOICES[item]) : [M(item).uom]
+
+/** How many base units one of `uom` holds, by the catalogue's standard pack.
+ *  A unit nobody has sized yet counts as one, never as zero. */
+export const uomFactor = (item: string, uom: string): number =>
+  UOM_CHOICES[item]?.[uom] ?? 1
 
 /* ---------------- UOM mapping ----------------
    A mapping pairs one facility-local code with one master item and records

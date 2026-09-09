@@ -196,6 +196,22 @@ table.tbl .badge::before {
 }
 .doc-head-id p span { margin: 0 2px; }
 .doc-head-top .actions { display: flex; align-items: center; gap: var(--s-2); flex: none; }
+/* Saving the sheet is a quiet, always-available action, so it reads as a
+   secondary control beside whatever that screen's real work button is. */
+.doc-pdf {
+  display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 14px;
+  border-radius: var(--r-full); border: 1px solid var(--n-200);
+  background: var(--surface-raised); color: var(--brand-ink);
+  font-size: var(--fs-sm); font-weight: 650; white-space: nowrap;
+  transition: background var(--dur-fast), border-color var(--dur-fast), color var(--dur-fast);
+}
+.doc-pdf:hover { background: var(--brand-100); border-color: var(--brand-400); color: var(--brand-ink-strong); }
+.doc-pdf:active { transform: scale(.97); }
+/* On a phone the label goes; the icon and its tooltip carry it. */
+@media (max-width: 560px) {
+  .doc-pdf { width: 36px; padding: 0; justify-content: center; }
+  .doc-pdf span { display: none; }
+}
 
 /* Timeline: action first, the state transition as a quieter second line. */
 .tl-flow {

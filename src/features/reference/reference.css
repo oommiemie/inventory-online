@@ -1,0 +1,20 @@
+/* The catalogue takes two thirds and its ingest report one, the way the
+   integration screen pairs its two logs. Written out in full rather than
+   reusing .detail-grid: those styles ship with the document components, which
+   this page never loads. */
+.view:has(> .ref-split) { max-height: calc(100vh - 20px); }
+.ref-split {
+  display: grid; gap: var(--s-4); align-items: stretch;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  flex: 1; min-height: 0;
+}
+.ref-split > .glass.card { min-height: 0; }
+/* One card, one column — no empty rail beside it. */
+.ref-split--single { grid-template-columns: minmax(0, 1fr); }
+
+/* Narrow: the report drops under the catalogue and the page scrolls again. */
+@media (max-width: 1180px) {
+  .view:has(> .ref-split) { max-height: none; }
+  .ref-split { grid-template-columns: minmax(0, 1fr); flex: none; }
+  .ref-split > .glass.card.fill-view .table-wrap { overflow-y: visible; }
+}

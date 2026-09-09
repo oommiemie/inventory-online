@@ -11,6 +11,7 @@ import { StateBadge, SyncBadge } from '@/components/StateBadge'
 import { ROUTE_OF } from '@/app/nav'
 import { viewForDoc } from '@/app/selectors'
 import { downloadCsv, csvName } from '@/lib/csv'
+import { DocPrintSheet } from './DocPrint'
 import './docparts.css'
 
 
@@ -33,6 +34,10 @@ export function DocHeader(
       {/* Oversized document glyph bleeding off the right edge, as a watermark. */}
       <i className="fi fi-rr-document doc-head-mark" aria-hidden="true" />
 
+      {/* Every document screen shares this header, so every one of them can be
+          saved as a PDF without each screen having to arrange it. */}
+      <DocPrintSheet doc={doc} />
+
       <div className="doc-head-top">
         <button className="doc-back" onClick={goBack} aria-label={t('c.back')}>
           <Icon name="chevL" size={16} />
@@ -43,7 +48,13 @@ export function DocHeader(
           <p>{whName(doc.whFrom)} <span aria-hidden="true">→</span> {whName(doc.whTo)}</p>
         </div>
 
-        {extra && <div className="actions">{extra}</div>}
+        <div className="actions">
+          <button className="doc-pdf" onClick={() => window.print()} title={t('prn.hint')}>
+            <Icon name="download" size={16} />
+            <span>{t('c.pdf')}</span>
+          </button>
+          {extra}
+        </div>
       </div>
     </header>
   )

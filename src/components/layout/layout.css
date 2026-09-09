@@ -366,6 +366,14 @@
   background: #fff; color: var(--brand-600);
   box-shadow: 0 2px 8px rgba(8,26,66,.24);
 }
+/* Three long labels do not fit a phone. The track scrolls sideways instead of
+   squeezing its options into unreadable stubs; its own scrollbar is hidden
+   because the pill shape already reads as one control. */
+@media (max-width: 720px) {
+  .herobar .segmented { max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+  .herobar .segmented::-webkit-scrollbar { display: none; }
+  .herobar .segmented button { flex: none; }
+}
 
 /* Product artwork (square 3D scene), anchored right and cropped by the card. */
 .herobar-art {
