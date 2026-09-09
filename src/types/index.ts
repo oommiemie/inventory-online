@@ -42,6 +42,10 @@ export interface Org {
 
 export type MapState = 'ACTIVE' | 'PENDING_APPROVAL' | 'DRAFT' | 'REJECTED' | 'INACTIVE' | 'UNMAPPED'
 
+/** A main store holds the organisation's stock; a sub-store hangs off one
+ *  main store (`parent`) and is where the goods are actually picked from. */
+export type WhKind = 'MAIN' | 'SUB'
+
 export interface Warehouse {
   id: string
   name: string
@@ -49,6 +53,9 @@ export interface Warehouse {
   org: string
   ext: string
   mapState: MapState
+  kind: WhKind
+  /** Set on sub-stores: the main store this one belongs to. */
+  parent?: string
 }
 
 export interface MasterItem {
@@ -90,10 +97,17 @@ export interface Mapping {
   src?: 'API' | 'MANUAL'
 }
 
+/** The requisition route a facility uses, read left to right:
+ *  facility -> localWh (its own main store) -> subWh (the hospital sub-store
+ *  goods are picked from) -> wh (that sub-store's main store) -> its owner. */
 export interface SupplyLink {
   org: string
   wh: string
   state: MapState
+  /** The facility's own main store that receives the goods. */
+  localWh?: string
+  /** The hospital sub-store tied to `wh`. */
+  subWh?: string
 }
 
 export interface StockRow {

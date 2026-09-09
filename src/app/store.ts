@@ -80,6 +80,7 @@ interface State {
   patchMapping: (idx: number, patch: Partial<Mapping>) => void
   proposeMapping: (idx: number) => void
   proposeMappings: (idxs: number[]) => void
+  autoMapItems: (org: string) => number[]
   approveMapping: (idx: number) => void
   rejectMapping: (idx: number) => void
   approveMappings: (idxs: number[]) => void
@@ -88,6 +89,7 @@ interface State {
 
   /* ---- supply / warehouse ---- */
   setSupplyWh: (org: string, wh: string) => void
+  setSupplyStore: (org: string, key: 'localWh' | 'subWh', wh: string) => void
   supplyAction: (org: string, action: 'propose' | 'approve' | 'reject' | 'change') => void
   whAction: (wh: string, action: 'propose' | 'approve') => void
 
@@ -822,6 +824,45 @@ export const useStore = create<State>()(persist((set, get) => {
       toast(ok ? `Approved ${ok} item(s)` : 'Nothing selected', ok ? 'ok' : 'warn')
     },
 
+    /* Auto Mapping: a first pass over the items nobody has touched yet. It
+       only proposes what a person can still change — every hit lands in
+       DRAFT, never straight into the hospital's approval queue. */
+    autoMapItems: org => {
+      const s = get()
+      const norm = (x: string) =>
+        x.toLowerCase().replace(/[\s.\u00b7()-]/g, '')
+      const taken = new Set(s.mappings
+        .filter(m => m.org === org && m.item && ['ACTIVE', 'PENDING_APPROVAL'].includes(m.state))
+        .map(m => m.item))
+      const hit: number[] = []
+      const next = s.mappings.map(m => ({ ...m }))
+      next.forEach((m, i) => {
+        if (m.org !== org || m.item || !['UNMAPPED', 'DRAFT', 'REJECTED'].includes(m.state)) return
+        const name = norm(m.localName)
+        if (!name) return
+        const found = MASTER.find(x => {
+          const th = norm(x.th), en = norm(x.name)
+          return th === name || en === name ||
+                 th.includes(name) || name.includes(th) ||
+                 norm(x.code) === norm(m.local)
+        })
+        if (!found || taken.has(found.code)) return
+        taken.add(found.code)
+        const uom = uomChoices(found.code)[0] ?? found.uom
+        Object.assign(m, {
+          item: found.code, state: 'DRAFT' as const, reason: undefined,
+          localUom: m.localUom || uom, factor: m.factor >= 1 ? m.factor : 1,
+          hospUom: m.hospUom || uom, hospFactor: m.hospFactor >= 1 ? m.hospFactor : 1,
+        })
+        hit.push(i)
+      })
+      if (hit.length) set({ mappings: next })
+      toast(hit.length
+        ? `Auto Mapping matched ${hit.length} item(s) — review, then request approval`
+        : 'Auto Mapping found nothing left to match', hit.length ? 'ok' : 'info')
+      return hit
+    },
+
     pullLocalItems: org => {
       toast(`GET /pcu/local-items for ${ORGS[org].name} — queued`, 'info')
       startDataJob('LOCAL-ITEMS', 'PCU_CONNECTOR', org, () => {
@@ -855,13 +896,34 @@ export const useStore = create<State>()(persist((set, get) => {
     setSupplyWh: (org, wh) =>
       set(s => {
         const exists = s.supply.find(x => x.org === org)
+        /* A sub-store belonging to another main store would describe a route
+           that does not exist, so it goes when the main store changes. */
+        const keepSub = (sub?: string) =>
+          sub && wh && WAREHOUSES[sub]?.parent === wh ? sub : undefined
         if (!wh) {
-          return { supply: exists ? s.supply.map(x => (x.org === org ? { ...x, wh: '', state: 'DRAFT' as const } : x)) : s.supply }
+          return { supply: exists ? s.supply.map(x => (x.org === org ? { ...x, wh: '', subWh: undefined, state: 'DRAFT' as const } : x)) : s.supply }
         }
         return {
           supply: exists
-            ? s.supply.map(x => (x.org === org ? { ...x, wh, state: 'DRAFT' as const } : x))
+            ? s.supply.map(x => (x.org === org ? { ...x, wh, subWh: keepSub(x.subWh), state: 'DRAFT' as const } : x))
             : [...s.supply, { org, wh, state: 'DRAFT' as const }],
+        }
+      }),
+
+    /* The route is edited a link at a time. Naming a hospital sub-store also
+       names the main store above it, so the two columns cannot disagree. */
+    setSupplyStore: (org, key, wh) =>
+      set(s => {
+        const patch = (x: SupplyLink): SupplyLink => {
+          if (key === 'localWh') return { ...x, localWh: wh || undefined, state: 'DRAFT' }
+          const parent = wh ? WAREHOUSES[wh]?.parent ?? x.wh : x.wh
+          return { ...x, subWh: wh || undefined, wh: parent, state: 'DRAFT' }
+        }
+        const exists = s.supply.find(x => x.org === org)
+        return {
+          supply: exists
+            ? s.supply.map(x => (x.org === org ? patch(x) : x))
+            : [...s.supply, patch({ org, wh: '', state: 'DRAFT' })],
         }
       }),
 
@@ -876,8 +938,11 @@ export const useStore = create<State>()(persist((set, get) => {
       }
       if (action === 'propose') {
         if (!sp.wh) { toast('Select a supply warehouse first', 'warn'); return }
+        /* Goods have to land somewhere: the facility store completes the
+           route the hospital is being asked to approve. */
+        if (!sp.localWh) { toast('Select the facility main store first', 'warn'); return }
         set(st => ({ supply: st.supply.map(x => (x.org === org ? { ...x, state: 'PENDING_APPROVAL' as const } : x)) }))
-        notify(WAREHOUSES[sp.wh].org, `${ORGS[org].name} ขอใช้ ${WAREHOUSES[sp.wh].name} เป็นคลังต้นทาง`)
+        notify(WAREHOUSES[sp.wh].org, `${ORGS[org].name} ขอใช้ ${WAREHOUSES[sp.subWh ?? sp.wh].name} เป็นคลังต้นทาง`)
         toast(`Request sent to ${ORGS[WAREHOUSES[sp.wh].org].name}`, 'ok'); return
       }
       if (action === 'approve') {
@@ -1029,5 +1094,18 @@ export function approvableOrgs(roleId: RoleId, supply: SupplyLink[]): string[] {
      supplyHospOf(supply, o) === r.org || ORGS[o].parent === r.org))
 }
 
+/** Hospital main stores — the only ones a facility can name as its source. */
 export const hospitalWarehouses = () =>
-  Object.keys(WAREHOUSES).filter(w => ORGS[WAREHOUSES[w].org].type === 'HOSPITAL')
+  Object.keys(WAREHOUSES).filter(w =>
+    ORGS[WAREHOUSES[w].org].type === 'HOSPITAL' && WAREHOUSES[w].kind === 'MAIN')
+
+/** Hospital sub-stores. Narrowed to one main store once that store is chosen,
+ *  so the pair on screen can never describe a route that does not exist. */
+export const hospitalSubWarehouses = (parent?: string) =>
+  Object.keys(WAREHOUSES).filter(w =>
+    ORGS[WAREHOUSES[w].org].type === 'HOSPITAL' && WAREHOUSES[w].kind === 'SUB' &&
+    (!parent || WAREHOUSES[w].parent === parent))
+
+/** The facility's own main stores — where a requisition is received. */
+export const facilityWarehouses = (org: string) =>
+  Object.keys(WAREHOUSES).filter(w => WAREHOUSES[w].org === org && WAREHOUSES[w].kind === 'MAIN')

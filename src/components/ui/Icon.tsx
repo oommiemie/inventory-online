@@ -33,6 +33,7 @@ const P: Record<string, string> = {
   clock:  'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18ZM12 7v5l3 2',
   trash:  'M4 7h16M10 11v6M14 11v6M5 7l1 13h12l1-13M9 7V4h6v3',
   download:'M12 3v12M7 11l5 5 5-5M4 21h16',
+  wand:   'M4 20 16.5 7.5M14 3l.9 2.1L17 6l-2.1.9L14 9l-.9-2.1L11 6l2.1-.9zM19 11l.7 1.6L21 13l-1.3.7L19 15l-.7-1.3L17 13l1.3-.4z',
   logout: 'M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9',
 }
 

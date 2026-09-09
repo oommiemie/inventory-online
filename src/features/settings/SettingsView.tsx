@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { useStore, hospitalWarehouses, supplyLinkFor } from '@/app/store'
+import { useStore, hospitalWarehouses, hospitalSubWarehouses, facilityWarehouses, supplyLinkFor } from '@/app/store'
 import { facilitiesInScope } from '@/app/selectors'
 import { ROLES, ORGS, WAREHOUSES } from '@/data/seed'
 import { useT } from '@/hooks/useT'
@@ -23,6 +23,7 @@ export function SettingsView() {
   const setCfg = useStore(s => s.setCfg)
   const supply = useStore(s => s.supply)
   const setSupplyWh = useStore(s => s.setSupplyWh)
+  const setSupplyStore = useStore(s => s.setSupplyStore)
   const supplyAction = useStore(s => s.supplyAction)
   const whAction = useStore(s => s.whAction)
   const prefs = useStore(s => s.prefs)
@@ -267,6 +268,8 @@ export function SettingsView() {
               <thead>
                 <tr>
                   <th>{t('req.facility')}</th>
+                  <th>{t('set.localWh')}</th>
+                  <th>{t('set.subWh')}</th>
                   <th>{t('set.supply')}</th>
                   <th>{t('mapa.whOwner')}</th>
                   <th>{t('c.status')}</th>
@@ -304,14 +307,51 @@ export function SettingsView() {
                           </div>
                         </div>
                       </td>
+                      {/* The route reads left to right: the facility's own
+                          store, the hospital sub-store that picks, then the
+                          main store that owns it and its organisation. */}
+                      <td>
+                        {editable ? (
+                          <Combo value={sp?.localWh ?? ''} className="sel-supply"
+                                 ariaLabel={`${t('set.localWh')} ${orgName(o)}`}
+                                 onChange={v => setSupplyStore(o, 'localWh', v)}>
+                            <option value="">{t('set.pickLocalWh')}</option>
+                            {facilityWarehouses(o).map(w => (
+                              <option key={w} value={w}>{whName(w)}</option>
+                            ))}
+                          </Combo>
+                        ) : sp?.localWh
+                          ? <span className="cell-strong">{whName(sp.localWh)}</span>
+                          : <span className="cell-sub">{t('ref.notMapped')}</span>}
+                      </td>
+                      <td>
+                        {editable ? (
+                          <Combo value={sp?.subWh ?? ''} className="sel-supply"
+                                 ariaLabel={`${t('set.subWh')} ${orgName(o)}`}
+                                 onChange={v => setSupplyStore(o, 'subWh', v)}>
+                            <option value="">{t('set.pickSubWh')}</option>
+                            {/* Narrowed to the chosen source store, so the two
+                                columns can never describe different routes. */}
+                            {/* The main store is the very next column, so the
+                                option carries the sub-store's name alone. */}
+                            {hospitalSubWarehouses(cur || undefined).map(w => (
+                              <option key={w} value={w}>{whName(w)}</option>
+                            ))}
+                          </Combo>
+                        ) : sp?.subWh
+                          ? <span className="cell-strong">{whName(sp.subWh)}</span>
+                          : <span className="cell-sub">—</span>}
+                      </td>
                       <td>
                         {editable ? (
                           <Combo value={cur} className="sel-supply"
                                  ariaLabel={`${t('set.supply')} ${orgName(o)}`}
                                  onChange={v => setSupplyWh(o, v)}>
                             <option value="">{t('set.pickSupply')}</option>
+                            {/* Its owner is the next column along, so the
+                                option stays the store's own name. */}
                             {hospitalWarehouses().map(w => (
-                              <option key={w} value={w}>{whName(w)} · {orgName(WAREHOUSES[w].org)}</option>
+                              <option key={w} value={w}>{whName(w)}</option>
                             ))}
                           </Combo>
                         ) : cur

@@ -59,13 +59,21 @@ export const ORGS: Record<string, Org> = {
 
 /* ---------------- Warehouses ---------------- */
 export const WAREHOUSES: Record<string, Warehouse> = {
-  'WH-HOSP-01':  { id:'WH-HOSP-01',  name:'คลังเวชภัณฑ์ รพ.บึงกาฬ', nameEn:'Bueng Kan Hospital Medical Supply Store', org:'HOSP',  ext:'HOSXP-WH-001', mapState:'ACTIVE' },
-  'WH-HOSP-01B': { id:'WH-HOSP-01B', name:'คลังยา รพ.บึงกาฬ', nameEn:'Bueng Kan Hospital Drug Store', org:'HOSP', ext:'HOSXP-WH-002', mapState:'ACTIVE' },
-  'WH-HOSP-02':  { id:'WH-HOSP-02',  name:'คลังเวชภัณฑ์ รพ.เซกา', nameEn:'Seka Hospital Medical Supply Store', org:'HOSP2', ext:'SEKA-WH-001', mapState:'ACTIVE' },
-  'WH-PCU-01':   { id:'WH-PCU-01',   name:'คลังใหญ่ รพ.สต.โคกก่อง', nameEn:'Khok Kong HPH Main Store', org:'PCU01', ext:'HOSXP-WH-101', mapState:'ACTIVE' },
-  'WH-PCU-02':   { id:'WH-PCU-02',   name:'คลังใหญ่ รพ.สต.หอคำ', nameEn:'Ho Kham HPH Main Store', org:'PCU02', ext:'HOSXP-WH-102', mapState:'PENDING_APPROVAL' },
-  'WH-PCU-03':   { id:'WH-PCU-03',   name:'คลังใหญ่ รพ.สต.วิศิษฐ์', nameEn:'Wisit HPH Main Store', org:'PCU03', ext:'', mapState:'DRAFT' },
-  'WH-PCU-04':   { id:'WH-PCU-04',   name:'คลังใหญ่ รพ.สต.ซ่อมกอก', nameEn:'Som Kok HPH Main Store', org:'PCU04', ext:'HOSXP-WH-401', mapState:'ACTIVE' },
+  /* Hospital main stores — what a facility asks to draw from. */
+  'WH-HOSP-01':  { id:'WH-HOSP-01',  name:'คลังเวชภัณฑ์ รพ.บึงกาฬ', nameEn:'Bueng Kan Hospital Medical Supply Store', org:'HOSP',  ext:'HOSXP-WH-001', mapState:'ACTIVE', kind:'MAIN' },
+  'WH-HOSP-01B': { id:'WH-HOSP-01B', name:'คลังยา รพ.บึงกาฬ', nameEn:'Bueng Kan Hospital Drug Store', org:'HOSP', ext:'HOSXP-WH-002', mapState:'ACTIVE', kind:'MAIN' },
+  'WH-HOSP-02':  { id:'WH-HOSP-02',  name:'คลังเวชภัณฑ์ รพ.เซกา', nameEn:'Seka Hospital Medical Supply Store', org:'HOSP2', ext:'SEKA-WH-001', mapState:'ACTIVE', kind:'MAIN' },
+  /* Hospital sub-stores — each one belongs to a main store above. */
+  'WH-HOSP-01-1': { id:'WH-HOSP-01-1', name:'คลังย่อยเวชภัณฑ์ผู้ป่วยนอก รพ.บึงกาฬ', nameEn:'Bueng Kan Hospital OPD Supply Sub-store', org:'HOSP', ext:'HOSXP-WH-011', mapState:'ACTIVE', kind:'SUB', parent:'WH-HOSP-01' },
+  'WH-HOSP-01-2': { id:'WH-HOSP-01-2', name:'คลังย่อยเวชภัณฑ์เครือข่าย รพ.บึงกาฬ', nameEn:'Bueng Kan Hospital Network Supply Sub-store', org:'HOSP', ext:'HOSXP-WH-012', mapState:'ACTIVE', kind:'SUB', parent:'WH-HOSP-01' },
+  'WH-HOSP-01B-1': { id:'WH-HOSP-01B-1', name:'คลังย่อยห้องจ่ายยา รพ.บึงกาฬ', nameEn:'Bueng Kan Hospital Dispensary Sub-store', org:'HOSP', ext:'HOSXP-WH-021', mapState:'ACTIVE', kind:'SUB', parent:'WH-HOSP-01B' },
+  'WH-HOSP-02-1': { id:'WH-HOSP-02-1', name:'คลังย่อยเวชภัณฑ์เครือข่าย รพ.เซกา', nameEn:'Seka Hospital Network Supply Sub-store', org:'HOSP2', ext:'SEKA-WH-011', mapState:'ACTIVE', kind:'SUB', parent:'WH-HOSP-02' },
+  /* Facility main stores — where the goods land after a requisition. */
+  'WH-PCU-01':   { id:'WH-PCU-01',   name:'คลังใหญ่ รพ.สต.โคกก่อง', nameEn:'Khok Kong HPH Main Store', org:'PCU01', ext:'HOSXP-WH-101', mapState:'ACTIVE', kind:'MAIN' },
+  'WH-PCU-01B':  { id:'WH-PCU-01B',  name:'คลังใหญ่เวชภัณฑ์ รพ.สต.โคกก่อง', nameEn:'Khok Kong HPH Supply Main Store', org:'PCU01', ext:'HOSXP-WH-111', mapState:'ACTIVE', kind:'MAIN' },
+  'WH-PCU-02':   { id:'WH-PCU-02',   name:'คลังใหญ่ รพ.สต.หอคำ', nameEn:'Ho Kham HPH Main Store', org:'PCU02', ext:'HOSXP-WH-102', mapState:'PENDING_APPROVAL', kind:'MAIN' },
+  'WH-PCU-03':   { id:'WH-PCU-03',   name:'คลังใหญ่ รพ.สต.วิศิษฐ์', nameEn:'Wisit HPH Main Store', org:'PCU03', ext:'', mapState:'DRAFT', kind:'MAIN' },
+  'WH-PCU-04':   { id:'WH-PCU-04',   name:'คลังใหญ่ รพ.สต.ซ่อมกอก', nameEn:'Som Kok HPH Main Store', org:'PCU04', ext:'HOSXP-WH-401', mapState:'ACTIVE', kind:'MAIN' },
 }
 
 /* ---------------- Item master ---------------- */
@@ -75,6 +83,9 @@ export const MASTER: MasterItem[] = [
   { code:'ORS001', name:'Oral rehydration salts',     th:'ผงเกลือแร่',           uom:'ซอง',    uomEn:'sachet',  cat:'เวชภัณฑ์',        catEn:'Medical supply',  price:2.50 },
   { code:'NSS100', name:'Normal saline 100 ml',       th:'น้ำเกลือ 100 มล.',      uom:'ขวด',    uomEn:'bottle',  cat:'สารน้ำ',          catEn:'IV fluid',        price:14.00 },
   { code:'GLVM',   name:'Examination glove (M)',      th:'ถุงมือตรวจโรค ไซส์ M',  uom:'กล่อง',  uomEn:'box',     cat:'วัสดุการแพทย์',   catEn:'Medical material',price:120.00 },
+  { code:'BTD15',  name:'Povidone-iodine 15 ml',      th:'เบตาดีน 15 มล.',        uom:'ขวด',    uomEn:'bottle',  cat:'เวชภัณฑ์',        catEn:'Medical supply',  price:18.00 },
+  { code:'VITB1',  name:'Vitamin B complex tablet',   th:'วิตามินบีรวม',           uom:'เม็ด',    uomEn:'tablet',  cat:'ยาสามัญ',        catEn:'General drug',    price:0.40 },
+  { code:'WDS01',  name:'Wound dressing set (small)', th:'ชุดทำแผลเล็ก',           uom:'ชุด',    uomEn:'set',     cat:'เวชภัณฑ์',        catEn:'Medical supply',  price:22.00 },
 ]
 
 /** Units a facility may requisition each master item in. */
@@ -84,6 +95,9 @@ export const UOM_CHOICES: Record<string, string[]> = {
   ORS001: ['ซอง', 'กล่อง'],
   NSS100: ['ขวด', 'ลัง'],
   GLVM:   ['กล่อง', 'ลัง'],
+  BTD15:  ['ขวด', 'กล่อง'],
+  VITB1:  ['เม็ด', 'แผง', 'กระปุก'],
+  WDS01:  ['ชุด', 'กล่อง'],
 }
 
 /* ---------------- Item mappings (local code -> master) ---------------- */
@@ -128,11 +142,13 @@ export const CONNECTOR_INBOX: Record<string, [string, string][]> = {
 }
 
 /* ---------------- Supply links (PCU -> hospital warehouse) ---------------- */
+/* The route is stored whole: the facility store that receives, the hospital
+   sub-store that picks, and the main store that owns both. */
 export const SEED_SUPPLY: SupplyLink[] = [
-  { org:'PCU01', wh:'WH-HOSP-01',  state:'ACTIVE' },
-  { org:'PCU02', wh:'WH-HOSP-01',  state:'ACTIVE' },
-  { org:'PCU03', wh:'WH-HOSP-01B', state:'PENDING_APPROVAL' },
-  { org:'PCU04', wh:'WH-HOSP-02',  state:'ACTIVE' },
+  { org:'PCU01', wh:'WH-HOSP-01',  state:'ACTIVE', localWh:'WH-PCU-01', subWh:'WH-HOSP-01-2' },
+  { org:'PCU02', wh:'WH-HOSP-01',  state:'ACTIVE', localWh:'WH-PCU-02', subWh:'WH-HOSP-01-2' },
+  { org:'PCU03', wh:'WH-HOSP-01B', state:'PENDING_APPROVAL', localWh:'WH-PCU-03', subWh:'WH-HOSP-01B-1' },
+  { org:'PCU04', wh:'WH-HOSP-02',  state:'ACTIVE', localWh:'WH-PCU-04', subWh:'WH-HOSP-02-1' },
 ]
 
 /* ---------------- Opening stock ---------------- */

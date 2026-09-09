@@ -241,6 +241,9 @@
 /* Facility cell: icon beside a two-line label. */
 .link-cell { display: flex; align-items: center; gap: 12px; min-width: 0; }
 .link-cell > div { min-width: 0; }
+/* The route selects claim most of the width; the facility keeps a floor so
+   its name — Thai, so it breaks mid-word — stays on one or two lines. */
+.link-body table th:first-child, .link-body table td:first-child { min-width: 210px; }
 .link-body .table-wrap { padding: 0; }
 
 /* ---- Account page ---- */
@@ -289,8 +292,10 @@
 .set-row--sub { padding-left: 20px; border-left: 2px solid var(--brand-200); margin-left: 2px; }
 
 /* Supply picker in the table: wide enough for a warehouse plus its owner. */
-.sel-supply { min-width: 240px; }
-@media (max-width: 720px) { .sel-supply { min-width: 260px; } }
+/* Three of these sit side by side on the supply route, so each is capped:
+   the trigger ellipses its value rather than widening the table. */
+.sel-supply { min-width: 190px; max-width: 230px; }
+@media (max-width: 720px) { .sel-supply { min-width: 220px; max-width: none; } }
 
 /* Linked-account row: the provider's mark, its status, and a way out to it. */
 .acct-linked {

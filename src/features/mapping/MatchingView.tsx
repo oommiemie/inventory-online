@@ -22,6 +22,7 @@ export function MatchingView() {
   const propose = useStore(s => s.proposeMapping)
   const proposeMany = useStore(s => s.proposeMappings)
   const pull = useStore(s => s.pullLocalItems)
+  const autoMap = useStore(s => s.autoMapItems)
 
   const r = ROLES[role]
   const canPropose = r.can.includes('map.propose')
@@ -139,9 +140,16 @@ export function MatchingView() {
               .map(s => <option key={s} value={s}>{t(`map.${s}`)} ({count(s)})</option>)}
           </HeroSelect>
         </>}
-        actions={canPropose
-          ? <HeroCta icon="refresh" onClick={() => pull(org)}>{t('mat.pull')}</HeroCta>
-          : undefined}
+        actions={canPropose ? <>
+          {/* Auto Mapping fills in the obvious matches; whatever it finds is
+              selected so the next click is the one that asks for approval. */}
+          <HeroCta variant="ghost" icon="wand"
+                   onClick={() => {
+                     const hit = autoMap(org)
+                     if (hit.length) { setPicked(new Set(hit)); setOpen(new Set(hit)) }
+                   }}>{t('mat.auto')}</HeroCta>
+          <HeroCta icon="refresh" onClick={() => pull(org)}>{t('mat.pull')}</HeroCta>
+        </> : undefined}
       />
 
       <Card className="fill-view">

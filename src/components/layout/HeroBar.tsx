@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom'
 import { useStore } from '@/app/store'
 import { ROLES, ORGS } from '@/data/seed'
 import { useT } from '@/hooks/useT'
-import { Icon, Combo } from '@/components/ui'
+import { Icon, Combo, type IconName } from '@/components/ui'
 import { asset } from '@/lib/asset'
 import { useMediaQuery } from '@/hooks/useMotion'
 import type { RoleId } from '@/types'
@@ -246,7 +246,7 @@ export function HeroSelect(
 /** White pill CTA for the blue hero bar. */
 export function HeroCta(
   { children, onClick, icon, variant = 'solid' }:
-  { children: ReactNode; onClick?: () => void; icon?: 'plus' | 'download' | 'refresh' | 'check' | 'logout'
+  { children: ReactNode; onClick?: () => void; icon?: IconName
     /** 'ghost' is the translucent secondary action beside a solid CTA. */
     variant?: 'solid' | 'ghost' },
 ) {
