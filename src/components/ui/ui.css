@@ -580,7 +580,7 @@ input[type="checkbox"]:disabled {
 /* On the blue hero the trigger keeps its pill; the painted chevron gives way
    to the icon the button already carries. */
 .combo.hero-select { background-image: none; padding: 0 14px 0 16px; }
-.combo.hero-select > svg { color: #fff; }
+.combo.hero-select > svg { color: var(--brand-600); }
 
 .combo-panel {
   position: fixed; z-index: var(--z-modal);

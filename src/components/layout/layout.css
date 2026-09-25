@@ -352,19 +352,26 @@
 
 /* Segmented control riding the blue hero: translucent white track, solid
    white thumb — the inverse of its light-background form. */
+/* Every translucent control on the hero shares one fill, one hairline and one
+   lift. At .18 over the blue they read as a tint of the gradient rather than
+   as controls. A .38 fill inside an almost-solid white edge, over a small
+   drop shadow, gives each one a boundary that survives the gradient, the
+   artwork behind it and every palette — without repainting the bar white. */
 .herobar .segmented {
   height: 44px; padding: 4px; align-items: stretch;
-  background: rgba(255,255,255,.18);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.18);
+  background: #fff; border: 1px solid #fff;
+  backdrop-filter: none; -webkit-backdrop-filter: none;
+  box-shadow: 0 2px 8px rgba(8,26,66,.24);
 }
 .herobar .segmented button {
-  color: rgba(255,255,255,.82);
+  color: var(--text-soft); font-weight: 650;
   display: inline-flex; align-items: center; padding: 0 18px;
 }
-.herobar .segmented button:hover { color: #fff; }
+.herobar .segmented button:hover { color: var(--brand-700, var(--brand-600)); }
+/* The chosen option is the one piece of brand colour in the row. */
 .herobar .segmented button[aria-pressed="true"] {
-  background: #fff; color: var(--brand-600);
-  box-shadow: 0 2px 8px rgba(8,26,66,.24);
+  background: var(--brand-600); color: #fff;
+  box-shadow: 0 1px 3px rgba(8,26,66,.28);
 }
 /* Three long labels do not fit a phone. The track scrolls sideways instead of
    squeezing its options into unreadable stubs; its own scrollbar is hidden
@@ -408,50 +415,48 @@
 .herobar-sub { margin-top: 8px; font-size: 14px; font-weight: 400; line-height: 18px; color: var(--brand-200); }
 .herobar .spacer { flex: 1; }
 
-/* Translucent white pills — Figma uses #FFFFFF at 20% */
+/* Solid white pills. Translucent white over the gradient kept reading as a
+   shade of the hero rather than as something to click, at every opacity worth
+   trying; paper-white with brand-coloured text is unmistakable, and the
+   primary CTA takes the inverse so it still leads. */
 .hero-search { position: relative; flex: 1 1 350px; max-width: 350px; min-width: 0; }
 .hero-search svg {
   position: absolute; left: 17px; top: 50%; transform: translateY(-50%);
-  width: 16px; height: 16px; color: #fff; pointer-events: none;
+  width: 16px; height: 16px; color: var(--brand-600); pointer-events: none;
   /* Sits above the input's backdrop-filter paint layer. */
   z-index: 1;
 }
 .hero-search input {
   width: 100%; height: 44px; padding: 0 18px 0 45px; font-weight: 500;
-  border-radius: 100px; border: 1px solid rgba(255,255,255,.22);
-  background: rgba(255,255,255,.18); color: #fff;
-  backdrop-filter: blur(12px) saturate(150%);
-  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  border-radius: 100px; border: 1px solid #fff;
+  background: #fff; color: var(--brand-900, var(--text));
   font-size: 14px; outline: none;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.18);
-  transition: background var(--dur-fast), border-color var(--dur-fast);
+  box-shadow: 0 2px 8px rgba(8,26,66,.24);
+  transition: box-shadow var(--dur-fast);
 }
-.hero-search input::placeholder { color: rgba(255,255,255,.9); }
-.hero-search input:hover  { background: rgba(255,255,255,.26); }
-.hero-search input:focus  { background: rgba(255,255,255,.3); }
+.hero-search input::placeholder { color: var(--n-500); }
+.hero-search input:hover { box-shadow: 0 3px 10px rgba(8,26,66,.28); }
+.hero-search input:focus { box-shadow: 0 0 0 3px rgba(255,255,255,.55), 0 3px 10px rgba(8,26,66,.28); }
 
 /* Field-shaped button that opens the Spotlight palette. */
 .hero-search--trigger {
   display: flex; align-items: center; gap: 12px;
   height: 44px; padding: 0 12px 0 45px; border-radius: 100px;
-  border: 1px solid rgba(255,255,255,.22);
-  background: rgba(255,255,255,.18);
-  backdrop-filter: blur(12px) saturate(150%);
-  -webkit-backdrop-filter: blur(12px) saturate(150%);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.18);
-  color: #fff; text-align: left; cursor: text;
+  border: 1px solid #fff; background: #fff;
+  box-shadow: 0 2px 8px rgba(8,26,66,.24);
+  color: var(--brand-900, var(--text)); text-align: left; cursor: text;
   transition: background var(--dur-fast), transform var(--press-dur) var(--press-ease);
 }
-.hero-search--trigger:hover  { background: rgba(255,255,255,.26); }
+.hero-search--trigger:hover  { box-shadow: 0 3px 10px rgba(8,26,66,.28); }
 .hero-search--trigger:active { transform: scale(.985); }
 .hero-search-text {
-  flex: 1; min-width: 0; font-size: 14px; font-weight: 500; color: rgba(255,255,255,.9);
+  flex: 1; min-width: 0; font-size: 14px; font-weight: 500; color: var(--n-500);
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .hero-search-kbd {
   flex: none; font-family: var(--font-num); font-size: 11px; line-height: 1;
   padding: 4px 8px; border-radius: 6px;
-  background: rgba(255,255,255,.2); color: #fff;
+  background: var(--n-100); color: var(--text-muted);
 }
 @media (max-width: 620px) { .hero-search-kbd { display: none; } }
 
@@ -479,19 +484,18 @@
 
 .hero-select {
   height: 44px; width: 192px; flex: none; padding: 0 40px 0 16px; border-radius: 100px;
-  border: 1px solid rgba(255,255,255,.22); background-color: rgba(255,255,255,.18);
-  backdrop-filter: blur(12px) saturate(150%);
-  -webkit-backdrop-filter: blur(12px) saturate(150%);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.18);
-  color: #fff; font-size: 14px; cursor: pointer; appearance: none; outline: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  border: 1px solid #fff; background-color: #fff;
+  box-shadow: 0 2px 8px rgba(8,26,66,.24);
+  color: var(--brand-900, var(--text)); font-size: 14px; font-weight: 600;
+  cursor: pointer; appearance: none; outline: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230447D8' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat; background-position: right 14px center; background-size: 16px;
   transition: background-color var(--dur-fast);
 }
 /* Page filters share the controls row with the 44px search field and CTA,
    so they match that height; the role switcher above stays 36px. */
 .hero-select--filter { height: 44px; }
-.hero-select:hover { background-color: rgba(255,255,255,.28); }
+.hero-select:hover { box-shadow: 0 3px 10px rgba(8,26,66,.28); }
 .hero-select option { color: var(--text); background: var(--surface-solid); }
 .hero-select--tall { height: 44px; }
 
@@ -501,9 +505,9 @@
   position: absolute; top: -3px; right: -3px;
   min-width: 18px; height: 18px; padding: 0 5px; border-radius: 100px;
   display: inline-flex; align-items: center; justify-content: center;
-  background: #fff; color: var(--brand-600);
+  background: var(--brand-600); color: #fff;
   font-style: normal; font-size: 10px; font-weight: 700; line-height: 1;
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--hero-g2, #1765DF) 85%, transparent);
+  box-shadow: 0 0 0 2px #fff;
 }
 .hero-filter-btn:active { transform: scale(.94); }
 
@@ -559,65 +563,49 @@
   display: inline-flex; align-items: center; gap: 10px;
   height: 44px; min-width: 144px; flex: none; justify-content: flex-start;
   padding: 0 18px 0 17px; border-radius: 100px;
-  background: rgba(255,255,255,.86);
-  backdrop-filter: blur(18px) saturate(190%);
-  -webkit-backdrop-filter: blur(18px) saturate(190%);
-  border: 1px solid rgba(255,255,255,.6);
-  color: var(--brand-600); font-size: 14px; font-weight: 600; white-space: nowrap;
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.75),
-    0 2px 6px rgba(8,26,66,.16),
-    0 10px 24px -8px rgba(8,26,66,.34);
+  /* Paper-white like every other control on the bar; the primary reads as
+     primary through its weight and lift, not through a second colour. */
+  background: #fff; border: 1px solid #fff;
+  color: var(--brand-700, var(--brand-600)); font-size: 14px; font-weight: 700;
+  white-space: nowrap;
+  box-shadow: 0 3px 10px rgba(8,26,66,.3);
   transition: background var(--dur-fast), transform var(--dur-fast), box-shadow var(--dur-fast);
 }
 /* Secondary action beside a solid CTA: translucent like the hero's other
    controls, and sized to its label rather than the CTA's fixed width. */
+/* Secondary action: the same paper as the fields, so only the primary CTA
+   carries brand colour. */
 .hero-cta--ghost {
   width: auto; padding: 0 18px 0 16px;
-  background: rgba(255,255,255,.18);
-  border-color: rgba(255,255,255,.22);
-  color: #fff;
-  backdrop-filter: blur(12px) saturate(150%);
-  -webkit-backdrop-filter: blur(12px) saturate(150%);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.18);
+  background: #fff; border-color: #fff; color: var(--brand-700, var(--brand-600));
+  font-weight: 600;
+  backdrop-filter: none; -webkit-backdrop-filter: none;
+  box-shadow: 0 2px 8px rgba(8,26,66,.24);
 }
 .hero-cta:hover {
-  background: rgba(255,255,255,.94);
+  background: #fff;
   transform: translateY(-1px);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.8),
-    0 3px 8px rgba(8,26,66,.18),
-    0 14px 30px -8px rgba(8,26,66,.4);
+  box-shadow: 0 5px 14px rgba(8,26,66,.34);
 }
-/* Declared after .hero-cta:hover so the ghost keeps its translucent fill
-   instead of being repainted white under its own white text. */
+/* Both CTAs are white now, so hover lifts rather than tints — a translucent
+   fill here washed the button out against the gradient behind it. */
 .hero-cta--ghost:hover {
-  background: rgba(255,255,255,.3);
-  border-color: rgba(255,255,255,.42);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.28);
+  background: #fff; border-color: #fff;
+  box-shadow: 0 4px 12px rgba(8,26,66,.32);
 }
 .hero-cta:active {
   transform: scale(.96);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.6),
-    0 1px 3px rgba(8,26,66,.2);
-}
-/* Fallback for browsers without backdrop-filter — stay legible. */
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .hero-cta { background: rgba(255,255,255,.92); }
+  box-shadow: 0 1px 3px rgba(8,26,66,.24);
 }
 
 .hero-icon-btn {
   width: 44px; height: 44px; flex: none; border-radius: 100px;
   display: grid; place-items: center; position: relative;
-  background: rgba(255,255,255,.18);
-  border: 1px solid rgba(255,255,255,.22); color: #fff;
-  backdrop-filter: blur(12px) saturate(150%);
-  -webkit-backdrop-filter: blur(12px) saturate(150%);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.18);
-  transition: background var(--dur-fast);
+  background: #fff; border: 1px solid #fff; color: var(--brand-700, var(--brand-600));
+  box-shadow: 0 2px 8px rgba(8,26,66,.24);
+  transition: box-shadow var(--dur-fast);
 }
-.hero-icon-btn:hover  { background: rgba(255,255,255,.3); }
+.hero-icon-btn:hover  { box-shadow: 0 3px 10px rgba(8,26,66,.3); }
 .hero-icon-btn:active { transform: scale(.9); }
 .hero-icon-btn .ping {
   position: absolute; top: 7px; right: 8px; width: 8px; height: 8px;

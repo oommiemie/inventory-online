@@ -70,6 +70,21 @@ export const reserved = (stock: StockRow[], wh: string, item: string) =>
 export const available = (stock: StockRow[], wh: string, item: string) =>
   onHand(stock, wh, item) - reserved(stock, wh, item)
 
+/** "dd/mm/yy" (or "dd/mm/yy hh:mm") with a two-digit Buddhist year -> Date. */
+export const dateOfBE = (s: string): Date => {
+  const [dd, mm, yy] = s.split(' ')[0].split('/').map(Number)
+  return new Date(2500 + yy - 543, mm - 1, dd)
+}
+
+/** Whole days from `from` until that expiry date; negative once it has passed. */
+export const daysToExpiry = (exp: string, from: Date): number =>
+  Math.ceil((dateOfBE(exp).getTime() - from.getTime()) / 86400000)
+
+/** Drugs and medical materials are counted separately on the stock screen;
+ *  the English category is the stable key, the Thai one is display text. */
+export const isDrug = (item: string): boolean =>
+  /drug|antibiotic|fluid/i.test(M(item).catEn)
+
 /** Sort key for a dd/mm/yy Buddhist-era expiry string. */
 const expKey = (exp: string) => {
   const [d, m, y] = exp.split('/')

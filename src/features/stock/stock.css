@@ -1,5 +1,86 @@
-.stock-top { display: grid; gap: var(--s-4); grid-template-columns: minmax(0,1.5fr) minmax(0,1fr); }
-@media (max-width: 1080px) { .stock-top { grid-template-columns: minmax(0,1fr); } }
+/* ---- Page layout ----------------------------------------------------
+   Items on the left, the rail on the right. Written out here rather than
+   reusing .detail-grid: those styles ship with the document components,
+   which this page never loads. */
+.view:has(> .stk-grid) { max-height: calc(100vh - 20px); }
+.stk-grid {
+  display: grid; gap: var(--s-4); align-items: stretch;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  flex: 1; min-height: 0;
+}
+.stk-grid > * { min-height: 0; }
+.stk-main { display: flex; flex-direction: column; min-height: 0; }
+/* The rail scrolls as one column, so both cards travel together. */
+.stk-side {
+  display: flex; flex-direction: column; gap: var(--s-4);
+  overflow-y: auto; padding-right: 4px; margin-right: -4px;
+}
+.stk-side > * { flex: none; }
+@media (max-width: 1080px) {
+  .view:has(> .stk-grid) { max-height: none; }
+  .stk-grid { grid-template-columns: minmax(0, 1fr); flex: none; }
+  .stk-side { overflow-y: visible; }
+  .stk-grid .glass.card.fill-view .table-wrap { overflow-y: visible; }
+}
+
+/* ---- Level one: a card per facility ---------------------------------
+   The whole card is the way in, so it is a button; the value is the figure
+   people come to this screen for and carries the weight. */
+.stk-cards {
+  display: grid; gap: var(--s-3);
+  grid-template-columns: repeat(auto-fill, minmax(248px, 1fr));
+}
+.stk-card {
+  display: grid; gap: 2px; text-align: left; padding: 14px 16px 14px;
+  border-radius: 14px; border: 1px solid var(--n-100);
+  /* White, with the faintest fall to the page tint at its foot — the same
+     card the dashboard's queue uses, so both grids read as one surface. */
+  background: linear-gradient(180deg,
+    var(--surface-solid) 0%,
+    color-mix(in srgb, var(--surface-sunken) 55%, var(--surface-solid)) 100%);
+  animation: fadeUp var(--dur-slow) var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * var(--stagger, 40ms));
+  transition: border-color var(--dur-fast), box-shadow var(--dur-fast), transform var(--dur-fast);
+}
+.stk-card:hover {
+  border-color: var(--brand-200);
+  box-shadow: 0 6px 18px -10px rgba(16,24,40,.22);
+}
+.stk-card:focus-visible { outline: 2px solid var(--brand-500); outline-offset: 2px; }
+.stk-card:active { transform: scale(.995); }
+[data-theme="dark"] .stk-card { border-color: var(--n-200); }
+/* The mark and the name share the card's first line. */
+.stk-card-head { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.stk-card-id { min-width: 0; }
+.stk-card-id b { display: block; font-size: var(--fs-sm); font-weight: 750; color: var(--text); }
+.stk-card-id small { display: block; font-size: var(--fs-2xs); color: var(--text-muted); }
+.stk-card-label { margin-top: 10px; font-size: var(--fs-2xs); color: var(--text-muted); }
+.stk-card > strong {
+  font-size: 26px; font-weight: 800; line-height: 1.15; color: var(--brand-800);
+  font-variant-numeric: tabular-nums;
+}
+[data-theme="dark"] .stk-card > strong { color: var(--text); }
+.stk-card-foot {
+  margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--glass-edge);
+  font-size: var(--fs-2xs); color: var(--text-muted);
+}
+
+/* Category mark in front of the item name. */
+.item-cell { display: flex; align-items: center; gap: 10px; min-width: 0; }
+/* 36/14 is the round icon the settings tables use; repeated here because that
+   rule ships with the settings page, which this one never loads. */
+.item-ico {
+  width: 36px; height: 36px; flex: none; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 14px; line-height: 1;
+  background: var(--tone-bg, var(--info-bg)); color: var(--tone, var(--info));
+}
+
+/* The unit rides its figure quietly: the number is what is being compared
+   down the column, the unit only says what it counts. */
+.stk-uom { font-size: var(--fs-2xs); font-weight: 600; color: var(--text-muted); }
+.cell-sub-inline { font-size: var(--fs-2xs); color: var(--text-muted); }
+.stk-table .cell-sub .chip { margin-left: 4px; }
 
 .wh-list { display: grid; gap: var(--s-2); }
 .wh-list li {
@@ -9,17 +90,43 @@
   transition: border-color var(--dur-fast), background var(--dur-fast);
 }
 .wh-list li:hover { border-color: var(--brand-200); background: var(--surface-raised); }
+.wh-list li:has(.wh-pick) { padding: 0; }
+/* The row is the control, so the button fills it rather than sitting inside. */
+.wh-pick {
+  display: flex; align-items: center; gap: var(--s-3); width: 100%;
+  padding: 11px 13px; border-radius: var(--r-md); text-align: left; background: transparent;
+}
+.wh-pick .chip { margin-left: auto; flex: none; }
+.wh-list li:has(.wh-pick.is-current) {
+  border-color: var(--brand-400);
+  background: color-mix(in srgb, var(--brand-500) 7%, transparent);
+}
 .wh-list b { display: block; font-size: var(--fs-sm); font-weight: 700; }
 .wh-list small { display: block; font-size: var(--fs-2xs); color: var(--text-muted); margin-top: 2px; }
 .wh-list .chip { margin-left: auto; flex: none; }
 
 .watch-list { display: grid; gap: var(--s-3); }
-.watch-list li { display: flex; align-items: center; gap: var(--s-3); }
+.watch-list { min-width: 0; }
+/* Grid items default to min-width:auto, so the row has to be told it may
+   shrink before its text column can ellipse. */
+.watch-list li { display: flex; align-items: center; gap: var(--s-3); min-width: 0; }
+/* The text column gives way, the figure never does: a long sub-line ellipses
+   instead of pushing the number off the card. */
+.watch-list li > div { flex: 1 1 auto; min-width: 0; }
 .watch-bar { width: 4px; align-self: stretch; min-height: 36px; border-radius: 3px; flex: none; background: var(--brand-500); }
 .watch-bar.danger { background: var(--danger); }
 .watch-bar.info   { background: var(--brand-500); }
 .watch-bar.teal   { background: var(--teal); }
+.watch-bar.amber  { background: var(--warn); }
 .watch-list b { display: block; font-size: var(--fs-sm); font-weight: 700; }
-.watch-list small { display: block; font-size: var(--fs-2xs); color: var(--text-muted); margin-top: 2px; }
-.watch-list strong { margin-left: auto; font-size: var(--fs-lg); font-weight: 800; color: var(--brand-800); }
+.watch-list small {
+  display: block; font-size: var(--fs-2xs); color: var(--text-muted); margin-top: 2px;
+  /* One line: the figure beside it is the point, and a wrapping list of
+     document numbers pushes the next metric out of view. */
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.watch-list strong {
+  flex: none; margin-left: auto; font-size: var(--fs-lg); font-weight: 800;
+  color: var(--brand-800);
+}
 [data-theme="dark"] .watch-list strong { color: var(--text); }
